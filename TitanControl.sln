@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.12021.73
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitanWebAPI", "..\WolfDen133\TitanWebAPI\TitanWebAPI\TitanWebAPI.csproj", "{20DF8DFC-7835-CF03-4744-03637D21F6EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitanControl", "TitanControl\TitanControl.csproj", "{190B7D60-C1EC-4BC1-90C5-CC41A7F6371A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{20DF8DFC-7835-CF03-4744-03637D21F6EF} = {20DF8DFC-7835-CF03-4744-03637D21F6EF}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20DF8DFC-7835-CF03-4744-03637D21F6EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20DF8DFC-7835-CF03-4744-03637D21F6EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20DF8DFC-7835-CF03-4744-03637D21F6EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20DF8DFC-7835-CF03-4744-03637D21F6EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{190B7D60-C1EC-4BC1-90C5-CC41A7F6371A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{190B7D60-C1EC-4BC1-90C5-CC41A7F6371A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{190B7D60-C1EC-4BC1-90C5-CC41A7F6371A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{190B7D60-C1EC-4BC1-90C5-CC41A7F6371A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BA8C0FA5-D75B-4EA2-95B2-9BCB63C6EA79}
+	EndGlobalSection
+EndGlobal
