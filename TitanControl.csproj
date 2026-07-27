@@ -1,0 +1,93 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Assets\Icons\add-post.png" />
+    <None Remove="Assets\Icons\add.png" />
+    <None Remove="Assets\Icons\add.svg" />
+    <None Remove="Assets\Icons\arrow.png" />
+    <None Remove="Assets\Icons\button.png" />
+    <None Remove="Assets\Icons\circle.png" />
+    <None Remove="Assets\Icons\cogs.png" />
+    <None Remove="Assets\Icons\colorpicker.png" />
+    <None Remove="Assets\Icons\computer-window.png" />
+    <None Remove="Assets\Icons\copy.png" />
+    <None Remove="Assets\Icons\dots.png" />
+    <None Remove="Assets\Icons\downloads.png" />
+    <None Remove="Assets\Icons\fader.png" />
+    <None Remove="Assets\Icons\floppy-disk.png" />
+    <None Remove="Assets\Icons\folder.svg" />
+    <None Remove="Assets\Icons\fullscreen.png" />
+    <None Remove="Assets\Icons\gear.png" />
+    <None Remove="Assets\Icons\icon.png" />
+    <None Remove="Assets\Icons\knob.png" />
+    <None Remove="Assets\Icons\laptop.png" />
+    <None Remove="Assets\Icons\move.png" />
+    <None Remove="Assets\Icons\properties.png" />
+    <None Remove="Assets\Icons\pulse.svg" />
+    <None Remove="Assets\Icons\remove.png" />
+    <None Remove="Assets\Icons\rename.png" />
+    <None Remove="Assets\Icons\save-as.png" />
+    <None Remove="Assets\Icons\trigger.png" />
+    <None Remove="Assets\Icons\upload.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Icons\add-post.png" />
+    <AvaloniaResource Include="Assets\Icons\add.png" />
+    <AvaloniaResource Include="Assets\Icons\add.svg" />
+    <AvaloniaResource Include="Assets\Icons\arrow.png" />
+    <AvaloniaResource Include="Assets\Icons\button.png" />
+    <AvaloniaResource Include="Assets\Icons\circle.png" />
+    <AvaloniaResource Include="Assets\Icons\cogs.png" />
+    <AvaloniaResource Include="Assets\Icons\colorpicker.png" />
+    <AvaloniaResource Include="Assets\Icons\computer-window.png" />
+    <AvaloniaResource Include="Assets\Icons\copy.png" />
+    <AvaloniaResource Include="Assets\Icons\dots.png" />
+    <AvaloniaResource Include="Assets\Icons\downloads.png" />
+    <AvaloniaResource Include="Assets\Icons\fader.png" />
+    <AvaloniaResource Include="Assets\Icons\floppy-disk.png" />
+    <AvaloniaResource Include="Assets\Icons\folder.svg" />
+    <AvaloniaResource Include="Assets\Icons\fullscreen.png" />
+    <AvaloniaResource Include="Assets\Icons\gear.png" />
+    <AvaloniaResource Include="Assets\Icons\icon.png" />
+    <AvaloniaResource Include="Assets\Icons\knob.png" />
+    <AvaloniaResource Include="Assets\Icons\laptop.png" />
+    <AvaloniaResource Include="Assets\Icons\move.png" />
+    <AvaloniaResource Include="Assets\Icons\properties.png" />
+    <AvaloniaResource Include="Assets\Icons\pulse.svg" />
+    <AvaloniaResource Include="Assets\Icons\remove.png" />
+    <AvaloniaResource Include="Assets\Icons\rename.png" />
+    <AvaloniaResource Include="Assets\Icons\save-as.png" />
+    <AvaloniaResource Include="Assets\Icons\trigger.png" />
+    <AvaloniaResource Include="Assets\Icons\upload.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.13" />
+    <PackageReference Include="UUID" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controls\Menu\" />
+    <Folder Include="Controls\Handle\" />
+    <Folder Include="Controls\Toolbar\Buttons\Context\" />
+    <Folder Include="Controls\Toolbar\Buttons\System\" />
+    <Folder Include="ViewModels\Control\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WolfDen133\TitanWebAPI\TitanWebAPI\TitanWebAPI.csproj" />
+  </ItemGroup>
+</Project>

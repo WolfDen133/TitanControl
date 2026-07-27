@@ -1,0 +1,28 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.PreviewWith>
+    <Border Padding="20">
+        <StackPanel>
+            <TextBlock Text="Title" Classes="title"/>
+            <TextBlock Text="Subtitle" Classes="subtitle"/>
+            <TextBlock Text="Body"/>
+        </StackPanel>
+        
+    </Border>
+  </Design.PreviewWith>
+
+    <Style Selector="TextBlock">
+        <Setter Property="FontFamily" Value="fonts:Inter#Inter"/>
+        <Setter Property="FontSize" Value="8"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="24"/>
+    </Style>
+    <Style Selector="TextBlock.subtitle">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="10"/>
+    </Style>
+</Styles>

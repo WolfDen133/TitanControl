@@ -1,0 +1,8 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <FontFamily x:Key="Font-R">resm:TitanControl.Assets.Fonts#Dubai-Regular</FontFamily>
+    <FontFamily x:Key="Font-M">resm:TitanControl.Assets.Fonts#Dubai-Medium</FontFamily>
+    <FontFamily x:Key="Font-L">resm:TitanControl.Assets.Fonts#Dubai-Light</FontFamily>
+    <FontFamily x:Key="Font-H">resm:TitanControl.Assets.Fonts#Dubai-Bold</FontFamily>
+
+</ResourceDictionary>
