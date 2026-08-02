@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "lastSessionId": {
+      "type": "string"
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ipAddress": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 4,
+            "minItems": 4
+          },
+          "port": {
+            "type": "integer"
+          },
+          "portInteractive": {
+            "type": "integer"
+          },
+          "useInteractive": {
+            "type": "boolean"
+          }
+        },
+        "required": [ "sessionId", "name", "ipAddress", "portNormal", "portInteractive", "useInteractive" ]
+      }
+    }
+  },
+  "required": ["lastSessionId"]
+}

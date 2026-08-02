@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "workspaceId": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer"
+    },
+    "lastModified": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string"
+        },
+        "gridSize": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "maxItems": 2,
+            "minItems": 2
+          }
+        }
+      },
+      "required": [ "session", "gridSize" ]
+    },
+    "controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "fader",
+              "button",
+              "colorPicker"
+            ]
+          },
+          "location": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "maxItems": 4,
+              "minItems": 4
+            }
+          },
+          "titanId": {
+            "type": "integer"
+          },
+          "handleType": {
+            "type": "string",
+            "enum": [
+              "fixtureHandle",
+              "groupHandle",
+              "cueHandle",
+              "cueListHandle",
+              "chaseHandle",
+              "trackHandle",
+              "paletteHandle",
+              "macroHandle",
+              "masterHandle",
+              "abMasterHandle",
+              "rateMasterHandle",
+              "playbackGroupHandle"
+            ]
+          },
+          "keyProfile": {
+            "type": "string",
+            "enum": [
+              "Latch",
+              "Flash",
+              "TimedFlash",
+              "Go",
+              "GoBack",
+              "Release",
+              "TapTempo"
+            ]
+          }
+        },
+        "required": [ "controlId", "location", "titanId", "handleType", "keyProfile" ]
+      }
+    }
+  },
+  "required": ["workspaceId", "name", "lastModified", "settings"]
+}

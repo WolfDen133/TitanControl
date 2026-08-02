@@ -1,0 +1,132 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <!-- ========================= -->
+<!-- Background -->
+<!-- ========================= -->
+
+<Color x:Key="BackgroundDD">#0e1214</Color>
+<Color x:Key="BackgroundD">#111617</Color>
+<Color x:Key="Background">#14191c</Color>
+<Color x:Key="BackgroundL">#1b2023</Color>
+<Color x:Key="BackgroundLL">#242a30</Color>
+<Color x:Key="ButtonBackground">#39434E</Color>
+<Color x:Key="ButtonBackgroundHover">#465463</Color>
+<Color x:Key="ButtonBackgroundPressed">#55687A</Color>
+
+<SolidColorBrush x:Key="BackgroundDDBrush" Color="{DynamicResource BackgroundDD}" />
+<SolidColorBrush x:Key="BackgroundDBrush" Color="{DynamicResource BackgroundD}" />
+<SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource Background}" />
+<SolidColorBrush x:Key="BackgroundLBrush" Color="{DynamicResource BackgroundL}" />
+<SolidColorBrush x:Key="BackgroundLLBrush" Color="{DynamicResource BackgroundLL}" />
+<SolidColorBrush x:Key="ButtonBackgroundBrush" Color="{DynamicResource ButtonBackground}" />
+<SolidColorBrush x:Key="ButtonBackgroundHoverBrush" Color="{DynamicResource ButtonBackgroundHover}" />
+<SolidColorBrush x:Key="ButtonBackgroundPressedBrush" Color="{DynamicResource ButtonBackgroundPressed}" />
+
+<!-- ========================= -->
+<!-- Foreground -->
+<!-- ========================= -->
+
+<Color x:Key="Foreground">#F5F7FA</Color>
+<Color x:Key="ForegroundSecondary">#C8D0D8</Color>
+<Color x:Key="ForegroundDisabled">#7E8792</Color>
+<Color x:Key="ForegroundPlaceholder">#5D6772</Color>
+
+<SolidColorBrush x:Key="ForegroundBrush" Color="{DynamicResource Foreground}" />
+<SolidColorBrush x:Key="ForegroundSecondaryBrush" Color="{DynamicResource ForegroundSecondary}" />
+<SolidColorBrush x:Key="ForegroundDisabledBrush" Color="{DynamicResource ForegroundDisabled}" />
+<SolidColorBrush x:Key="ForegroundPlaceholderBrush" Color="{DynamicResource ForegroundPlaceholder}" />
+
+<!-- ========================= -->
+<!-- Accent -->
+<!-- ========================= -->
+
+<Color x:Key="AccentColorD">#285EBF</Color>
+<Color x:Key="AccentColor">#3B82F6</Color>
+<Color x:Key="AccentColorL">#5D9EFF</Color>
+<Color x:Key="AccentColorLL">#8BBEFF</Color>
+
+<SolidColorBrush x:Key="AccentDBrush" Color="{DynamicResource AccentColorD}" />
+<SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}" />
+<SolidColorBrush x:Key="AccentLBrush" Color="{DynamicResource AccentColorL}" />
+<SolidColorBrush x:Key="AccentLLBrush" Color="{DynamicResource AccentColorLL}" />
+
+<!-- ========================= -->
+<!-- Borders -->
+<!-- ========================= -->
+
+<Color x:Key="BorderSubtle">#343B44</Color>
+<Color x:Key="Border">#4A5562</Color>
+<Color x:Key="BorderFocus">#3B82F6</Color>
+<Color x:Key="Divider">#2B3138</Color>
+
+<SolidColorBrush x:Key="BorderSubtleBrush" Color="{DynamicResource BorderSubtle}" />
+<SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource Border}" />
+<SolidColorBrush x:Key="BorderFocusBrush" Color="{DynamicResource BorderFocus}" />
+<SolidColorBrush x:Key="DividerBrush" Color="{DynamicResource Divider}" />
+
+<!-- ========================= -->
+<!-- Success -->
+<!-- ========================= -->
+
+<Color x:Key="SuccessColorD">#0F6D3E</Color>
+<Color x:Key="SuccessColor">#1FA463</Color>
+<Color x:Key="SuccessColorL">#55D08A</Color>
+
+<SolidColorBrush x:Key="SuccessDBrush" Color="{DynamicResource SuccessColorD}" />
+<SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource SuccessColor}" />
+<SolidColorBrush x:Key="SuccessLBrush" Color="{DynamicResource SuccessColorL}" />
+
+<!-- ========================= -->
+<!-- Warning -->
+<!-- ========================= -->
+
+<Color x:Key="WarningColorD">#A56900</Color>
+<Color x:Key="WarningColor">#F4A000</Color>
+<Color x:Key="WarningColorL">#FFC14A</Color>
+
+<SolidColorBrush x:Key="WarningDBrush" Color="{DynamicResource WarningColorD}" />
+<SolidColorBrush x:Key="WarningBrush" Color="{DynamicResource WarningColor}" />
+<SolidColorBrush x:Key="WarningLBrush" Color="{DynamicResource WarningColorL}" />
+
+<!-- ========================= -->
+<!-- Danger -->
+<!-- ========================= -->
+
+<Color x:Key="DangerColorD">#A1272D</Color>
+<Color x:Key="DangerColor">#E5484D</Color>
+<Color x:Key="DangerColorL">#FF7A80</Color>
+
+<SolidColorBrush x:Key="DangerDBrush" Color="{DynamicResource DangerColorD}" />
+<SolidColorBrush x:Key="DangerBrush" Color="{DynamicResource DangerColor}" />
+<SolidColorBrush x:Key="DangerLBrush" Color="{DynamicResource DangerColorL}" />
+
+<!-- ========================= -->
+<!-- Selection -->
+<!-- ========================= -->
+
+<Color x:Key="SelectionColor">#294E87</Color>
+<Color x:Key="SelectionColorL">#3564AA</Color>
+<Color x:Key="SelectionFocus">#68A8FF</Color>
+<Color x:Key="SelectionTranslucent">#7f68A8FF</Color>
+
+
+<SolidColorBrush x:Key="SelectionBrush" Color="{DynamicResource SelectionColor}" />
+<SolidColorBrush x:Key="SelectionLBrush" Color="{DynamicResource SelectionColorL}" />
+<SolidColorBrush x:Key="SelectionFocusBrush" Color="{DynamicResource SelectionFocus}" />
+<SolidColorBrush x:Key="SelectionTranslucentBrush" Color="{DynamicResource SelectionTranslucent}"/>
+<!-- ========================= -->
+<!-- Shadows -->
+<!-- ========================= -->
+
+<Color x:Key="ShadowSoft">#33000000</Color>
+<Color x:Key="ShadowMedium">#55000000</Color>
+<Color x:Key="ShadowHeavy">#88000000</Color>
+
+<SolidColorBrush x:Key="ShadowSoftBrush" Color="{DynamicResource ShadowSoft}" />
+<SolidColorBrush x:Key="ShadowMediumBrush" Color="{DynamicResource ShadowMedium}" />
+<SolidColorBrush x:Key="ShadowHeavyBrush" Color="{DynamicResource ShadowHeavy}" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

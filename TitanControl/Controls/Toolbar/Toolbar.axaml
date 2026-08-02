@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:TitanControl.Controls.Models"
+             xmlns:toolbar="using:TitanControl.Controls.Toolbar"
+             d:DesignWidth="1920"
+             mc:Ignorable="d" MaxHeight="140" Height="115" MinHeight="110"
+             x:DataType="models:ToolbarModel"
+             ClipToBounds="False"
+             Classes="drop-l"
+             x:Class="TitanControl.Toolbar">
+    <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="0, 0, 0, 2" Padding="2" CornerRadius="6">
+        <Grid x:Name="PART_Grid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <toolbar:ContextToolstrip/>
+            <Border Padding="4" ClipToBounds="False" Grid.Column="1">
+                <toolbar:InfoPane x:Name="PART_InfoPane" ClipToBounds="False" Classes="drop-l"/>
+            </Border>
+            <toolbar:SystemToolstrip Grid.Column="3"/>
+        </Grid>
+    </Border>
+</UserControl>

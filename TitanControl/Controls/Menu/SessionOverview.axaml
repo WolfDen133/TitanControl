@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:TitanControl.Controls.Menu"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400"
+             Height="120"
+             x:DataType="local:SessionOverview"
+             Classes="drop-m"
+             CornerRadius="5"
+             BorderBrush="{DynamicResource BorderSubtleBrush}"
+             Background="{DynamicResource BackgroundDBrush}"
+             BorderThickness="1 1 1 1"
+             x:Class="TitanControl.Controls.Menu.SessionOverview">
+    <UserControl.Styles>
+        <Style Selector="Svg">
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+        <Style Selector="TextBlock">
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="IsHitTestVisible" Value="true"/>
+        </Style>
+    </UserControl.Styles>
+        <Border BorderBrush="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}}" BorderThickness="2 0 0 0" Padding="10" CornerRadius="5">
+            <Grid ColumnDefinitions="0.3*, 0.7*, 1.3*, Auto" RowDefinitions="2*, *, *, *, 2*"  RowSpacing="5">
+
+                <Grid VerticalAlignment="Center" Margin="0 0 0 0">
+                    <Ellipse HorizontalAlignment="Center" Width="32" Height="32" Stroke="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.8}" StrokeThickness="1" Fill="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.2}"/>
+                    <Svg HorizontalAlignment="Center" Path="/Assets/Icons/server.svg" Width="18" CurrentColor="{DynamicResource Foreground}" VerticalAlignment="Center"/>
+                </Grid>
+
+                <TextBlock VerticalAlignment="Center" Foreground="{DynamicResource ForegroundBrush}" Grid.Column="1" Grid.ColumnSpan="2" Classes="h2" Text="{Binding SessionName, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" Margin="10 0"/>
+
+                <StackPanel Spacing="3" Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
+                    <Svg Width="12" Path="/Assets/Icons/target.svg" CurrentColor="{DynamicResource ForegroundDisabled}"/>
+                    <TextBlock Text="IP Address" Foreground="{DynamicResource ForegroundDisabled}" Classes="header" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Spacing="3" Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
+                    <Svg Width="12" Path="/Assets/Icons/ports.svg" CurrentColor="{DynamicResource ForegroundDisabled}"/>
+                    <TextBlock Text="Ports" Foreground="{DynamicResource ForegroundDisabled}" Classes="header" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Spacing="3" Orientation="Horizontal" Grid.Column="1" Grid.Row="3">
+                    <Svg Width="12" Path="/Assets/Icons/host.svg" CurrentColor="{DynamicResource ForegroundDisabled}"/>
+                    <TextBlock Text="Computer" Foreground="{DynamicResource ForegroundDisabled}" Classes="header" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundBrush}" Grid.Row="1" Classes="context" Grid.Column="2" Text="{Binding IpAddress, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" VerticalAlignment="Center" Margin="10 0"/>
+                <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundBrush}" Grid.Row="2" Classes="context" Grid.Column="2" Text="{Binding PortsString, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" VerticalAlignment="Center" Margin="10 0"/>
+                <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ForegroundBrush}" Grid.Row="3" Classes="context" Grid.Column="2" Text="{Binding Host, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" VerticalAlignment="Center" Margin="10 0"/>
+
+                <Border Grid.Column="3" BorderBrush="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.5}" BorderThickness="1" CornerRadius="4" Padding="5">
+                    <StackPanel Spacing="5" Orientation="Horizontal">
+                        <Ellipse Width="10" Height="10" Fill="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}}" VerticalAlignment="Center"/>
+                        <TextBlock Classes="context" Foreground="{DynamicResource ForegroundBrush}" Text="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Button HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3" Grid.Row="1" Grid.RowSpan="3" BorderBrush="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.5}" BorderThickness="1" CornerRadius="4" Padding="5">
+                    <StackPanel Spacing="6" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Svg Path="/Assets/Icons/edit.svg" Width="18" CurrentColor="{DynamicResource Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Foreground="{DynamicResource ForegroundBrush}" Grid.Row="1" Classes="value" Grid.Column="2" Text="Edit" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="4" Grid.ColumnSpan="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.5}" BorderThickness="1" CornerRadius="4">
+                    <Grid>
+                        <StackPanel Spacing="6" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Disconnected, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}">
+                            <StackPanel.Styles>
+                                <Style Selector="Svg">
+                                    <Setter Property="Width" Value="18"/>
+                                    <Setter Property="CurrentColor" Value="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToColorConverter}}"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </StackPanel.Styles>
+
+                            <Svg Height="18" IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Disconnected, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" Path="/Assets/Icons/connect.svg"/>
+                            <Svg Height="18" IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Connected, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" Path="/Assets/Icons/disconnect.svg"/>
+                            <Svg Height="18" IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Disconnected, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" Path="/Assets/Icons/connect.svg"/>
+                            <Svg Height="18" IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Connected, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" Path="/Assets/Icons/disconnect.svg"/>
+
+                            <TextBlock Classes="value" Foreground="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}}" Grid.Row="1" Grid.Column="2" Text="{Binding ButtonText, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+            </Grid>
+        </Border>
+</UserControl>

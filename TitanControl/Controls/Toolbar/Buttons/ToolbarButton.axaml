@@ -1,0 +1,49 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:TitanControl.Controls.Toolbar.Buttons"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:svg="using:TitanControl.Controls.Common"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="200" Margin="2"
+             Width="{Binding Bounds.Height, RelativeSource={RelativeSource Self}}"
+             x:DataType="local:ToolbarButton"
+             FlowDirection="LeftToRight"
+             x:Class="TitanControl.Controls.Toolbar.Buttons.ToolbarButton" ClipToBounds="False" Classes="drop-m"> 
+            <UserControl.Styles>
+                <Style Selector="Border">
+                    <Setter Property="Transitions">
+                        <Transitions>
+                            <BrushTransition Property="Background"
+                                             Duration="0:0:0.25">
+                                <BrushTransition.Easing>
+                                    <CubicEaseOut/>
+                                </BrushTransition.Easing>
+                            </BrushTransition>
+
+                            <BrushTransition Property="BorderBrush"
+                                             Duration="0:0:0.25">
+                                <BrushTransition.Easing>
+                                    <CubicEaseOut/>
+                                </BrushTransition.Easing>
+                            </BrushTransition>
+                        </Transitions>
+                    </Setter>
+                </Style>
+            </UserControl.Styles>
+        
+    <Border x:Name="ButtonBorder" Background="{DynamicResource BackgroundLBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2" CornerRadius="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svg:TwoToneSvg x:Name="ButtonSvg" PrimaryColor="{DynamicResource ForegroundSecondary}" SecondaryColor="{DynamicResource AccentColorD}" Grid.Row="0" Margin="5"/>
+            <Image x:Name="ButtonImage" Grid.Row="0" Margin="8"/>
+            <Viewbox Height="27" VerticalAlignment="Bottom" Grid.Row="1" Margin="3">
+                <Border>
+                    <Label x:Name="TextLabel" HorizontalContentAlignment="Center" Foreground="{DynamicResource Foreground}" Content="Test" VerticalContentAlignment="Center" FontSize="16"/>
+                </Border>
+            </Viewbox>
+        </Grid>
+    </Border>
+</UserControl>

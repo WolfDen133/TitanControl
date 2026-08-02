@@ -1,0 +1,675 @@
+﻿
+using global::TitanControl.Disk.Model.Session;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using TitanControl.Logging;
+
+namespace TitanControl.Session.Utils
+{
+    /// <summary>
+    /// Continuously scans the subnet associated with a selected local
+    /// network interface for Titan WebAPI endpoints.
+    /// </summary>
+    public sealed class SessionScanner : IAsyncDisposable
+    {
+        public const int NormalPort = 4430;
+        public const int InteractivePort = 4431;
+
+        private readonly IPAddress _localInterfaceAddress;
+        private readonly IPAddress _subnetMask;
+        private readonly TimeSpan _scanDuration;
+        private readonly TimeSpan _connectionTimeout;
+        private readonly TimeSpan _delayBetweenScans;
+        private readonly int _maximumConcurrency;
+        private readonly bool _useHttps;
+
+        private long _addressesScanned;
+        private long _connectionsAttempted;
+        private long _sessionsFound;
+        private long _timeouts;
+        private long _socketFailures;
+
+        private readonly ObservableCollection<SessionModel> _results = new();
+        private readonly ReadOnlyObservableCollection<SessionModel> _readOnlyResults;
+
+        private readonly ConcurrentDictionary<string, SessionModel> _knownSessions =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        private readonly SynchronizationContext? _synchronizationContext;
+        private readonly SemaphoreSlim _runLock = new(1, 1);
+
+        private CancellationTokenSource? _scannerCancellation;
+        private Task? _scannerTask;
+        private bool _disposed;
+
+        /// <summary>
+        /// Gets the discovered Titan sessions.
+        /// </summary>
+        public ReadOnlyObservableCollection<SessionModel> Results =>
+            _readOnlyResults;
+
+        /// <summary>
+        /// Gets whether this scanner instance is currently running.
+        /// </summary>
+        public bool IsRunning =>
+            _scannerTask is { IsCompleted: false };
+
+        /// <summary>
+        /// Gets the IPv4 address of the network interface used by this scanner.
+        /// </summary>
+        public IPAddress LocalInterfaceAddress =>
+            _localInterfaceAddress;
+
+        /// <summary>
+        /// Creates a scanner for the subnet associated with the supplied
+        /// local IPv4 interface address.
+        /// </summary>
+        /// <param name="localInterfaceAddress">
+        /// An IPv4 address assigned to the NIC that should be used.
+        /// </param>
+        /// <param name="scanDuration">
+        /// Maximum amount of time the scanner should run.
+        /// </param>
+        /// <param name="connectionTimeout">
+        /// Maximum time allowed for each individual port connection.
+        /// </param>
+        /// <param name="delayBetweenScans">
+        /// Delay between completed subnet scan passes.
+        /// </param>
+        /// <param name="maximumConcurrency">
+        /// Maximum number of simultaneous connection attempts.
+        /// </param>
+        /// <param name="useHttps">
+        /// Value assigned to discovered SessionModel objects.
+        /// </param>
+        public SessionScanner(
+            IPAddress localInterfaceAddress,
+            TimeSpan scanDuration,
+            TimeSpan? connectionTimeout = null,
+            TimeSpan? delayBetweenScans = null,
+            int maximumConcurrency = 64,
+            bool useHttps = false)
+        {
+            ArgumentNullException.ThrowIfNull(localInterfaceAddress);
+
+            if (localInterfaceAddress.AddressFamily != AddressFamily.InterNetwork)
+            {
+                throw new ArgumentException(
+                    "Only IPv4 network interfaces are currently supported.",
+                    nameof(localInterfaceAddress));
+            }
+
+            if (scanDuration <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(scanDuration),
+                    "The scan duration must be greater than zero.");
+            }
+
+            if (maximumConcurrency <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(maximumConcurrency),
+                    "Maximum concurrency must be greater than zero.");
+            }
+
+            _connectionTimeout =
+                connectionTimeout ?? TimeSpan.FromMilliseconds(500);
+
+            if (_connectionTimeout <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(connectionTimeout),
+                    "The connection timeout must be greater than zero.");
+            }
+
+            _delayBetweenScans =
+                delayBetweenScans ?? TimeSpan.FromSeconds(1);
+
+            if (_delayBetweenScans < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(delayBetweenScans),
+                    "The delay between scans cannot be negative.");
+            }
+
+            _localInterfaceAddress = localInterfaceAddress;
+            _subnetMask = FindSubnetMask(localInterfaceAddress);
+            _scanDuration = scanDuration;
+            _maximumConcurrency = maximumConcurrency;
+            _useHttps = useHttps;
+
+            // Construct the scanner on the UI thread when Results will be
+            // bound to UI controls.
+            _synchronizationContext = SynchronizationContext.Current;
+
+            _readOnlyResults =
+                new ReadOnlyObservableCollection<SessionModel>(_results);
+
+            Log.Debug(
+                $"Created session scanner on {_localInterfaceAddress}.",
+                "SessionScanner",
+                new Dictionary<string, object?>
+                {
+                    ["SubnetMask"] = _subnetMask,
+                    ["ScanDuration"] = _scanDuration,
+                    ["ConnectionTimeout"] = _connectionTimeout,
+                    ["MaximumConcurrency"] = _maximumConcurrency,
+                    ["Https"] = _useHttps
+                });
+        }
+
+        /// <summary>
+        /// Starts scanning and completes when the configured duration expires,
+        /// Stop() is called, or the supplied cancellation token is cancelled.
+        /// </summary>
+        public async Task StartAsync(
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfDisposed();
+
+            await _runLock
+                .WaitAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            try
+            {
+                if (_scannerTask is { IsCompleted: false })
+                {
+                    Log.Warning(
+                        "Attempted to start an already running scanner.",
+                        "SessionScanner");
+
+                    throw new InvalidOperationException(
+                        "This network scanner is already running.");
+                }
+
+                _scannerCancellation?.Dispose();
+
+                _scannerCancellation =
+                    CancellationTokenSource.CreateLinkedTokenSource(
+                        cancellationToken);
+                Log.Information(
+                    "Starting automatic session discovery.",
+                    "SessionScanner",
+                    new Dictionary<string, object?>
+                    {
+                        ["Interface"] = _localInterfaceAddress,
+                        ["ScanDuration"] = _scanDuration,
+                        ["Concurrency"] = _maximumConcurrency
+                    });
+
+                _scannerCancellation.CancelAfter(_scanDuration);
+
+                _scannerTask = ScanLoopAsync(
+                    _scannerCancellation.Token);
+            }
+            finally
+            {
+                _runLock.Release();
+            }
+
+            try
+            {
+                await _scannerTask.ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+                when (_scannerCancellation?.IsCancellationRequested == true)
+            {
+                Log.Information(
+                    "Automatic session discovery stopped.",
+                    "SessionScanner");
+            }
+
+
+        }
+
+        /// <summary>
+        /// Requests that the current scan stop.
+        /// </summary>
+        public void Stop()
+        {
+            ThrowIfDisposed();
+            _scannerCancellation?.Cancel();
+            Log.Information(
+                "Stopping session discovery.",
+                "SessionScanner");
+        }
+
+        /// <summary>
+        /// Removes all discovered sessions.
+        /// </summary>
+        public async Task ClearResultsAsync()
+        {
+            ThrowIfDisposed();
+
+            _knownSessions.Clear();
+
+            await RunOnCapturedContextAsync(
+                    _results.Clear)
+                .ConfigureAwait(false);
+        }
+
+        private async Task ScanLoopAsync(
+            CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                Log.Debug(
+                    "Beginning subnet scan.",
+                    "SessionScanner");
+
+                await ScanSubnetOnceAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                Log.Debug(
+                   $"Subnet scan complete. {_results.Count} sessions discovered.",
+                   "SessionScanner");
+
+                if (_delayBetweenScans == TimeSpan.Zero)
+                    continue;
+
+                try
+                {
+                    await Task.Delay(
+                            _delayBetweenScans,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                    when (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+            }
+        }
+
+        private async Task ScanSubnetOnceAsync(
+            CancellationToken cancellationToken)
+        {
+            var options = new ParallelOptions
+            {
+                CancellationToken = cancellationToken,
+                MaxDegreeOfParallelism = _maximumConcurrency
+            };
+
+            await Parallel.ForEachAsync(
+                    EnumerateSubnetAddresses(
+                        _localInterfaceAddress,
+                        _subnetMask),
+                    options,
+                    async (address, token) =>
+                    {
+                        await ScanAddressAsync(address, token)
+                            .ConfigureAwait(false);
+                    })
+                .ConfigureAwait(false);
+        }
+
+        private async Task ScanAddressAsync(
+            IPAddress address,
+            CancellationToken cancellationToken)
+        {
+            string key = address.ToString();
+
+            /*
+             * Previously discovered endpoints remain in the collection.
+             * If interactive mode was unavailable on the first pass,
+             * port 4431 is checked again on later passes.
+             */
+            if (_knownSessions.TryGetValue(
+                    key,
+                    out SessionModel? knownSession))
+            {
+                if (knownSession.PortInteractive == -1)
+                {
+                    bool interactiveAvailable =
+                        await IsPortOpenAsync(
+                                address,
+                                InteractivePort,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+
+                    if (interactiveAvailable)
+                    {
+                        await UpdateInteractivePortAsync(
+                                address,
+                                InteractivePort)
+                            .ConfigureAwait(false);
+                    }
+                }
+
+                return;
+            }
+
+            bool normalPortAvailable =
+                await IsPortOpenAsync(
+                        address,
+                        NormalPort,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (!normalPortAvailable)
+                return;
+
+            bool interactivePortAvailable =
+                await IsPortOpenAsync(
+                        address,
+                        InteractivePort,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+            var session = new SessionModel
+            {
+                ID = Guid.NewGuid(),
+                Name = address.ToString(),
+                IPAddress = address,
+                Port = NormalPort,
+                PortInteractive = interactivePortAvailable
+                    ? InteractivePort
+                    : -1,
+                UseHttps = _useHttps
+            };
+
+            if (!_knownSessions.TryAdd(key, session))
+                return;
+
+            Log.Information(
+                $"Discovered Titan session {address}.",
+                "SessionScanner",
+                new Dictionary<string, object?>
+                {
+                    ["IPAddress"] = address,
+                    ["NormalPort"] = NormalPort,
+                    ["Interactive"] = interactivePortAvailable
+                });
+
+            await RunOnCapturedContextAsync(() =>
+            {
+                _results.Add(session);
+                
+            }).ConfigureAwait(false);
+        }
+
+        private async Task<bool> IsPortOpenAsync(
+            IPAddress remoteAddress,
+            int port,
+            CancellationToken cancellationToken)
+        {
+            using var timeoutCancellation =
+                CancellationTokenSource.CreateLinkedTokenSource(
+                    cancellationToken);
+
+            timeoutCancellation.CancelAfter(_connectionTimeout);
+
+            using var client = new TcpClient(
+                AddressFamily.InterNetwork);
+
+            try
+            {
+                /*
+                 * Binding the source endpoint causes this connection
+                 * to originate from the selected network interface.
+                 */
+                client.Client.Bind(
+                    new IPEndPoint(
+                        _localInterfaceAddress,
+                        0));
+
+                await client.ConnectAsync(
+                        remoteAddress,
+                        port,
+                        timeoutCancellation.Token)
+                    .ConfigureAwait(false);
+
+                return true;
+            }
+            catch (OperationCanceledException)
+                when (!cancellationToken.IsCancellationRequested)
+            {
+                // The individual connection attempt timed out.
+                return false;
+            }
+            catch (SocketException ex)
+            {
+                Log.Trace(
+                    $"Port {port} closed on {remoteAddress}.",
+                    "SessionScanner",
+                    new Dictionary<string, object?>
+                    {
+                        ["SocketError"] = ex.SocketErrorCode
+                    });
+
+
+                return false;
+            }
+        }
+
+        private async Task UpdateInteractivePortAsync(
+            IPAddress address,
+            int interactivePort)
+        {
+            string key = address.ToString();
+
+            if (!_knownSessions.TryGetValue(
+                    key,
+                    out SessionModel? existing))
+            {
+                return;
+            }
+
+            if (existing.PortInteractive == interactivePort)
+                return;
+
+            /*
+             * SessionModel does not implement INotifyPropertyChanged,
+             * so replace the item to raise an ObservableCollection event.
+             */
+            var replacement = new SessionModel
+            {
+                ID = existing.ID,
+                Name = existing.Name,
+                IPAddress = existing.IPAddress,
+                Port = existing.Port,
+                PortInteractive = interactivePort,
+                UseHttps = existing.UseHttps
+            };
+
+            if (!_knownSessions.TryUpdate(
+                    key,
+                    replacement,
+                    existing))
+            {
+                return;
+            }
+
+            Log.Debug(
+                $"Interactive API discovered for {address}.",
+                "SessionScanner",
+                new Dictionary<string, object?>
+                {
+                    ["InteractivePort"] = interactivePort
+                });
+
+            await RunOnCapturedContextAsync(() =>
+            {
+                int index = _results.IndexOf(existing);
+
+                if (index >= 0)
+                    _results[index] = replacement;
+            }).ConfigureAwait(false);
+        }
+
+        private Task RunOnCapturedContextAsync(Action action)
+        {
+            if (_synchronizationContext is null ||
+                SynchronizationContext.Current == _synchronizationContext)
+            {
+                action();
+                return Task.CompletedTask;
+            }
+
+            var completion =
+                new TaskCompletionSource<object?>(
+                    TaskCreationOptions.RunContinuationsAsynchronously);
+
+            _synchronizationContext.Post(
+                _ =>
+                {
+                    try
+                    {
+                        action();
+                        completion.SetResult(null);
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(
+                            exception,
+                            "UI synchronization failed.",
+                            "SessionScanner");
+
+                        completion.SetException(exception);
+                    }
+                },
+                null);
+
+            return completion.Task;
+        }
+
+        private static IPAddress FindSubnetMask(
+            IPAddress localAddress)
+        {
+            foreach (NetworkInterface networkInterface in
+                     NetworkInterface.GetAllNetworkInterfaces())
+            {
+                foreach (UnicastIPAddressInformation unicastAddress in
+                         networkInterface
+                             .GetIPProperties()
+                             .UnicastAddresses)
+                {
+                    if (!unicastAddress.Address.Equals(localAddress))
+                        continue;
+
+                    if (unicastAddress.IPv4Mask is null)
+                    {
+                        throw new InvalidOperationException(
+                            $"No IPv4 subnet mask was found for " +
+                            $"{localAddress}.");
+                    }
+
+                    return unicastAddress.IPv4Mask;
+                }
+            }
+
+            throw new ArgumentException(
+                $"The address {localAddress} is not assigned to an " +
+                "available network interface.",
+                nameof(localAddress));
+        }
+
+        private static IEnumerable<IPAddress> EnumerateSubnetAddresses(
+    IPAddress localAddress,
+    IPAddress subnetMask)
+        {
+            // Every address in 127.0.0.0/8 is loopback.
+            // Scan only the canonical loopback address.
+            if (IPAddress.IsLoopback(localAddress))
+            {
+                yield return IPAddress.Loopback; // 127.0.0.1
+                yield break;
+            }
+
+            uint local = ToUInt32(localAddress);
+            uint mask = ToUInt32(subnetMask);
+
+            uint network = local & mask;
+            uint broadcast = network | ~mask;
+
+            if (broadcast - network <= 1)
+            {
+                yield return localAddress;
+                yield break;
+            }
+
+            for (uint current = network + 1;
+                 current < broadcast;
+                 current++)
+            {
+                yield return FromUInt32(current);
+            }
+        }
+
+        private static uint ToUInt32(IPAddress address)
+        {
+            byte[] bytes = address.GetAddressBytes();
+
+            return
+                ((uint)bytes[0] << 24) |
+                ((uint)bytes[1] << 16) |
+                ((uint)bytes[2] << 8) |
+                bytes[3];
+        }
+
+        private static IPAddress FromUInt32(uint address)
+        {
+            return new IPAddress(
+            [
+                (byte)(address >> 24),
+                (byte)(address >> 16),
+                (byte)(address >> 8),
+                (byte)address
+            ]);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            ObjectDisposedException.ThrowIf(
+                _disposed,
+                this);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_disposed)
+                return;
+
+            Log.Information(
+                "Disposing session scanner.",
+                "SessionScanner");
+
+            _disposed = true;
+
+            _scannerCancellation?.Cancel();
+
+            if (_scannerTask is not null)
+            {
+                try
+                {
+                    await _scannerTask.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected while disposing an active scan.
+                }
+            }
+
+            _scannerCancellation?.Dispose();
+            _runLock.Dispose();
+
+            await RunOnCapturedContextAsync(
+                    _results.Clear)
+                .ConfigureAwait(false);
+
+            _knownSessions.Clear();
+        }
+    }
+}
+

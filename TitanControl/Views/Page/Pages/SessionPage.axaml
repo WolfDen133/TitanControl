@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:TitanControl.Controls.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:menu="using:TitanControl.Controls.Menu"
+             xmlns:viewmodels="using:TitanControl.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1900" d:DesignHeight="1000"
+             x:DataType="viewmodels:SessionPageModel"
+             x:Class="TitanControl.Views.Page.Pages.SessionPage">
+    <Border Padding="8" Background="{DynamicResource BackgroundBrush}">
+        <Grid RowDefinitions="Auto, *" RowSpacing="8">
+            <Grid ColumnDefinitions="Auto, *" VerticalAlignment="Top" Height="70">
+                <Border Padding="10">
+                    <common:TwoToneSvg x:Name="SessionSvg" Path="/Assets/Icons/session.svg" PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource AccentColor}"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Classes="h1" Text="Sessions"/>
+                    <TextBlock Classes="h3" FontSize="14" Text="Discover, configure and manage your connections"/>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="1" ColumnSpacing="8" ColumnDefinitions="*, *, *">
+                <Border Background="{DynamicResource BackgroundLBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
+                    <Grid RowDefinitions="Auto, *, Auto">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <StackPanel Spacing="3">
+                                <TextBlock Padding="5 5" Classes="h2" Text="Active Sessions"/>
+                                <TextBlock Padding="5 0" Classes="h4" Text="Discover or add new sessions"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" HorizontalAlignment="Right" Margin="6 0" IsEnabled="{Binding !NetworkScanner.IsRunning}">
+                                <Border Padding="8 4">
+                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                        <Svg VerticalAlignment="Center" Path="/Assets/Icons/refresh.svg" Width="20" Height="20" CurrentColor="{DynamicResource Foreground}"/>
+                                        <TextBlock VerticalAlignment="Center" Text="Refresh" FontSize="16"/>
+                                    </StackPanel>
+                                </Border>
+                            </Button>
+                        </Grid>
+                        <Border Grid.Row="1" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0 0 0 1">
+                            <Grid RowDefinitions="Auto, *" RowSpacing="8">
+                                <Border Padding="0 10">
+                                    <TextBox PlaceholderText="Filter sessions..."/>
+                                </Border>
+                                    <Border Grid.Row="1" CornerRadius="10" ClipToBounds="">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <ItemsControl ItemsSource="{Binding Sessions}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel x:Name="SessionContainer" Spacing="10" Margin="0 0 10 0"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <menu:SessionOverview OnSelect="SessionOverview_OnSelect" 
+                                                                              Id="{Binding Id}"
+                                                                              IsSelected="{Binding IsSelected}" 
+                                                                              Name="{Binding Name}" 
+                                                                              SessionStatus="{Binding State}" 
+                                                                              IpAddress="{Binding Address}" 
+                                                                              Port="{Binding Port}" 
+                                                                              PortInteractive="{Binding PortInteractive}" 
+                                                                              Host="{Binding ComputerName}"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="2" Margin="0 8 0 0" Padding="5">
+                            <Button HorizontalAlignment="Stretch"  Padding="10">
+                                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Svg Path="/Assets/Icons/add.svg" Width="25" CurrentColor="{DynamicResource AccentColor}"/>
+                                    <TextBlock Text="Add session manually" Classes="h4" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Border>
+                        
+                    </Grid>
+                </Border>
+                <Border Grid.Column="1" Background="{DynamicResource BackgroundLBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="10">
+                    
+                </Border>
+                <Border Grid.Column="2" Background="{DynamicResource BackgroundLBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="10">
+                    
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+	<LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaXaml Remove="ViewModels\Control\**" />
+    <Compile Remove="ViewModels\Control\**" />
+    <EmbeddedResource Remove="ViewModels\Control\**" />
+    <None Remove="ViewModels\Control\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Icons\*.svg" />
+	<AvaloniaResource Include="Assets\Images\*.png" />
+	<AvaloniaResource Include="Assets\Schemas\*.schema.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Json.Net" Version="1.0.33" />
+    <PackageReference Include="JsonSchema.Net" Version="9.4.0" />
+    <PackageReference Include="ProDiagnostics" Version="12.0.4" />
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TitanControl.WebAPI\TitanControl.WebAPI.csproj" />
+  </ItemGroup>
+</Project>
