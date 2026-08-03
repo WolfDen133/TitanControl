@@ -79,7 +79,7 @@
                             <common:TwoToneSvg Path="/Assets/Icons/disconnect.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Connected, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
 
-                            <common:TwoToneSvg Path="/Assets/Icons/add.svg" 
+                            <common:TwoToneSvg Path="/Assets/Icons/shift-up.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Available, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
 
                             <common:TwoToneSvg Path="/Assets/Icons/play.svg" 

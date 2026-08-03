@@ -105,11 +105,20 @@
                         <common:TwoToneSvg Path="/Assets/Icons/edit.svg" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
                     </layout:Section.Icon>
                     <Grid RowDefinitions="*, Auto">
-                        <Grid RowDefinitions="*, *, *, 2*">
+                        <StackPanel Spacing="20">
                             <common:Field Text="Session Name">
-                                <TextBox PlaceholderText="Titan Session"/>
+                                <TextBox/>
+
                             </common:Field>
-                        </Grid>
+                            <common:Field Text="Session Name">
+                                <TextBox/>
+
+                            </common:Field>
+                            <common:Field Text="Session Name">
+                                <TextBox/>
+
+                            </common:Field>
+                        </StackPanel>
                         
                     </Grid>
                     

@@ -125,10 +125,10 @@ namespace TitanControl.ViewModels
 
             Scanner = new SessionScanner(
                 _nics[SelectedNic].Value,
-                TimeSpan.FromSeconds(10),
-                TimeSpan.FromMilliseconds(200),
-                TimeSpan.FromSeconds(2),
-                12,
+                TimeSpan.FromSeconds(20),
+                TimeSpan.FromMilliseconds(100),
+                TimeSpan.FromSeconds(4),
+                24,
                 false
             );
 
