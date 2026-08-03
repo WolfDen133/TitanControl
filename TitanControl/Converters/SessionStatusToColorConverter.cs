@@ -30,9 +30,8 @@ namespace TitanControl.Converters
                 SessionConnectionState.Inactive => "ForegroundSecondary",
                 SessionConnectionState.Connected => "SuccessColor",
                 SessionConnectionState.Connecting => "WarningColor",
-                SessionConnectionState.Error => "DangerColorD",
-                SessionConnectionState.Disconnected => "WarningColorD",
-                SessionConnectionState.Unreachable => "DangerColor",
+                SessionConnectionState.Disconnected => "DangerColor",
+                SessionConnectionState.Unreachable => "ForegroundPlaceholder",
                 _ => "BorderBrush"
             };
 

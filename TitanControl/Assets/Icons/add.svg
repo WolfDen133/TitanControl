@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle class="primary-stroke" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
-<path class="secondary-stroke" d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="256px" height="256px">
+  <g transform="matrix(1, 0, 0, 1, -0.538, -0.246)">
+    <path class="secondary-stroke" d="M 22.529 12.247 L 12.538 12.247 M 12.538 12.247 L 2.547 12.247 M 12.538 12.247 L 12.538 2.71 M 12.538 12.247 L 12.538 21.781" stroke="currentColor" stroke-linecap="round" style="stroke-width: 1.5px;"/>
+  </g>
 </svg>

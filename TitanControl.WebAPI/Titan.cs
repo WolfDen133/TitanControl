@@ -26,6 +26,10 @@ namespace TitanControl.WebAPI
         private readonly HttpClient _http;
         private readonly SocketsHttpHandler _httpHandler;
 
+        public IPAddress Address => IPAddress.Parse(_http.BaseAddress?.Host ?? "0.0.0.0");
+        public int Port => _http.BaseAddress?.Port ?? -1;
+        public int PortInteractive => _http.BaseAddress?.Port ?? -1;
+
         public Titan(IPAddress consoleAddress) : this(consoleAddress, NormalPort)
         {
         }

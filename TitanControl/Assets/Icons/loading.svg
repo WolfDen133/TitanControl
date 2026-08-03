@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="256px" height="256px">
+  <g transform="matrix(0.304447, 0, 0, 0.318833, 3.109081, 13.389633)" style="">
+    <path classes="primary-stroke" d="M 29.203 -37.171 L 29.203 -24.671" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="stroke-width: 5.313;"/>
+    <path classes="secondary-stroke" d="M 14.84 -18.721 L 6.001 -27.56"  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="stroke-width: 5.313; stroke-opacity: 0.9;"/>
+    <path classes="secondary-stroke" d="M 8.891 -4.358 L -3.609 -4.358"  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="transform-box: fill-box; transform-origin: 50% 50%; stroke-width: 5.313; stroke-opacity: 0.8;"/>
+    <path classes="secondary-stroke" d="M 14.84 10.005 L 6.001 18.844"   stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="stroke-width: 5.313; stroke-opacity: 0.7;"/>
+    <path classes="secondary-stroke" d="M 29.203 15.954 L 29.203 28.454" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="transform-box: fill-box; transform-origin: 50% 50%; stroke-width: 5.312; stroke-opacity: 0.6;"/>
+    <path classes="secondary-stroke" d="M 52.405 18.844 L 43.566 10.005" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="stroke-width: 5.313; stroke-opacity: 0.5;"/>
+    <path classes="secondary-stroke" d="M 62.016 -4.358 L 49.516 -4.358" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="transform-box: fill-box; transform-origin: 50% 50%; stroke-width: 5.313; stroke-opacity: 0.4;"/>
+  </g>           
+</svg>

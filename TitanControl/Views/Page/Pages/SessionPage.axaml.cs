@@ -30,11 +30,36 @@ namespace TitanControl.Views.Page.Pages
 
             if (DataContext is SessionPageModel model)
             {
-                model.OnLoaded();
+
             }
         }
 
+        public override void OnRegister()
+        {
+            base.OnRegister();
 
+            if (DataContext is SessionPageModel model)
+            {
+                model.Initialize();
+            }
+        }
+
+        public override void OnShow()
+        {
+            if (DataContext is SessionPageModel model)
+            {
+                _ = model.StartScanner();
+                _ = model.UpdateSessions();
+            }
+        }
+
+        public override void OnHide()
+        {
+            if (DataContext is SessionPageModel model)
+            {
+                model.StopScanner();
+            }
+        }
 
         // TODO: Fix
         private void SessionOverview_OnSelect(object? sender, bool e)
@@ -45,7 +70,7 @@ namespace TitanControl.Views.Page.Pages
                 if (DataContext is SessionPageModel model)
                 {
                     Log.Debug("Is Model");
-                    foreach (var session in model.Sessions)
+                    foreach (var session in model.ScanResults)
                     {
                         if (session.Id == sessionOverview.Id)
                             continue;
@@ -54,6 +79,14 @@ namespace TitanControl.Views.Page.Pages
                         session.IsSelected = false;
                     }
                 }
+            }
+        }
+
+        private void Button_Click(object? sender, RoutedEventArgs e)
+        {
+            if (DataContext is SessionPageModel model)
+            {
+                model?.StartScanner();
             }
         }
     }
