@@ -1,4 +1,5 @@
 ﻿
+using CommunityToolkit.Mvvm.ComponentModel;
 using global::TitanControl.Disk.Model.Session;
 using System;
 using System.Collections.Concurrent;
@@ -6,11 +7,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TitanControl.Logging;
+using TitanControl.WebAPI.Data.Model;
+using static System.Net.WebRequestMethods;
 
 namespace TitanControl.Session.Utils
 {
@@ -30,17 +36,12 @@ namespace TitanControl.Session.Utils
         private readonly TimeSpan _delayBetweenScans;
         private readonly int _maximumConcurrency;
         private readonly bool _useHttps;
+        private readonly HttpClient _http;
 
-        private long _addressesScanned;
-        private long _connectionsAttempted;
-        private long _sessionsFound;
-        private long _timeouts;
-        private long _socketFailures;
+        private readonly ObservableCollection<ScannedSession> _results = new();
+        private readonly ReadOnlyObservableCollection<ScannedSession> _readOnlyResults;
 
-        private readonly ObservableCollection<SessionModel> _results = new();
-        private readonly ReadOnlyObservableCollection<SessionModel> _readOnlyResults;
-
-        private readonly ConcurrentDictionary<string, SessionModel> _knownSessions =
+        private readonly ConcurrentDictionary<string, ScannedSession> _knownSessions =
             new(StringComparer.OrdinalIgnoreCase);
 
         private readonly SynchronizationContext? _synchronizationContext;
@@ -53,7 +54,7 @@ namespace TitanControl.Session.Utils
         /// <summary>
         /// Gets the discovered Titan sessions.
         /// </summary>
-        public ReadOnlyObservableCollection<SessionModel> Results =>
+        public ReadOnlyObservableCollection<ScannedSession> Results =>
             _readOnlyResults;
 
         /// <summary>
@@ -67,6 +68,8 @@ namespace TitanControl.Session.Utils
         /// </summary>
         public IPAddress LocalInterfaceAddress =>
             _localInterfaceAddress;
+
+        public event EventHandler<bool>? OnScannerRunning;
 
         /// <summary>
         /// Creates a scanner for the subnet associated with the supplied
@@ -88,7 +91,7 @@ namespace TitanControl.Session.Utils
         /// Maximum number of simultaneous connection attempts.
         /// </param>
         /// <param name="useHttps">
-        /// Value assigned to discovered SessionModel objects.
+        /// Selects HTTP or HTTPS for the device-information request.
         /// </param>
         public SessionScanner(
             IPAddress localInterfaceAddress,
@@ -146,13 +149,14 @@ namespace TitanControl.Session.Utils
             _scanDuration = scanDuration;
             _maximumConcurrency = maximumConcurrency;
             _useHttps = useHttps;
+            _http = CreateHttpClient(localInterfaceAddress);
 
             // Construct the scanner on the UI thread when Results will be
             // bound to UI controls.
             _synchronizationContext = SynchronizationContext.Current;
 
             _readOnlyResults =
-                new ReadOnlyObservableCollection<SessionModel>(_results);
+                new ReadOnlyObservableCollection<ScannedSession>(_results);
 
             Log.Debug(
                 $"Created session scanner on {_localInterfaceAddress}.",
@@ -227,6 +231,7 @@ namespace TitanControl.Session.Utils
                 Log.Information(
                     "Automatic session discovery stopped.",
                     "SessionScanner");
+                OnScannerRunning?.Invoke(this, false);
             }
 
 
@@ -242,6 +247,7 @@ namespace TitanControl.Session.Utils
             Log.Information(
                 "Stopping session discovery.",
                 "SessionScanner");
+            OnScannerRunning?.Invoke(this, false);
         }
 
         /// <summary>
@@ -261,6 +267,7 @@ namespace TitanControl.Session.Utils
         private async Task ScanLoopAsync(
             CancellationToken cancellationToken)
         {
+            OnScannerRunning?.Invoke(this, true);
             while (!cancellationToken.IsCancellationRequested)
             {
                 Log.Debug(
@@ -290,6 +297,7 @@ namespace TitanControl.Session.Utils
                     break;
                 }
             }
+            OnScannerRunning?.Invoke(this, false);
         }
 
         private async Task ScanSubnetOnceAsync(
@@ -327,9 +335,9 @@ namespace TitanControl.Session.Utils
              */
             if (_knownSessions.TryGetValue(
                     key,
-                    out SessionModel? knownSession))
+                    out ScannedSession? knownSession))
             {
-                if (knownSession.PortInteractive == -1)
+                if (knownSession.PortInteractive is null)
                 {
                     bool interactiveAvailable =
                         await IsPortOpenAsync(
@@ -360,6 +368,15 @@ namespace TitanControl.Session.Utils
             if (!normalPortAvailable)
                 return;
 
+            Device? device = await GetDeviceInfoAsync(
+                    address,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            // An open port alone is not enough to identify a Titan endpoint.
+            if (device is null)
+                return;
+
             bool interactivePortAvailable =
                 await IsPortOpenAsync(
                         address,
@@ -367,16 +384,18 @@ namespace TitanControl.Session.Utils
                         cancellationToken)
                     .ConfigureAwait(false);
 
-            var session = new SessionModel
+            var session = new ScannedSession
             {
-                ID = Guid.NewGuid(),
-                Name = address.ToString(),
-                IPAddress = address,
+                Id = Guid.NewGuid(),
+                Name = device.Legend,
+                ComputerName = device.ComputerName,
+                Address = address,
                 Port = NormalPort,
                 PortInteractive = interactivePortAvailable
                     ? InteractivePort
-                    : -1,
-                UseHttps = _useHttps
+                    : null,
+                State = SessionConnectionState.Available,
+                IsSelected = false
             };
 
             if (!_knownSessions.TryAdd(key, session))
@@ -388,6 +407,8 @@ namespace TitanControl.Session.Utils
                 new Dictionary<string, object?>
                 {
                     ["IPAddress"] = address,
+                    ["ComputerName"] = device.ComputerName,
+                    ["Legend"] = device.Legend,
                     ["NormalPort"] = NormalPort,
                     ["Interactive"] = interactivePortAvailable
                 });
@@ -395,8 +416,117 @@ namespace TitanControl.Session.Utils
             await RunOnCapturedContextAsync(() =>
             {
                 _results.Add(session);
-                
+
             }).ConfigureAwait(false);
+        }
+
+        private async Task<Device?> GetDeviceInfoAsync(
+            IPAddress address,
+            CancellationToken cancellationToken)
+        {
+            using var timeoutCancellation =
+                CancellationTokenSource.CreateLinkedTokenSource(
+                    cancellationToken);
+
+            timeoutCancellation.CancelAfter(_connectionTimeout);
+
+            string protocol = _useHttps ? "https" : "http";
+            var requestUri = new Uri(
+                $"{protocol}://{address}:{NormalPort}/" +
+                "titan/get/2/Titan/DeviceInfo");
+
+            try
+            {
+                using HttpResponseMessage response =
+                    await _http.GetAsync(
+                            requestUri,
+                            HttpCompletionOption.ResponseHeadersRead,
+                            timeoutCancellation.Token)
+                        .ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                return await response.Content
+                    .ReadFromJsonAsync<Device>(
+                        cancellationToken: timeoutCancellation.Token)
+                    .ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+                when (!cancellationToken.IsCancellationRequested)
+            {
+                Log.Trace(
+                    $"Device information request timed out for {address}.",
+                    "SessionScanner");
+
+                return null;
+            }
+            catch (HttpRequestException exception)
+            {
+                Log.Trace(
+                    $"Device information request failed for {address}.",
+                    "SessionScanner",
+                    new Dictionary<string, object?>
+                    {
+                        ["Error"] = exception.Message
+                    });
+
+                return null;
+            }
+            catch (JsonException exception)
+            {
+                Log.Warning(
+                    $"Device information from {address} was invalid.",
+                    "SessionScanner",
+                    new Dictionary<string, object?>
+                    {
+                        ["Error"] = exception.Message
+                    });
+
+                return null;
+            }
+        }
+
+        private static HttpClient CreateHttpClient(
+            IPAddress localInterfaceAddress)
+        {
+            var handler = new SocketsHttpHandler
+            {
+                ConnectCallback = async (
+                    context,
+                    cancellationToken) =>
+                {
+                    var socket = new Socket(
+                        localInterfaceAddress.AddressFamily,
+                        SocketType.Stream,
+                        ProtocolType.Tcp);
+
+                    try
+                    {
+                        socket.Bind(
+                            new IPEndPoint(localInterfaceAddress, 0));
+
+                        await socket.ConnectAsync(
+                                context.DnsEndPoint,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+
+                        return new NetworkStream(
+                            socket,
+                            ownsSocket: true);
+                    }
+                    catch
+                    {
+                        socket.Dispose();
+                        throw;
+                    }
+                }
+            };
+
+            return new HttpClient(handler)
+            {
+                Timeout = Timeout.InfiniteTimeSpan
+            };
         }
 
         private async Task<bool> IsPortOpenAsync(
@@ -461,7 +591,7 @@ namespace TitanControl.Session.Utils
 
             if (!_knownSessions.TryGetValue(
                     key,
-                    out SessionModel? existing))
+                    out ScannedSession? existing))
             {
                 return;
             }
@@ -470,17 +600,19 @@ namespace TitanControl.Session.Utils
                 return;
 
             /*
-             * SessionModel does not implement INotifyPropertyChanged,
+             * ScannedSession does not implement INotifyPropertyChanged,
              * so replace the item to raise an ObservableCollection event.
              */
-            var replacement = new SessionModel
+            var replacement = new ScannedSession
             {
-                ID = existing.ID,
+                Id = existing.Id,
                 Name = existing.Name,
-                IPAddress = existing.IPAddress,
+                ComputerName = existing.ComputerName,
+                Address = existing.Address,
                 Port = existing.Port,
                 PortInteractive = interactivePort,
-                UseHttps = existing.UseHttps
+                State = existing.State,
+                IsSelected = existing.IsSelected
             };
 
             if (!_knownSessions.TryUpdate(
@@ -576,8 +708,8 @@ namespace TitanControl.Session.Utils
         }
 
         private static IEnumerable<IPAddress> EnumerateSubnetAddresses(
-    IPAddress localAddress,
-    IPAddress subnetMask)
+            IPAddress localAddress,
+            IPAddress subnetMask)
         {
             // Every address in 127.0.0.0/8 is loopback.
             // Scan only the canonical loopback address.
@@ -649,6 +781,8 @@ namespace TitanControl.Session.Utils
 
             _scannerCancellation?.Cancel();
 
+            OnScannerRunning?.Invoke(this, false);
+
             if (_scannerTask is not null)
             {
                 try
@@ -656,12 +790,11 @@ namespace TitanControl.Session.Utils
                     await _scannerTask.ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
-                {
-                    // Expected while disposing an active scan.
-                }
+                { }
             }
 
             _scannerCancellation?.Dispose();
+            _http.Dispose();
             _runLock.Dispose();
 
             await RunOnCapturedContextAsync(

@@ -13,7 +13,6 @@ namespace TitanControl.Session
         Connected,
         Connecting,
         Disconnected,
-        Error,
         Unreachable
     }
 }

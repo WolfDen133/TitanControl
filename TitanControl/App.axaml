@@ -7,6 +7,7 @@
     <Application.Styles>
         <FluentTheme DensityStyle="Compact"/>
         <StyleInclude Source="avares://TitanControl/Styles/Application.axaml"/>
+        <StyleInclude Source="avares://TitanControl/Styles/Animation.axaml"/>
         <StyleInclude Source="avares://TitanControl/Styles/Common.axaml"/>
         <StyleInclude Source="avares://TitanControl/Styles/Navigation.axaml"/>
         <StyleInclude Source="avares://TitanControl/Styles/Controls.axaml"/>
@@ -18,6 +19,7 @@
                 <ResourceInclude Source="avares://TitanControl/Resources/Fonts.axaml"/>
                 <ResourceInclude Source="avares://TitanControl/Resources/Colors.axaml"/>
                 <ResourceInclude Source="avares://TitanControl/Resources/Converters.axaml"/>
+                <ResourceInclude Source="avares://TitanControl/Resources/Controls.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

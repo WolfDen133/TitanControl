@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using TitanControl.Session;
 
 namespace TitanControl.Disk.Model.Session
 {
@@ -27,5 +28,11 @@ namespace TitanControl.Disk.Model.Session
 
         [JsonPropertyName("useHttps")]
         public bool UseHttps = false;
+
+        [JsonIgnore]
+        public string ComputerName { get; set; } = string.Empty;
+
+        [JsonIgnore]
+        public SessionConnectionState State { get; set; } = SessionConnectionState.Inactive;
     }
 }

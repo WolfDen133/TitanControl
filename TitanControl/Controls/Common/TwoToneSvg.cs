@@ -33,7 +33,12 @@ namespace TitanControl.Controls.Common
             set => SetValue(SecondaryColorProperty, value);
         }
 
-        public TwoToneSvg(IServiceProvider service) : base(service)
+        public TwoToneSvg(Uri baseUri) : base(baseUri)
+        {
+            UpdateCss();
+        }
+
+        public TwoToneSvg(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             UpdateCss();
         }

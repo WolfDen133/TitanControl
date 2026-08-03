@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Diagnostics.Tracing;
 using TitanControl.Helper;
@@ -18,7 +19,7 @@ namespace TitanControl.Controls.Menu
             AvaloniaProperty.Register<SessionOverview, string>(nameof(SessionName), "Session name");
 
         public static readonly StyledProperty<SessionConnectionState> SessionStatusProperty =
-            AvaloniaProperty.Register<SessionOverview, SessionConnectionState>(nameof(SessionStatus), SessionConnectionState.Disconnected);
+            AvaloniaProperty.Register<SessionOverview, SessionConnectionState>(nameof(SessionStatus), SessionConnectionState.Available);
 
         public static readonly StyledProperty<string> IpAddressProperty =
             AvaloniaProperty.Register<SessionOverview, string>(nameof(IpAddress), "192.168.1.1");
@@ -93,15 +94,6 @@ namespace TitanControl.Controls.Menu
         public event EventHandler<bool>? OnSelect;
 
         public string PortsString => PortInteractive is not null ? $"{Port} / {PortInteractive}" : Port;
-        public string ButtonText => SessionStatus switch
-        {
-            SessionConnectionState.Inactive => "Select",
-            SessionConnectionState.Available => "Add Session",
-            SessionConnectionState.Disconnected => "Connect",
-            SessionConnectionState.Connecting => "Connecting...",
-            SessionConnectionState.Connected => "Disconnect",
-            _ => "Unavailable"
-        };
 
         private bool mouseDown = false;
 
@@ -115,7 +107,7 @@ namespace TitanControl.Controls.Menu
             base.OnPointerEntered(e);
 
             if (!IsSelected)
-                Background = ResourceHelper.GetThemeBrush("BackgroundBrush");
+                Background = ResourceHelper.GetThemeBrush("BackgroundLLBrush");
         }
 
         protected override void OnPointerExited(PointerEventArgs e)
@@ -124,7 +116,7 @@ namespace TitanControl.Controls.Menu
 
             if (!IsSelected)
             {
-                Background = ResourceHelper.GetThemeBrush("BackgroundDBrush");
+                Background = ResourceHelper.GetThemeBrush("BackgroundLBrush");
             }
         }
 
@@ -151,7 +143,7 @@ namespace TitanControl.Controls.Menu
         {
             BorderThickness = isSelected ? new Thickness(2) : new Thickness(1);
             BorderBrush = isSelected ? ResourceHelper.GetThemeBrush("SelectionFocusBrush") : ResourceHelper.GetThemeBrush("BorderSubtleBrush");
-            Background = isSelected ? ResourceHelper.GetThemeBrush("BackgroundLBrush") : ResourceHelper.GetThemeBrush("BackgroundDBrush");
+            Background = isSelected ? ResourceHelper.GetThemeBrush("BackgroundLLBrush") : ResourceHelper.GetThemeBrush("BackgroundLBrush");
             OnSelect?.Invoke(this, isSelected);
         }
     }
