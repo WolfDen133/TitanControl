@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TitanControl.WebAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8f197cf2a12bcda442307acacc4f89d81006df4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17eb698dab5db3944eb6c156e658657930ab09fc")]
 [assembly: System.Reflection.AssemblyProductAttribute("TitanControl.WebAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TitanControl.WebAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

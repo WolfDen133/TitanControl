@@ -109,6 +109,7 @@
                     <layout:Section.Icon>
                         <common:TwoToneSvg SvgSource="{StaticResource EditSvgSource}" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
                     </layout:Section.Icon>
+<<<<<<< HEAD
                     <Border>
                         <Grid RowDefinitions="*, Auto">
                             <StackPanel Spacing="20">
@@ -171,6 +172,26 @@
                             </StackPanel>
                         </Grid>
                     </Border>
+=======
+                    <Grid RowDefinitions="*, Auto">
+                        <StackPanel Spacing="20">
+                            <common:Field Text="Session Name">
+                                <TextBox/>
+
+                            </common:Field>
+                            <common:Field Text="Session Name">
+                                <TextBox/>
+
+                            </common:Field>
+                            <common:Field Text="Session Name">
+                                <TextBox/>
+
+                            </common:Field>
+                        </StackPanel>
+                        
+                    </Grid>
+                    
+>>>>>>> 846b86b35407186905453585f5461065f53a3294
                     <layout:Section.FooterContent>
                         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
                             <common:IconButton Text="Save Changes" BorderBrush="{DynamicResource SuccessBrush}" Command="{Binding SaveSessionCommand}">
