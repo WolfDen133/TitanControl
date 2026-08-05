@@ -13,7 +13,9 @@
   <Design.PreviewWith>
     <StackPanel Width="400" Spacing="10">      
         <StackPanel Background="{DynamicResource SystemRegionBrush}">
-          <controls:Field />
+          <controls:Field Text="Hello world">
+              <TextBox/>
+          </controls:Field>
         </StackPanel>
     </StackPanel>
   </Design.PreviewWith>
@@ -21,13 +23,13 @@
   <ControlTheme x:Key="{x:Type controls:Field}" TargetType="controls:Field">
     <Setter Property="Template">
       <ControlTemplate>
-        <Grid RowDefinitions="Auto, *">
+        <StackPanel Spacing="5">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{TemplateBinding Text}" Classes="header"/>
                 <TextBlock IsVisible="{TemplateBinding Required}" Text="*" VerticalAlignment="Top" Classes="subtitle" Foreground="{DynamicResource ForegroundDisabledBrush}"/>
             </StackPanel>
             <ContentControl Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{TemplateBinding Content}"/>
-        </Grid>
+        </StackPanel>
       </ControlTemplate>
     </Setter>
   </ControlTheme>

@@ -58,6 +58,7 @@ namespace TitanControl.Views.Page.Pages
             if (DataContext is SessionPageModel model)
             {
                 model.StopScanner();
+                _ = model.Clear();
             }
         }
 
@@ -70,14 +71,8 @@ namespace TitanControl.Views.Page.Pages
                 if (DataContext is SessionPageModel model)
                 {
                     Log.Debug("Is Model");
-                    foreach (var session in model.ScanResults)
-                    {
-                        if (session.Id == sessionOverview.Id)
-                            continue;
 
-                        Log.Debug(session.Id.ToString() + " " + sessionOverview.Id.ToString());
-                        session.IsSelected = false;
-                    }
+                    model.SelectSession(sessionOverview.Id);
                 }
             }
         }

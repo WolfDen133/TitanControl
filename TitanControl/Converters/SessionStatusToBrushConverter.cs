@@ -48,7 +48,8 @@ namespace TitanControl.Converters
             var resourceKey = state switch
             {
                 SessionConnectionState.Available => "AccentBrush",
-                SessionConnectionState.Inactive => "ForegroundSecondaryBrush",
+                SessionConnectionState.Disabled => "ForegroundSecondaryBrush",
+                SessionConnectionState.Enabled => "AccentLBrush",
                 SessionConnectionState.Connected => "SuccessBrush",
                 SessionConnectionState.Connecting => "WarningBrush",
                 SessionConnectionState.Disconnected => "DangerBrush",

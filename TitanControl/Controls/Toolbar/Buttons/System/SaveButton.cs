@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using TitanControl.Helper;
 using sToolstrip = TitanControl.Controls.Toolbar.SystemToolstrip;
 
 namespace TitanControl.Controls.Toolbar.Buttons.SystemToolstrip
@@ -16,7 +16,7 @@ namespace TitanControl.Controls.Toolbar.Buttons.SystemToolstrip
             Text = "Save";
             Description = "Save your current workspace to disk.";
 
-            ButtonSvg.Path = "/Assets/Icons/save.svg";
+            ButtonSvg.SvgSource = ResourceHelper.GetSvgSource("SaveSvgSource");
         }
     }
 }

@@ -39,4 +39,8 @@
   <ItemGroup>
     <ProjectReference Include="..\TitanControl.WebAPI\TitanControl.WebAPI.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
 </Project>

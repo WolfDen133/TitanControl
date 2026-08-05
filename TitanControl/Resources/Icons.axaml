@@ -1,0 +1,51 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:svg="clr-namespace:Avalonia.Svg.Skia;assembly=Svg.Controls.Skia.Avalonia">
+    <svg:SvgSource x:Key="AddSvgSource" Path="/Assets/Icons/add.svg"/>
+<svg:SvgSource x:Key="ArrowSvgSource" Path="/Assets/Icons/arrow.svg"/>
+<svg:SvgSource x:Key="ArrowDownSvgSource" Path="/Assets/Icons/arrow-down.svg"/>
+<svg:SvgSource x:Key="ArrowUpSvgSource" Path="/Assets/Icons/arrow-up.svg"/>
+<svg:SvgSource x:Key="AssignedSvgSource" Path="/Assets/Icons/assigned.svg"/>
+<svg:SvgSource x:Key="CancelSvgSource" Path="/Assets/Icons/cancel.svg"/>
+<svg:SvgSource x:Key="CircleSvgSource" Path="/Assets/Icons/circle.svg"/>
+<svg:SvgSource x:Key="CogSvgSource" Path="/Assets/Icons/cog.svg"/>
+<svg:SvgSource x:Key="ConnectSvgSource" Path="/Assets/Icons/connect.svg"/>
+<svg:SvgSource x:Key="ContractSvgSource" Path="/Assets/Icons/contract.svg"/>
+<svg:SvgSource x:Key="CopySvgSource" Path="/Assets/Icons/copy.svg"/>
+<svg:SvgSource x:Key="DeleteSvgSource" Path="/Assets/Icons/delete.svg"/>
+<svg:SvgSource x:Key="DisableSvgSource" Path="/Assets/Icons/disable.svg"/>
+<svg:SvgSource x:Key="DisconnectSvgSource" Path="/Assets/Icons/disconnect.svg"/>
+<svg:SvgSource x:Key="DiskSvgSource" Path="/Assets/Icons/disk.svg"/>
+<svg:SvgSource x:Key="EditSvgSource" Path="/Assets/Icons/edit.svg"/>
+<svg:SvgSource x:Key="EnableSvgSource" Path="/Assets/Icons/enable.svg"/>
+<svg:SvgSource x:Key="ExpandSvgSource" Path="/Assets/Icons/expand.svg"/>
+<svg:SvgSource x:Key="FolderSvgSource" Path="/Assets/Icons/folder.svg"/>
+<svg:SvgSource x:Key="HostSvgSource" Path="/Assets/Icons/host.svg"/>
+<svg:SvgSource x:Key="IconSvgSource" Path="/Assets/Icons/icon.svg"/>
+<svg:SvgSource x:Key="LinkSvgSource" Path="/Assets/Icons/link.svg"/>
+<svg:SvgSource x:Key="LoadSvgSource" Path="/Assets/Icons/load.svg"/>
+<svg:SvgSource x:Key="LoadingSvgSource" Path="/Assets/Icons/loading.svg"/>
+<svg:SvgSource x:Key="MoveSvgSource" Path="/Assets/Icons/move.svg"/>
+<svg:SvgSource x:Key="NewSvgSource" Path="/Assets/Icons/new.svg"/>
+<svg:SvgSource x:Key="OptionsSvgSource" Path="/Assets/Icons/options.svg"/>
+<svg:SvgSource x:Key="PenSvgSource" Path="/Assets/Icons/pen.svg"/>
+<svg:SvgSource x:Key="PlaySvgSource" Path="/Assets/Icons/play.svg"/>
+<svg:SvgSource x:Key="PortsSvgSource" Path="/Assets/Icons/ports.svg"/>
+<svg:SvgSource x:Key="PulseSvgSource" Path="/Assets/Icons/pulse.svg"/>
+<svg:SvgSource x:Key="RefreshSvgSource" Path="/Assets/Icons/refresh.svg"/>
+<svg:SvgSource x:Key="RemoveSvgSource" Path="/Assets/Icons/remove.svg"/>
+<svg:SvgSource x:Key="RenameSvgSource" Path="/Assets/Icons/rename.svg"/>
+<svg:SvgSource x:Key="SaveSvgSource" Path="/Assets/Icons/save.svg"/>
+<svg:SvgSource x:Key="SaveAsSvgSource" Path="/Assets/Icons/save-as.svg"/>
+<svg:SvgSource x:Key="ServerSvgSource" Path="/Assets/Icons/server.svg"/>
+<svg:SvgSource x:Key="SessionSvgSource" Path="/Assets/Icons/session.svg"/>
+<svg:SvgSource x:Key="SessionListSvgSource" Path="/Assets/Icons/session-list.svg"/>
+<svg:SvgSource x:Key="ShiftUpSvgSource" Path="/Assets/Icons/shift-up.svg"/>
+<svg:SvgSource x:Key="StatisticSvgSource" Path="/Assets/Icons/statistic.svg"/>
+<svg:SvgSource x:Key="TargetSvgSource" Path="/Assets/Icons/target.svg"/>
+<svg:SvgSource x:Key="TriggerSvgSource" Path="/Assets/Icons/trigger.svg"/>
+<svg:SvgSource x:Key="UnassignedSvgSource" Path="/Assets/Icons/unassigned.svg"/>
+<svg:SvgSource x:Key="WindowSvgSource" Path="/Assets/Icons/window.svg"/>
+        
+  
+</ResourceDictionary>

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Svg.Skia;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -45,6 +46,8 @@ class Program
                 $"Starting TitanControl {AppConstants.AppVersion}...",
                 category: "Startup");
 
+            GC.KeepAlive(typeof(SvgImageExtension).Assembly);
+            GC.KeepAlive(typeof(Avalonia.Svg.Skia.Svg).Assembly);
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args);
         }

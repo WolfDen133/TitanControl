@@ -5,4 +5,7 @@
     <converters:SessionStatusToBrushConverter x:Key="SessionStatusToBrushConverter"/>
     <converters:EnumMatchConverter x:Key="EnumMatchConverter"/>
     <converters:SessionStatusToColorConverter x:Key="SessionStatusToColorConverter"/>
+    <converters:BoolToStateConverter x:Key="BoolToStateConverter"/>
+    <converters:IsSessionAssignedToWorkspaceConverter x:Key="IsSessionAssignedToWorkspaceConverter"/>
+    <converters:IsSessionAssignedToWorkspaceConverter Invert="True" x:Key="InvertedSessionAssignedToWorkspaceConverter"/>
 </ResourceDictionary>

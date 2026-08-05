@@ -27,7 +27,8 @@ namespace TitanControl.Converters
             var resourceKey = state switch
             {
                 SessionConnectionState.Available => "AccentColor",
-                SessionConnectionState.Inactive => "ForegroundSecondary",
+                SessionConnectionState.Disabled => "ForegroundSecondary",
+                SessionConnectionState.Enabled => "AccentColorL",
                 SessionConnectionState.Connected => "SuccessColor",
                 SessionConnectionState.Connecting => "WarningColor",
                 SessionConnectionState.Disconnected => "DangerColor",
