@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TitanControl.Logging")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0f6d5acd84f865994ede54990468b4e7c66ba4d8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8f197cf2a12bcda442307acacc4f89d81006df4")]
 [assembly: System.Reflection.AssemblyProductAttribute("TitanControl.Logging")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TitanControl.Logging")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
