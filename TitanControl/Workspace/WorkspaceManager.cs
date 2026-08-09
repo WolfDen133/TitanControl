@@ -117,6 +117,10 @@ namespace TitanControl.Workspace
                 Path = string.Empty
             });
 
+            CurrentWorkspace = workspace;
+
+            _ = SaveRecord();
+
             return workspace;
         }
 

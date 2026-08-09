@@ -88,12 +88,11 @@
                             <common:TwoToneSvg Path="/Assets/Icons/shift-up.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Available, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
 
-                            <common:TwoToneSvg Path="/Assets/Icons/enable.svg" 
+                            <common:TwoToneSvg Path="/Assets/Icons/tick.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Disabled, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
 
-                            <common:TwoToneSvg Path="/Assets/Icons/disable.svg" 
+                            <common:TwoToneSvg Path="/Assets/Icons/connect.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Enabled, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
-
 
                             <common:TwoToneSvg Path="/Assets/Icons/refresh.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Unreachable, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>

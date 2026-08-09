@@ -38,6 +38,7 @@ namespace TitanControl.Disk.Model.Session
         [JsonPropertyName("autoTimeout")]
         public int? AutoTimeout { get; set; } = null;
 
+
         [JsonIgnore]
         public string ComputerName { get; set; } = string.Empty;
 
@@ -49,5 +50,7 @@ namespace TitanControl.Disk.Model.Session
 
         [JsonIgnore]
         public bool IsSelected { get; set; } = false;
+
+
     }
 }

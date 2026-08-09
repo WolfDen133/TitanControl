@@ -7,12 +7,23 @@ using System.Threading.Tasks;
 
 namespace TitanControl.Views.Page
 {
-    public class BasePage : UserControl
+    public class BasePage : UserControl, IPage
     {
-        public PageId Id { get; set; }
+        public virtual PageId Id { get; }
 
-        public virtual void OnShow() { }
-        public virtual void OnHide() { }
-        public virtual void OnRegister() { }
+        public virtual void OnHide()
+        {
+            IsVisible = false;
+        }
+
+        public virtual void OnRegister()
+        {
+            IsVisible = false;
+        }
+
+        public virtual void OnShow()
+        {
+            IsVisible = true;
+        }
     }
 }

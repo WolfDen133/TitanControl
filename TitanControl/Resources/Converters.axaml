@@ -8,4 +8,5 @@
     <converters:BoolToStateConverter x:Key="BoolToStateConverter"/>
     <converters:IsSessionAssignedToWorkspaceConverter x:Key="IsSessionAssignedToWorkspaceConverter"/>
     <converters:IsSessionAssignedToWorkspaceConverter Invert="True" x:Key="InvertedSessionAssignedToWorkspaceConverter"/>
+    <converters:ObjectIsNullConverter x:Key="ObjectIsNullConverter"/>
 </ResourceDictionary>

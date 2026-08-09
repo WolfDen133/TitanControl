@@ -20,7 +20,7 @@ public partial class App : Application
 {
     private ResourceHelper? _resourceHelper;
     private IDisposable? _dispatcherLogging;
-    public static ISessionManager<TitanControl.WebAPI.Titan> SessionManager { get; private set; } = default!;
+    public static SessionManager<Titan> SessionManager { get; private set; } = default!;
     public static WorkspaceManager WorkspaceManager { get; private set; } = default!;
 
     public override void Initialize()
