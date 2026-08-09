@@ -4,13 +4,10 @@
 
 /.vs
 /.git
-/TitanControl/bin
-/TitanControl/obj
-/TitanControl.WebAPI/bin
-/TitanControl.WebAPI/obj
-/TitanControl.Logging/bin
-/TitanControl.Logging/obj
+/TitanControl/bin/
+/TitanControl/obj/
+/TitanControl.WebAPI/bin/
+/TitanControl.WebAPI/obj/
+/TitanControl.Logging/bin/
+/TitanControl.Logging/obj/
 /TitanControl/TitanControl.csproj.user
-/TitanControl/obj/Debug/net8.0/TitanControl.AssemblyInfo.cs
-/TitanControl/obj/Debug/net8.0/TitanControl.AssemblyInfoInputs.cache
-/TitanControl/obj/Debug/net8.0/TitanControl.assets.cache
