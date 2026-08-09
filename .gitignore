@@ -4,10 +4,11 @@
 
 /.vs
 /.git
-/TitanControl/bin
-/TitanControl/obj
-/TitanControl.WebAPI/bin
-/TitanControl.WebAPI/obj
-/TitanControl.Logging/bin
-/TitanControl.Logging/obj
+/TitanControl/bin/**
+/TitanControl/obj/**
+/TitanControl.WebAPI/bin/**
+/TitanControl.WebAPI/obj/**
+/TitanControl.Logging/bin/**
+/TitanControl.Logging/obj/**
 /TitanControl/TitanControl.csproj.user
+

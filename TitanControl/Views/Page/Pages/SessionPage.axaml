@@ -90,6 +90,9 @@
                                                                       Host="{Binding ComputerName}"
                                                                       Command="{Binding #SessionPageRoot.DataContext.SessionQuickActionCommand}"
                                                                       CommandParameter="{Binding ID}"/>
+                                                                      Host="{Binding ComputerName}"
+                                                                      Command="{Binding #SessionPageRoot.DataContext.SessionQuickActionCommand}"
+                                                                      CommandParameter="{Binding Id}"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -109,6 +112,12 @@
                     <layout:Section.Icon>
                         <common:TwoToneSvg SvgSource="{StaticResource EditSvgSource}" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
                     </layout:Section.Icon>
+                    <Border>
+                        <Grid RowDefinitions="*, Auto">
+                            <StackPanel Spacing="20">
+                                <common:Field Text="Session Name" Required="True">
+                                    <TextBox Classes="app-input" Text="{Binding FormData.SessionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="e.g. Titan session"/>
+<<<<<<< HEAD
                     <Border>
                         <Grid RowDefinitions="*, Auto">
                             <StackPanel Spacing="20">
@@ -171,7 +180,79 @@
                             </StackPanel>
                         </Grid>
                     </Border>
+=======
+                    <Grid RowDefinitions="*, Auto">
+                        <StackPanel Spacing="20">
+                            <common:Field Text="Session Name">
+                                <TextBox/>
 
+                                </common:Field>
+                                <common:Field Text="IP Address / Hostname" Required="True">
+                                    <TextBox Classes="app-input" Text="{Binding FormData.IpAddress}" PlaceholderText="e.g. 10.0.0.1"/>
+
+                                </common:Field>
+                                <Grid ColumnDefinitions="* *" ColumnSpacing="20">
+                                    <common:Field Text="Regular Port" Required="True">
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.Port}" PlaceholderText="4430"/>
+                                    </common:Field>
+                                    <common:Field Grid.Column="1" Text="Interactive Port">
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.PortInteractive}" PlaceholderText="4431"/>
+                                    </common:Field>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1">
+                                <StackPanel.Styles>
+                                    <Style Selector="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </StackPanel.Styles>
+                                <Border Padding="0 10">
+                                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                                        <TextBlock Text="Connection Options" Classes="header"/>
+                                        <Rectangle Grid.Column="1" Height="1" Fill="{DynamicResource DividerBrush}"/>
+                                    </Grid>
+                                </Border>
+                                <Grid ColumnDefinitions="Auto, *" RowDefinitions="*, *, *, *, *" ColumnSpacing="10" RowSpacing="10">
+                                    <TextBlock VerticalAlignment="Center" Classes="header" Text="Auto Timeout"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.AutoTimeout}"/>
+                                        <TextBlock Classes="context" Text="Disconnect after"/>
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.AutoTimeoutMinuates}"/>
+                                        <TextBlock Classes="context" Text="minuates of activity"/>
+                                    </StackPanel>
+                                    <TextBlock VerticalAlignment="Center" Grid.Row="1" Classes="header" Text="Keep Alive"/>
+                                    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Classes="context" Text="Send keep alive every"/>
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.KeepAliveSeconds}"/>
+                                        <TextBlock Classes="context" Text="seconds"/>
+                                    </StackPanel>
+                                    <TextBlock VerticalAlignment="Center" Grid.Row="2" Classes="header" Text="Reconnect"/>
+                                    <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Spacing="4">
+                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.Reconnect}"/>
+                                        <TextBlock Classes="context" Text="Attempt to reconnect"/>
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.ReconnectAttempts}"/>
+                                        <TextBlock Classes="context" Text="times"/>
+                                    </StackPanel>
+                                    <TextBlock VerticalAlignment="Center" Grid.Row="3" Classes="header" Text="Use SSL / TLS (HTTPS)"/>
+                                    <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal" Spacing="4">
+                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.UseHttps}"/>
+                                        <TextBlock Classes="context" Text="Encrypt connection"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                            </common:Field>
+                            <common:Field Text="Session Name">
+                                <TextBox/>
+
+                            </common:Field>
+                        </StackPanel>
+                        
+                    </Grid>
+                    
+>>>>>>> 846b86b35407186905453585f5461065f53a3294
                     <layout:Section.FooterContent>
                         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
                             <common:IconButton Text="Save Changes" BorderBrush="{DynamicResource SuccessBrush}" Command="{Binding SaveSessionCommand}">
