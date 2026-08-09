@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Diagnostics.Tracing;
 using TitanControl.Helper;
@@ -39,6 +40,13 @@ namespace TitanControl.Controls.Menu
         public static readonly StyledProperty<Guid> IdProperty =
             AvaloniaProperty.Register<SessionOverview, Guid>(nameof(Id), Guid.Empty);
 
+        public static readonly StyledProperty<IRelayCommand?> CommandProperty =
+            AvaloniaProperty.Register<SessionOverview, IRelayCommand?>(nameof(Command));
+
+        public static readonly StyledProperty<object?> CommandParameterProperty =
+           AvaloniaProperty.Register<SessionOverview, object?>(nameof(CommandParameter));
+
+
         public string SessionName 
         {
             get => GetValue(SessionNameProperty); 
@@ -73,6 +81,18 @@ namespace TitanControl.Controls.Menu
         {
             get => GetValue(HostProperty);
             set => SetValue(HostProperty, value);
+        }
+
+        public IRelayCommand? Command
+        {
+            get => GetValue(CommandProperty);
+            set => SetValue(CommandProperty, value);
+        }
+
+        public object? CommandParameter
+        {
+            get => GetValue(CommandParameterProperty);
+            set => SetValue(CommandParameterProperty, value);
         }
 
         public bool IsSelected

@@ -21,6 +21,7 @@
     <ControlTheme x:Key="{x:Type controls:Section}" TargetType="controls:Section">
         <Setter Property="Template">
             <ControlTemplate x:DataType="controls:Section">
+            <Panel>
                 <Border Background="{DynamicResource BackgroundLBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
@@ -45,6 +46,8 @@
                         </Grid>
                     </Border>
                 </Border>
+                <Rectangle Grid.RowSpan="3" IsVisible="{TemplateBinding IsDisabled}" Fill="{DynamicResource BackgroundLLBrush}" Opacity="0.6"/>
+            </Panel>
 
             </ControlTemplate>
         </Setter>

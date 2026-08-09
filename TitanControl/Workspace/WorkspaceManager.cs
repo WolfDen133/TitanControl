@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TitanControl.Disk;
@@ -11,10 +13,22 @@ using TitanControl.Logging;
 
 namespace TitanControl.Workspace
 {
-    public class WorkspaceManager
+    public class WorkspaceManager : INotifyPropertyChanged
     {
+        private WorkspaceModel currentWorkspace = null!;
+
         private WorkspaceRecordModel record = new WorkspaceRecordModel();
-        public WorkspaceModel CurrentWorkspace { get; private set; } = null!;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public WorkspaceModel CurrentWorkspace { 
+            get => currentWorkspace; 
+            private set
+            {
+                currentWorkspace = value;
+                OnPropertyChanged(nameof(CurrentWorkspace));
+            }
+        }
       
         public WorkspaceManager() 
         {
@@ -103,7 +117,23 @@ namespace TitanControl.Workspace
                 Path = string.Empty
             });
 
+            CurrentWorkspace = workspace;
+
+            _ = SaveRecord();
+
             return workspace;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+        }
+
+        public virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            ArgumentNullException.ThrowIfNull(e);
+
+            PropertyChanged?.Invoke(this, e);
         }
     }
 }

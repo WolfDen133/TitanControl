@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using TitanControl.Disk.Model.Session;
 using TitanControl.Logging;
 using TitanControl.Session.Interface;
 using TitanControl.WebAPI;
@@ -77,6 +78,26 @@ namespace TitanControl.Session
         public IReadOnlyCollection<ISession<TApi>> GetAll()
         {
             return _sessions.Values.ToArray();
+        }
+
+        public bool Update(Guid sessionId, SessionModel newSession)
+        {
+            if (!_sessions.TryGetValue(sessionId, out var oldSession))
+                return false;
+            
+            var session = new ApiSession<TApi>(
+                oldSession.ID,
+                (TApi)new Titan(newSession.IPAddress, newSession.Port, newSession.PortInteractive ?? -1, newSession.UseHttps),
+                new SessionOptions
+                {
+                    KeepAliveInterval = TimeSpan.FromSeconds(newSession.KeepAlive),
+                    FailuresBeforeDisconnected = newSession.ReconnectIterations,
+                });
+
+            session.Name = newSession.Name;
+
+            _sessions[sessionId] = session;
+            return true;
         }
 
         public bool Remove(Guid sessionId)

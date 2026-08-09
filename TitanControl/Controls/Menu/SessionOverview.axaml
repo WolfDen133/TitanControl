@@ -63,7 +63,13 @@
                     </Border>
                 </Panel>
                 
-                <common:IconButton Grid.Column="3" Grid.RowSpan="2" TextVisible="False" BorderBrush="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.5}">
+                <common:IconButton 
+                    Grid.Column="3" 
+                    Grid.RowSpan="2" 
+                    TextVisible="False" 
+                    BorderBrush="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.5}" 
+                    Command="{Binding Command, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" 
+                    CommandParameter="{Binding CommandParameter, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}">
                     <common:IconButton.Icon>
                         <Panel>
                             <Panel.Styles>
@@ -82,8 +88,11 @@
                             <common:TwoToneSvg Path="/Assets/Icons/shift-up.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Available, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
 
-                            <common:TwoToneSvg Path="/Assets/Icons/play.svg" 
-                                               IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Inactive, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
+                            <common:TwoToneSvg Path="/Assets/Icons/tick.svg" 
+                                               IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Disabled, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
+
+                            <common:TwoToneSvg Path="/Assets/Icons/connect.svg" 
+                                               IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Enabled, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
 
                             <common:TwoToneSvg Path="/Assets/Icons/refresh.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Unreachable, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>

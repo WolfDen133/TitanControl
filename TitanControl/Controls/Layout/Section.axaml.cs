@@ -22,6 +22,8 @@ public class Section : ContentControl
     public static StyledProperty<object?> IconProperty =
         AvaloniaProperty.Register<Section, object?>(nameof(Icon), null);
 
+    public static readonly StyledProperty<bool?> IsDisabledProperty =
+        AvaloniaProperty.Register<Section, bool?>(nameof(IsDisabled), false);
 
     public object? Icon
     {
@@ -51,5 +53,11 @@ public class Section : ContentControl
     {
         get => GetValue(SubtitleProperty);
         set => SetValue(SubtitleProperty, value);
+    }
+
+    public bool? IsDisabled
+    {
+        get => GetValue(IsDisabledProperty);
+        set => SetValue(IsDisabledProperty, value);
     }
 }

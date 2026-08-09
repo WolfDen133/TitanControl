@@ -21,10 +21,10 @@
   <ControlTheme x:Key="{x:Type controls:IconButton}" TargetType="controls:IconButton">
     <Setter Property="Template">
       <ControlTemplate>
-        <Button Padding="8" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="{TemplateBinding BorderBrush}">
+        <Button Padding="8" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="{TemplateBinding BorderBrush}" Command="{TemplateBinding Command}" CommandParameter="{TemplateBinding CommandParameter}">
             <Grid ColumnDefinitions="Auto, Auto" VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="Container">
                 <ContentControl Height="24" Width="24" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{TemplateBinding Icon}"/>
-                <TextBlock IsVisible="{TemplateBinding TextVisible}" Grid.Column="1" VerticalAlignment="Center" x:Name="Label" Padding="4 4" Text="{TemplateBinding Text}" Classes="value"/>
+                <TextBlock IsVisible="{TemplateBinding TextVisible}" Grid.Column="1" VerticalAlignment="Center" x:Name="Label" Padding="4 4" Text="{TemplateBinding Text}" Foreground="{TemplateBinding Foreground}" Classes="value"/>
             </Grid>
         </Button>
       </ControlTemplate>

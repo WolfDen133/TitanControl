@@ -15,7 +15,7 @@ namespace TitanControl.Session.Utils
         public string Name { get; set; } = "Titan Session";
         public string ComputerName { get; set; } = "DESKTOP-NAME";
         public IPAddress Address { get; set; } = new IPAddress(new byte[] { 127, 0, 0, 1 });
-        public int Port { get; set; } = 3340;
+        public int Port { get; set; } = 4430;
         public int? PortInteractive { get; set; } = null;
         public SessionConnectionState State { get; set; } = SessionConnectionState.Disconnected;
         public bool IsSelected { get; set; } = false;

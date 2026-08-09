@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:common="using:TitanControl.Controls.Common"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="using:TitanControl.Views"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="TitanControl.Views.ModalDialogWindow"
+        x:DataType="local:ModalDialogWindow"
+        Width='380'
+        Height="220"
+        CanResize="False"
+        ShowInTaskbar="False"
+        CanMinimize="False"
+        CanMaximize="false"
+        Topmost="True"
+        Background="{DynamicResource BackgroundLBrush}"
+        WindowStartupLocation="CenterOwner">
+        <Border Padding="15 10 15 5">
+            <Grid RowDefinitions="Auto, *, Auto, Auto" RowSpacing="10">
+                <TextBlock Classes="h2" Text="{Binding Heading}"/>
+                <Border Grid.Row="1" Background="{DynamicResource BackgroundDBrush}" Padding="10">
+                    <TextBlock Classes="value" Text="{Binding Text}" TextWrapping="Wrap"/>
+                </Border>
+                <ContentControl Grid.Row="2" IsVisible="{Binding Content, Converter={StaticResource ObjectIsNullConverter}}" Content="{Binding Content}" IsEnabled="True"/>
+                <Grid ColumnDefinitions="*, *" Grid.Row="2" ColumnSpacing="10">
+                    <common:IconButton Text="Accept" Command="{Binding AcceptCommand}" BorderBrush="{DynamicResource SuccessBrush}">
+                        <common:IconButton.Icon>
+                            <Svg SvgSource="{StaticResource TickSource}" CurrentColor="{DynamicResource SuccessColorL}"/>
+                        </common:IconButton.Icon>
+                    </common:IconButton>
+                    <common:IconButton Text="Decline" Grid.Column="1" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1" Command="{Binding DeclineCommand}" IsEnabled="True">
+                        <common:IconButton.Icon>
+                            <Svg SvgSource="{StaticResource CrossSource}" CurrentColor="{DynamicResource DangerColorL}"/>
+                        </common:IconButton.Icon>
+                    </common:IconButton>
+                </Grid>
+            </Grid>
+        </Border>
+</Window>

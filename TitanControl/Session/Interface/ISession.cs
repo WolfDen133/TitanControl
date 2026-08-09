@@ -20,6 +20,5 @@ namespace TitanControl.Session.Interface
         void Stop();
 
         event EventHandler<SessionStateChangedEventArgs> StateChanged;
-
     }
 }

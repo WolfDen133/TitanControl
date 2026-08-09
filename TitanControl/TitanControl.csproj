@@ -39,4 +39,14 @@
   <ItemGroup>
     <ProjectReference Include="..\TitanControl.WebAPI\TitanControl.WebAPI.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\ModalDialogWindow.axaml.cs">
+      <DependentUpon>ModalDialogWindow.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

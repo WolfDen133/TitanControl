@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TitanControl")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+71f90641c6c324676c141d2a2ccbf553fd664958")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8f197cf2a12bcda442307acacc4f89d81006df4")]
 [assembly: System.Reflection.AssemblyProductAttribute("TitanControl")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TitanControl")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

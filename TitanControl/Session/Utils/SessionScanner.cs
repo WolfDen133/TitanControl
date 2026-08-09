@@ -38,10 +38,10 @@ namespace TitanControl.Session.Utils
         private readonly bool _useHttps;
         private readonly HttpClient _http;
 
-        private readonly ObservableCollection<ScannedSession> _results = new();
-        private readonly ReadOnlyObservableCollection<ScannedSession> _readOnlyResults;
+        private readonly ObservableCollection<SessionModel> _results = new();
+        private readonly ReadOnlyObservableCollection<SessionModel> _readOnlyResults;
 
-        private readonly ConcurrentDictionary<string, ScannedSession> _knownSessions =
+        private readonly ConcurrentDictionary<string, SessionModel> _knownSessions =
             new(StringComparer.OrdinalIgnoreCase);
 
         private readonly SynchronizationContext? _synchronizationContext;
@@ -54,7 +54,7 @@ namespace TitanControl.Session.Utils
         /// <summary>
         /// Gets the discovered Titan sessions.
         /// </summary>
-        public ReadOnlyObservableCollection<ScannedSession> Results =>
+        public ReadOnlyObservableCollection<SessionModel> Results =>
             _readOnlyResults;
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace TitanControl.Session.Utils
             _synchronizationContext = SynchronizationContext.Current;
 
             _readOnlyResults =
-                new ReadOnlyObservableCollection<ScannedSession>(_results);
+                new ReadOnlyObservableCollection<SessionModel>(_results);
 
             Log.Debug(
                 $"Created session scanner on {_localInterfaceAddress}.",
@@ -335,7 +335,7 @@ namespace TitanControl.Session.Utils
              */
             if (_knownSessions.TryGetValue(
                     key,
-                    out ScannedSession? knownSession))
+                    out SessionModel? knownSession))
             {
                 if (knownSession.PortInteractive is null)
                 {
@@ -384,12 +384,12 @@ namespace TitanControl.Session.Utils
                         cancellationToken)
                     .ConfigureAwait(false);
 
-            var session = new ScannedSession
+            var session = new SessionModel
             {
-                Id = Guid.NewGuid(),
+                ID = Guid.NewGuid(),
                 Name = device.Legend,
                 ComputerName = device.ComputerName,
-                Address = address,
+                IPAddress = address,
                 Port = NormalPort,
                 PortInteractive = interactivePortAvailable
                     ? InteractivePort
@@ -591,7 +591,7 @@ namespace TitanControl.Session.Utils
 
             if (!_knownSessions.TryGetValue(
                     key,
-                    out ScannedSession? existing))
+                    out SessionModel? existing))
             {
                 return;
             }
@@ -603,12 +603,12 @@ namespace TitanControl.Session.Utils
              * ScannedSession does not implement INotifyPropertyChanged,
              * so replace the item to raise an ObservableCollection event.
              */
-            var replacement = new ScannedSession
+            var replacement = new SessionModel
             {
-                Id = existing.Id,
+                ID = existing.ID,
                 Name = existing.Name,
                 ComputerName = existing.ComputerName,
-                Address = existing.Address,
+                IPAddress = existing.IPAddress,
                 Port = existing.Port,
                 PortInteractive = interactivePort,
                 State = existing.State,

@@ -14,16 +14,17 @@ namespace TitanControl.Views.Page
     public class PageManager
     {
         public const string LoggingCategory = "PageManager";
-
+        
         private Dictionary<PageId, BasePage> _pages = new();
         private Grid _root = null!;
         public PageId CurrentPage { get; private set; } = PageId.None;
 
         public event EventHandler<BasePage> OnPageChanged = null!;
 
-        public void Initialize(Grid root)
+        public void Initialize(Window openWindowGrid, Grid root)
         {
             _root = root;
+
             RegisterPages();
             LoadPages();
         }

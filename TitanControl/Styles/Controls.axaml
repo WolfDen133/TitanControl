@@ -1,40 +1,477 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:common="using:TitanControl.Controls.Common">
   <Design.PreviewWith>
     <Border Padding="20" Background="{DynamicResource BackgroundLBrush}">
         <StackPanel Width="200" Spacing="5">
-            <TextBox PlaceholderText="TextInput"/>
-            <NumericUpDown Value="20"/>
-            <Button Content="Button"/>
+            <TextBox PlaceholderText="TextInput" Classes="app-input "/>
+            <common:NumericUpDown PlaceholderText="20" Classes="app-input"/>
+            <Button Content="Button" Classes="app-input"/>
             <CheckBox/>
         </StackPanel>
       
     </Border>
   </Design.PreviewWith>
 
-  <Style Selector="TextBox">
-      <Setter Property="Background" Value="{DynamicResource BackgroundDBrush}"/>
-      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-      <Setter Property="Padding" Value="4"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-  </Style>
-  <Style Selector="NumericUpDown">
-      <Setter Property="Background" Value="{DynamicResource BackgroundDBrush}"/>
-      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-      <Setter Property="Padding" Value="4"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-  </Style>
 
-    <Style Selector="Button">
-      <Setter Property="Background" Value="{DynamicResource BackgroundLBrush}"/>
-      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-      <Setter Property="Padding" Value="4"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-  </Style>
-    <Style Selector="CheckBox">
-      <Setter Property="Background" Value="{DynamicResource BackgroundDBrush}"/>
-      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-      <Setter Property="Padding" Value="4"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-  </Style>
+    <Style Selector="TextBox.app-input,
+                 ComboBox.app-input,
+                 NumericUpDown.app-input">
+        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style Selector="TextBox.app-input:pointerover,
+                     ComboBox.app-input:pointerover,
+                     NumericUpDown.app-input:pointerover">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource ButtonBackgroundHoverBrush}" />
+    </Style>
+
+    <Style Selector="TextBox.app-input:focus-within,
+                     ComboBox.app-input:focus-within,
+                     NumericUpDown.app-input:focus-within">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderFocusBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <Style Selector="TextBox.app-input:error,
+                     ComboBox.app-input:error,
+                     NumericUpDown.app-input:error">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource DangerBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <Style Selector="TextBox.app-input:error:pointerover,
+                     ComboBox.app-input:error:pointerover,
+                     NumericUpDown.app-input:error:pointerover">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource DangerLBrush}" />
+    </Style>
+
+    <Style Selector="TextBox.app-input:disabled,
+                     ComboBox.app-input:disabled,
+                     NumericUpDown.app-input:disabled">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDDBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundDisabledBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="Opacity" Value="0.75" />
+    </Style>
+        <Style Selector="TextBox.app-input">
+        <Setter Property="Padding" Value="10,7" />
+
+        <Setter Property="PlaceholderForeground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+
+        <Setter Property="CaretBrush"
+                Value="{DynamicResource AccentLBrush}" />
+
+        <Setter Property="SelectionBrush"
+                Value="{DynamicResource SelectionBrush}" />
+
+        <Setter Property="SelectionForegroundBrush"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <Style Selector="TextBox.app-input">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="PlaceholderForeground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+    </Style>
+
+    <Style Selector="TextBox.app-input /template/ TextBlock#PART_Placeholder">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontStyle" Value="Italic" />
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+    </Style>
+
+    <!-- Keyboard focus -->
+    <Style Selector="TextBox.app-input:focus-visible">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderFocusBrush}" />
+    </Style>
+
+    <!-- Read-only is visually distinct from disabled -->
+    <Style Selector="TextBox.app-input:read-only">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDDBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundSecondaryBrush}" />
+    </Style>
+
+    <!-- Multiline variant -->
+    <Style Selector="TextBox.app-input.multiline">
+        <Setter Property="MinHeight" Value="100" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="AcceptsReturn" Value="True" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+    </Style>
+
+    <Style Selector="ComboBox.app-input">
+        <Setter Property="Padding" Value="10,7,34,7" />
+        <Setter Property="PlaceholderForeground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+    </Style>
+
+    <!-- Open/pressed state -->
+    <Style Selector="ComboBox.app-input:pressed">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource AccentBrush}" />
+    </Style>
+
+    <Style Selector="ComboBox.app-input:dropdownopen">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource AccentBrush}" />
+    </Style>
+
+    <!-- Selected content -->
+    <Style Selector="ComboBox.app-input /template/ ContentPresenter">
+        <Setter Property="TextElement.Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <!-- Placeholder -->
+    <Style Selector="ComboBox.app-input /template/ TextBlock">
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <!-- Editable ComboBox text editor -->
+    <Style Selector="ComboBox.app-input /template/ TextBox#PART_EditableTextBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CaretBrush"
+                Value="{DynamicResource AccentLBrush}" />
+        <Setter Property="SelectionBrush"
+                Value="{DynamicResource SelectionBrush}" />
+        <Setter Property="SelectionForegroundBrush"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <!-- Popup -->
+    <Style Selector="ComboBox.app-input /template/ Popup#PART_Popup">
+        <Setter Property="MaxHeight" Value="320" />
+    </Style>
+
+    <!--
+    The exact popup border name depends on the active Avalonia theme.
+    Check it in DevTools and retain the selector that matches your template.
+    -->
+    <Style Selector="ComboBox.app-input /template/ Border#PopupBorder">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
+
+    <Style Selector="ComboBoxItem.app-combo-item">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="Margin" Value="0,1" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+    </Style>
+
+    <Style Selector="ComboBoxItem.app-combo-item:pointerover">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLLBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <Style Selector="ComboBoxItem.app-combo-item:pressed">
+        <Setter Property="Background"
+                Value="{DynamicResource ButtonBackgroundPressedBrush}" />
+    </Style>
+
+    <Style Selector="ComboBoxItem.app-combo-item:selected">
+        <Setter Property="Background"
+                Value="{DynamicResource SelectionBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <Style Selector="ComboBoxItem.app-combo-item:selected:pointerover">
+        <Setter Property="Background"
+                Value="{DynamicResource SelectionLBrush}" />
+    </Style>
+
+    <Style Selector="ComboBoxItem.app-combo-item:focus-visible">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource SelectionFocusBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="ComboBoxItem.app-combo-item:disabled">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundDisabledBrush}" />
+        <Setter Property="Opacity" Value="0.65" />
+    </Style>
+
+        <Style Selector="NumericUpDown.app-input">
+        <Setter Property="Padding" Value="0" />
+
+        <Setter Property="PlaceholderForeground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+    </Style>
+
+    <Style Selector="ComboBox.app-input">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="PlaceholderForeground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+    </Style>
+
+    <Style Selector="ComboBox.app-input /template/ TextBlock#PlaceholderTextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontStyle" Value="Italic" />
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+    </Style>
+
+    <Style Selector="NumericUpDown.app-input">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="PlaceholderForeground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+        <Setter Property="Background" Value="{DynamicResource BackgroundDBrush}"/>
+    </Style>
+
+    <!-- Internal text editor -->
+    <Style Selector="NumericUpDown.app-input /template/ TextBox">
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="6,0,0,6" />
+        <Setter Property="CaretBrush"
+                Value="{DynamicResource AccentLBrush}" />
+        <Setter Property="SelectionBrush"
+                Value="{DynamicResource SelectionBrush}" />
+        <Setter Property="SelectionForegroundBrush"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <Style Selector="NumericUpDown.app-input /template/ TextBox
+                 /template/ TextBlock#PART_Placeholder">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontStyle" Value="Italic" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+    </Style>
+
+    <Style Selector="NumericUpDown.app-input:disabled /template/ TextBox">
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundDisabledBrush}" />
+    </Style>
+
+    <!-- Spinner container -->
+    <Style Selector="NumericUpDown.app-input /template/ ButtonSpinner">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1,0,0,0" />
+    </Style>
+
+    <!-- Spinner buttons -->
+    <Style Selector="NumericUpDown.app-input /template/ RepeatButton">
+        <Setter Property="MinWidth" Value="28" />
+        <Setter Property="Padding" Value="4,1" />
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundSecondaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+
+    <Style Selector="NumericUpDown.app-input /template/ RepeatButton:pointerover">
+        <Setter Property="Background"
+                Value="{DynamicResource ButtonBackgroundHoverBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <Style Selector="NumericUpDown.app-input /template/ RepeatButton:pressed">
+        <Setter Property="Background"
+                Value="{DynamicResource ButtonBackgroundPressedBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentLLBrush}" />
+    </Style>
+
+    <Style Selector="NumericUpDown.app-input /template/ RepeatButton:focus-visible">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderFocusBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="NumericUpDown.app-input /template/ RepeatButton:disabled">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDDBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundDisabledBrush}" />
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+        <Style Selector="RepeatButton#PART_DecreaseButton:pointerover">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLBrush}" />
+    </Style>
+
+    <Style Selector="RepeatButton#PART_IncreaseButton:pressed">
+        <Setter Property="Background"
+                Value="{DynamicResource ButtonBackgroundPressedBrush}" />
+    </Style>
+
+    <Style Selector="RepeatButton#PART_DecreaseButton:pressed">
+        <Setter Property="Background"
+                Value="{DynamicResource ButtonBackgroundPressedBrush}" />
+    </Style>
+    <Style Selector="NumericUpDown:focus-within">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderFocusBrush}" />
+    </Style>
+    <Style Selector="NumericUpDown:disabled">
+        <Setter Property="Opacity"
+                Value="0.6" />
+    </Style>
+
+    <Style Selector="NumericUpDown TextBox">
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+
+        <Setter Property="CaretBrush"
+                Value="{DynamicResource AccentBrush}" />
+
+        <Setter Property="SelectionBrush"
+                Value="{DynamicResource SelectionBrush}" />
+    </Style>
+
+    <Style Selector="ComboBox.app-input">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="PlaceholderForeground"
+                Value="{DynamicResource ForegroundPlaceholderBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:pointerover">
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:pressed">
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundSecondaryBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:disabled">
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundDisabledBrush}" />
+        <Setter Property="Opacity" Value="0.7" />
+    </Style>
+
+    <!--
+    These names must match the active CheckBox template.
+    Use DevTools to identify the indicator's exact name.
+    -->
+    <Style Selector="CheckBox.app-check /template/ Border#PART_Indicator">
+        <Setter Property="Width" Value="18" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:pointerover /template/ Border#PART_Indicator">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource ButtonBackgroundHoverBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:pressed /template/ Border#PART_Indicator">
+        <Setter Property="Background"
+                Value="{DynamicResource ButtonBackgroundPressedBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:checked /template/ Border#PART_Indicator">
+        <Setter Property="Background"
+                Value="{DynamicResource AccentBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource AccentLBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:checked:pointerover /template/ Border#PART_Indicator">
+        <Setter Property="Background"
+                Value="{DynamicResource AccentColorL}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource AccentLLBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:indeterminate /template/ Border#PART_Indicator">
+        <Setter Property="Background"
+                Value="{DynamicResource SelectionBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource SelectionFocusBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:focus-visible /template/ Border#PART_Indicator">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderFocusBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:disabled /template/ Border#PART_Indicator">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDDBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderSubtleBrush}" />
+    </Style>
+
+    <!-- Check and indeterminate glyphs -->
+    <Style Selector="CheckBox.app-check /template/ PathIcon">
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}" />
+    </Style>
+
+    <Style Selector="CheckBox.app-check:disabled /template/ PathIcon">
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundDisabledBrush}" />
+    </Style>
 </Styles>

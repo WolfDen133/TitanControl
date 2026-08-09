@@ -3,5 +3,8 @@
   <ResourceDictionary.MergedDictionaries>
       <ResourceInclude Source="avares://TitanControl/Controls/Layout/Section.axaml"/>
       <ResourceInclude Source="avares://TitanControl/Controls/Common/IconButton.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Controls/Common/Field.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Controls/Common/Input/NumericUpDown.axaml"/>
+
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

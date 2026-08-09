@@ -10,9 +10,9 @@ namespace TitanControl.Views.Page.Pages
         public WorkspacePage()
         {
             InitializeComponent();
-
-            Id = PageId.Workspace;
         }
+
+        public override PageId Id => PageId.Workspace;
 
         public void LoadControls(WorkspaceModel workspace)
         {

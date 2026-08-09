@@ -20,7 +20,7 @@ namespace TitanControl.Session
 
         private Timer? _keepAliveTimer;
         private SessionConnectionState _state =
-            SessionConnectionState.Disconnected;
+            SessionConnectionState.Available;
 
         private int _consecutiveFailures;
         private int _keepAliveRunning;

@@ -6,6 +6,7 @@ using Avalonia.VisualTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TitanControl.Controls.Menu;
 using TitanControl.Logging;
 using TitanControl.ViewModels;
@@ -14,30 +15,25 @@ namespace TitanControl.Views.Page.Pages
 {
     public partial class SessionPage : BasePage
     {
+
         public Dictionary<Guid, SessionOverview> sessionControls = new();
+
+        public override PageId Id => PageId.Session;
 
         public SessionPage()
         {
             InitializeComponent();
 
-            Id = PageId.Session;
             DataContext = new SessionPageModel();
         }
 
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
-
-            if (DataContext is SessionPageModel model)
-            {
-
-            }
         }
 
         public override void OnRegister()
         {
-            base.OnRegister();
-
             if (DataContext is SessionPageModel model)
             {
                 model.Initialize();
@@ -49,7 +45,7 @@ namespace TitanControl.Views.Page.Pages
             if (DataContext is SessionPageModel model)
             {
                 _ = model.StartScanner();
-                _ = model.UpdateSessions();
+                Task.Run(model.UpdateSessions);
             }
         }
 
@@ -58,6 +54,7 @@ namespace TitanControl.Views.Page.Pages
             if (DataContext is SessionPageModel model)
             {
                 model.StopScanner();
+                _ = model.Clear();
             }
         }
 
@@ -70,14 +67,8 @@ namespace TitanControl.Views.Page.Pages
                 if (DataContext is SessionPageModel model)
                 {
                     Log.Debug("Is Model");
-                    foreach (var session in model.ScanResults)
-                    {
-                        if (session.Id == sessionOverview.Id)
-                            continue;
 
-                        Log.Debug(session.Id.ToString() + " " + sessionOverview.Id.ToString());
-                        session.IsSelected = false;
-                    }
+                    model.SelectSession(sessionOverview.Id);
                 }
             }
         }

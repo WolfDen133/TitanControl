@@ -8,30 +8,31 @@
              xmlns:viewmodels="using:TitanControl.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1900" d:DesignHeight="1000"
              x:DataType="viewmodels:SessionPageModel"
+             x:Name="SessionPageRoot"
              x:Class="TitanControl.Views.Page.Pages.SessionPage">
     <Border Padding="12" Background="{DynamicResource BackgroundLBrush}">
         <Grid RowDefinitions="Auto, *" RowSpacing="8">
             <Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Top" Height="70">
                 <Border Padding="10">
-                    <common:TwoToneSvg x:Name="SessionSvg" Path="/Assets/Icons/session.svg" PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource AccentColor}"/>
+                    <common:TwoToneSvg x:Name="SessionSvg" SvgSource="{StaticResource SessionSvgSource}" PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource AccentColor}"/>
                 </Border>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Classes="h1" Text="Sessions"/>
                     <TextBlock Classes="h3" FontSize="14" Text="Discover, configure and manage your connections" Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <TextBlock Classes="h4" Text="Network Interface"/>
-                    <ComboBox ItemsSource="{Binding Interfaces}" SelectedIndex="{Binding SelectedNic}"/>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
+                    <TextBlock Classes="h3" Text="Network Interface"/>
+                    <ComboBox ItemsSource="{Binding Interfaces}" SelectedIndex="{Binding SelectedNic}" Classes="app-input"/>
                 </StackPanel>
             </Grid>
-            <Grid Grid.Row="1" ColumnSpacing="20" ColumnDefinitions="*, *, *" Margin="10" ClipToBounds="False">
+            <Grid Grid.Row="1" ColumnSpacing="20" ColumnDefinitions="*, 0.9*, *" Margin="10" ClipToBounds="False">
                 <layout:Section Title="Active &amp; Available" Subtitle="Discover available or add new sessions">
                     <layout:Section.HeaderContent>
                         <Button IsEnabled="{Binding RefreshEnabled}" Click="Button_Click">
                             <Border Padding="8 4">
                                 <StackPanel Orientation="Horizontal" Spacing="5">
                                     <Border x:Name="RefreshIcon" Classes.running="{Binding !RefreshEnabled}">
-                                        <Svg VerticalAlignment="Center" Path="/Assets/Icons/refresh.svg" Width="20" Height="20" CurrentColor="{DynamicResource Foreground}"/>
+                                        <Svg VerticalAlignment="Center" SvgSource="{StaticResource RefreshSvgSource}" Width="20" Height="20" CurrentColor="{DynamicResource Foreground}"/>
                                     </Border>
                                     <TextBlock VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" Text="Refresh" FontSize="16"/>
                                 </StackPanel>
@@ -39,10 +40,10 @@
                         </Button>
                     </layout:Section.HeaderContent>
                     <layout:Section.Icon>
-                        <common:TwoToneSvg Path="/Assets/Icons/session-list.svg" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
+                        <common:TwoToneSvg SvgSource="{StaticResource SessionListSvgSource}" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
                     </layout:Section.Icon>
                     <Grid RowDefinitions="Auto, *" RowSpacing="8">
-                        <TextBox PlaceholderText="Filter sessions..."/>
+                        <TextBox PlaceholderText="Filter sessions..." Classes="app-input"/>
                         <Border Grid.Row="1" CornerRadius="10" Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel Spacing="5">
@@ -61,7 +62,9 @@
                                                                       IpAddress="{Binding IPAddress}" 
                                                                       Port="{Binding Port}" 
                                                                       PortInteractive="{Binding PortInteractive}" 
-                                                                      Host="{Binding ComputerName}"/>
+                                                                      Host="{Binding ComputerName}"
+                                                                      Command="{Binding #SessionPageRoot.DataContext.SessionQuickActionCommand}"
+                                                                      CommandParameter="{Binding ID}"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -77,14 +80,16 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <menu:SessionOverview OnSelect="SessionOverview_OnSelect" 
-                                                                      Id="{Binding Id}"
+                                                                      Id="{Binding ID}"
                                                                       IsSelected="{Binding IsSelected}" 
                                                                       SessionName="{Binding Name}" 
                                                                       SessionStatus="{Binding State}" 
-                                                                      IpAddress="{Binding Address}" 
+                                                                      IpAddress="{Binding IPAddress}" 
                                                                       Port="{Binding Port}" 
                                                                       PortInteractive="{Binding PortInteractive}" 
-                                                                      Host="{Binding ComputerName}"/>
+                                                                      Host="{Binding ComputerName}"
+                                                                      Command="{Binding #SessionPageRoot.DataContext.SessionQuickActionCommand}"
+                                                                      CommandParameter="{Binding ID}"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -93,49 +98,229 @@
                         </Border>
                     </Grid>
                     <layout:Section.FooterContent>
-                        <common:IconButton Text="Add session manually" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <common:IconButton Text="Add session manually" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Command="{Binding AddManualCommand}"> 
                             <common:IconButton.Icon>
-                                <common:TwoToneSvg Path="/Assets/Icons/add.svg" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource AccentColor}"/>
+                                <common:TwoToneSvg SvgSource="{StaticResource AddSvgSource}" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource AccentColor}"/>
                             </common:IconButton.Icon>
                         </common:IconButton>
                     </layout:Section.FooterContent>
                 </layout:Section>
-                <layout:Section Grid.Column="1" Title="Edit session" Subtitle="Configure the selected session">
+                <layout:Section Grid.Column="1" Title="Edit session" Subtitle="Configure the selected session" IsDisabled="{Binding !IsEditing}">
                     <layout:Section.Icon>
-                        <common:TwoToneSvg Path="/Assets/Icons/edit.svg" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
+                        <common:TwoToneSvg SvgSource="{StaticResource EditSvgSource}" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
                     </layout:Section.Icon>
-                    <Grid RowDefinitions="*, Auto">
-                        <StackPanel Spacing="20">
-                            <common:Field Text="Session Name">
-                                <TextBox/>
+                    <Border>
+                        <Grid RowDefinitions="*, Auto">
+                            <StackPanel Spacing="20">
+                                <common:Field Text="Session Name" Required="True">
+                                    <TextBox Classes="app-input" Text="{Binding FormData.SessionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="e.g. Titan session"/>
 
-                            </common:Field>
-                            <common:Field Text="Session Name">
-                                <TextBox/>
+                                </common:Field>
+                                <common:Field Text="IP Address / Hostname" Required="True">
+                                    <TextBox Classes="app-input" Text="{Binding FormData.IpAddress}" PlaceholderText="e.g. 10.0.0.1"/>
 
-                            </common:Field>
-                            <common:Field Text="Session Name">
-                                <TextBox/>
+                                </common:Field>
+                                <Grid ColumnDefinitions="* *" ColumnSpacing="20">
+                                    <common:Field Text="Regular Port" Required="True">
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.Port}" PlaceholderText="4430"/>
+                                    </common:Field>
+                                    <common:Field Grid.Column="1" Text="Interactive Port">
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.PortInteractive}" PlaceholderText="4431"/>
+                                    </common:Field>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1">
+                                <StackPanel.Styles>
+                                    <Style Selector="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </StackPanel.Styles>
+                                <Border Padding="0 10">
+                                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                                        <TextBlock Text="Connection Options" Classes="header"/>
+                                        <Rectangle Grid.Column="1" Height="1" Fill="{DynamicResource DividerBrush}"/>
+                                    </Grid>
+                                </Border>
+                                <Grid ColumnDefinitions="Auto, *" RowDefinitions="*, *, *, *, *" ColumnSpacing="10" RowSpacing="10">
+                                    <TextBlock VerticalAlignment="Center" Classes="header" Text="Auto Timeout"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.AutoTimeout}"/>
+                                        <TextBlock Classes="context" Text="Disconnect after"/>
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.AutoTimeoutMinuates}"/>
+                                        <TextBlock Classes="context" Text="minuates of activity"/>
+                                    </StackPanel>
+                                    <TextBlock VerticalAlignment="Center" Grid.Row="1" Classes="header" Text="Keep Alive"/>
+                                    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Classes="context" Text="Send keep alive every"/>
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.KeepAliveSeconds}"/>
+                                        <TextBlock Classes="context" Text="seconds"/>
+                                    </StackPanel>
+                                    <TextBlock VerticalAlignment="Center" Grid.Row="2" Classes="header" Text="Reconnect"/>
+                                    <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Spacing="4">
+                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.Reconnect}"/>
+                                        <TextBlock Classes="context" Text="Attempt to reconnect"/>
+                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.ReconnectAttempts}"/>
+                                        <TextBlock Classes="context" Text="times"/>
+                                    </StackPanel>
+                                    <TextBlock VerticalAlignment="Center" Grid.Row="3" Classes="header" Text="Use SSL / TLS (HTTPS)"/>
+                                    <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal" Spacing="4">
+                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.UseHttps}"/>
+                                        <TextBlock Classes="context" Text="Encrypt connection"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-                            </common:Field>
-                        </StackPanel>
-                        
-                    </Grid>
-                    
                     <layout:Section.FooterContent>
-                        <StackPanel>
-                            
+                        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                            <common:IconButton Text="Save Changes" BorderBrush="{DynamicResource SuccessBrush}" Command="{Binding SaveSessionCommand}">
+                                <common:IconButton.Icon>
+                                    <Svg SvgSource="{StaticResource DiskSvgSource}" CurrentColor="{DynamicResource SuccessColorL}"/>
+                                </common:IconButton.Icon>
+                            </common:IconButton>
+                            <common:IconButton Text="Cancel" BorderBrush="{DynamicResource DangerBrush}" Command="{Binding CancelCommand}">
+                                <common:IconButton.Icon>
+                                    <Svg SvgSource="{StaticResource CancelSvgSource}" CurrentColor="{DynamicResource DangerColorL}"/>
+                                </common:IconButton.Icon>
+                            </common:IconButton>
                         </StackPanel>
                     </layout:Section.FooterContent>
                 </layout:Section>
                 <layout:Section Grid.Column="2" Title="Current session" Subtitle="Currently selected or connected session">
                     <layout:Section.Icon>
-                        <common:TwoToneSvg Path="/Assets/Icons/statistic.svg" PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource AccentColor}"/>
+                        <common:TwoToneSvg SvgSource="{StaticResource StatisticSvgSource}" PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource AccentColor}"/>
                     </layout:Section.Icon>
+                    <Grid RowDefinitions="Auto, *, Auto">
+                        <Border CornerRadius="10"
+                                Padding="20"
+                                BorderBrush="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.3}" 
+                                BorderThickness="1" 
+                                Background="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.1}">
+                            <StackPanel Spacing="10">
+                                <Grid RowDefinitions="Auto, *" RowSpacing="8">
+                                    <StackPanel Spacing="10" Orientation="Horizontal">
+                                        <Ellipse Width="15" Height="15" Fill="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}}" VerticalAlignment="Center"/>
+                                        <TextBlock Classes="value" Foreground="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}}" Text="{Binding SelectedSession?.State}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Classes="context" Foreground="{DynamicResource ForegroundSecondaryBrush}">
+                                        <Run>Since</Run>
+                                        <Run Text="{Binding SelectedSession?.ConnectedAt, StringFormat={}{0:dd/MM HH:mm}}"/>
+                                    </TextBlock>
+                                    <StackPanel Grid.Row="1" Spacing="2">
+                                        <TextBlock Classes="h1" Text="{Binding SelectedSession?.Name}" Padding="0 2"/>
+                                        <TextBlock Classes="h3" Text="{Binding Endpoint}" Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Padding="10 15">
+                            <StackPanel Spacing="15">
+                                <UniformGrid Rows="9" Columns="2" RowSpacing="10">
+                                    <UniformGrid.Styles>
+                                        <Style Selector="TextBlock">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </UniformGrid.Styles>
+                                    <TextBlock Text="Status" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.State}" Foreground="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}}" Classes="value"/>
+                                    <TextBlock Text="IP Address" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.IPAddress, TargetNullValue='0.0.0.0'}" Classes="value"/>
+                                    <TextBlock Text="Connection Port" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.Port, TargetNullValue='-'}" Classes="value"/>
+                                    <TextBlock Text="Interactive Port" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.PortInteractive, TargetNullValue='Unavailable'}" Classes="value"/>
+                                    <TextBlock Text="Auto Timeout Duration" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.AutoTimeout, TargetNullValue='Never', StringFormat={}{0:0 minuate(s)}}" Classes="value"/>
+                                    <TextBlock Text="Keep Alive Interval" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.KeepAlive, TargetNullValue='-', StringFormat={}{0:0 second(s)}}" Classes="value"/>
+                                    <TextBlock Text="Reconnect Attempts" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.ReconnectIterations, TargetNullValue='None', StringFormat={}{0:0 attempt(s)}}" Classes="value"/>
+                                    <TextBlock Text="SSL / TLS (HTTPS)" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.UseHttps, Converter={StaticResource BoolToStateConverter}, ConverterParameter=Encrypted}" Classes="value"/>
+                                    <TextBlock Text="Computer Name" Classes="meta"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.ComputerName, TargetNullValue='-'}" Classes="value"/>
+                                </UniformGrid>                        
+                                <Grid HorizontalAlignment="Stretch" ColumnDefinitions="*, *" ColumnSpacing="10">
+                                    <common:IconButton Text="Connect" Foreground="{DynamicResource SuccessLBrush}" BorderBrush="{DynamicResource SuccessDBrush}" Command="{Binding ConnectCommand}">
+                                        <common:IconButton.Icon>
+                                            <Svg SvgSource="{StaticResource ConnectSvgSource}" CurrentColor="{DynamicResource SuccessColorL}"/>
+                                        </common:IconButton.Icon>
+                                    </common:IconButton>
+                                    <common:IconButton Grid.Column="1" Text="Disconnect" Foreground="{DynamicResource DangerLBrush}" BorderBrush="{DynamicResource DangerDBrush}" Command="{Binding DisconnectCommand}">
+                                        <common:IconButton.Icon>
+                                            <Svg SvgSource="{StaticResource DisconnectSvgSource}" CurrentColor="{DynamicResource DangerColorL}"/>
+                                        </common:IconButton.Icon>
+                                    </common:IconButton>
+                                </Grid>
+                                <Rectangle Height="1" Fill="{DynamicResource DividerBrush}"/>
+                                <Border BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" CornerRadius="10"> 
+                                    <Border CornerRadius="10" ClipToBounds="True">
+                                        <Grid RowDefinitions="Auto, *">
+                                            <Border Background="{DynamicResource BackgroundLLBrush}" Padding="10">
+                                                <TextBlock Classes="h3" Text="Workspace Session"/>
+                                            </Border>
+                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                                                <ItemsControl ItemsSource="{Binding EnabledSessions}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Background="{DynamicResource BackgroundDBrush}"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Padding="15" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0 1 0 0">
+                                                                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
+                                                                    <Ellipse VerticalAlignment="Center" Width="10" Height="10" Fill="{Binding State, Converter={StaticResource SessionStatusToBrushConverter}}"/>
+                                                                    <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                                                                        <TextBlock Classes="h2" FontWeight="SemiBold" Text="{Binding Name}"/>
+                                                                        <TextBlock Classes="h3" Text="{Binding IPAddress}"/>
+                                                                    </StackPanel>
+                                                                    <Panel Grid.Column="2" Cursor="Hand">
+                                                                        <common:TwoToneSvg 
+                                                                            SvgSource="{StaticResource AssignedSvgSource}" 
+                                                                            IsVisible="{Binding, Converter={StaticResource IsSessionAssignedToWorkspaceConverter}, ConverterParameter={Binding #SessionPageRoot.DataContext.CurrentWorkspace}}" 
+                                                                            Height="32"
+                                                                            PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource SuccessColor}"/>
+                                                                        <common:TwoToneSvg 
+                                                                            SvgSource="{StaticResource UnassignedSvgSource}" 
+                                                                            IsVisible="{Binding, Converter={StaticResource InvertedSessionAssignedToWorkspaceConverter}, ConverterParameter={Binding #SessionPageRoot.DataContext.CurrentWorkspace}}" 
+                                                                            Height="32"                                                                        
+                                                                            PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource SuccessColor}"/>
+
+                                                                    </Panel>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                
+                                            </ScrollViewer>
+                                        </Grid>
+                                    </Border>
+                                </Border>
+                                
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                     <layout:Section.FooterContent>
-                        <StackPanel>
-                            
-                        </StackPanel>
+                        <Grid HorizontalAlignment="Stretch" ColumnDefinitions="*, *, *" ColumnSpacing="10" >
+                                    <common:IconButton Text="Edit" Command="{Binding EditCommand}">
+                                        <common:IconButton.Icon>
+                                            <Svg SvgSource="{StaticResource PenSvgSource}" CurrentColor="{DynamicResource AccentColorL}"/>
+                                        </common:IconButton.Icon>
+                                    </common:IconButton>
+                                    <common:IconButton Grid.Column="1" Text="Duplicate" Command="{Binding DuplicateCommand}">
+                                        <common:IconButton.Icon>
+                                            <Svg SvgSource="{StaticResource CopySvgSource}" CurrentColor="{DynamicResource Foreground}"/>
+                                        </common:IconButton.Icon>
+                                    </common:IconButton>
+                                    <common:IconButton Grid.Column="2" Text="Remove" Foreground="{DynamicResource DangerLBrush}" BorderBrush="{DynamicResource DangerBrush}" Command="{Binding RemoveCommand}">
+                                        <common:IconButton.Icon>
+                                            <Svg SvgSource="{StaticResource DeleteSvgSource}" CurrentColor="{DynamicResource DangerColorL}"/>
+                                        </common:IconButton.Icon>
+                                    </common:IconButton>
+                                </Grid>
                     </layout:Section.FooterContent>
                 </layout:Section>
             </Grid>
