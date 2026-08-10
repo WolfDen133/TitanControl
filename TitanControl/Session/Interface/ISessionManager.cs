@@ -1,28 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using TitanControl.Disk.Model.Session;
 using TitanControl.WebAPI;
 
 namespace TitanControl.Session.Interface
 {
-    public interface ISessionManager<TApi> : IDisposable
-    where TApi : Titan
+    public interface ISessionManager : IDisposable
     {
-        ISession<TApi> Create(string name, IPAddress? ipAddress = null, int port = 4430, int portInteractive = 4431, bool useHttps = false);
+        ObservableCollection<TitanSession> Sessions { get; }
 
-        bool TryGet(
-            Guid sessionId,
-            out ISession<TApi>? session);
+        ReadOnlyObservableCollection<SessionModel> ScanResults { get; }
 
-        bool TryGet(
+        bool IsScannerRunning { get; }
+
+        IPAddress? ScannerInterfaceAddress { get; }
+
+        event EventHandler<bool>? ScannerRunningChanged;
+
+        ISession Create(
             string name,
-            out ISession<TApi>? session);
+            IPAddress? ipAddress = null,
+            int port = 4430,
+            int portInteractive = -1,
+            bool useHttps = false);
 
         bool Remove(Guid sessionId);
 
-        IReadOnlyCollection<ISession<TApi>> GetAll();
+        Task ConfigureScannerAsync(
+            IPAddress localInterfaceAddress,
+            TimeSpan? scanDuration = null,
+            TimeSpan? connectionTimeout = null,
+            TimeSpan? delayBetweenScans = null,
+            int maximumConcurrency = 64,
+            bool useHttps = false);
+
+        Task StartScannerAsync(
+            CancellationToken cancellationToken = default);
+
+        void StopScanner();
+
+        Task ClearScanResultsAsync();
+        Task Save();
+        Task Load();
     }
 }

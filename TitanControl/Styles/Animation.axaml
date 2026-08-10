@@ -54,4 +54,61 @@
         </Animation>
         </Style.Animations>
     </Style>
+    <Style Selector="Border">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background"
+                                    Duration="0:0:0.25">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+
+                <BrushTransition Property="BorderBrush"
+                                    Duration="0:0:0.25">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="ContentPresenter">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background"
+                                    Duration="0:0:0.25">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+
+                <BrushTransition Property="BorderBrush"
+                                    Duration="0:0:0.25">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="UserControl">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background"
+                                    Duration="0:0:0.25">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+
+                <BrushTransition Property="BorderBrush"
+                                    Duration="0:0:0.25">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+            </Transitions>
+        </Setter>
+    </Style>
 </Styles>

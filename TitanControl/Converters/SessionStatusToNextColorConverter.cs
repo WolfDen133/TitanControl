@@ -8,7 +8,7 @@ using TitanControl.Session;
 
 namespace TitanControl.Converters
 {
-    internal class SessionStatusToColorConverter : IValueConverter
+    internal class SessionStatusToNextColorConverter : IValueConverter
     {
         public object Convert(
         object? value,
@@ -27,11 +27,11 @@ namespace TitanControl.Converters
             var resourceKey = state switch
             {
                 SessionConnectionState.Available => "AccentColor",
-                SessionConnectionState.Disabled => "ForegroundSecondary",
-                SessionConnectionState.Enabled => "AccentColorL",
-                SessionConnectionState.Connected => "SuccessColor",
+                SessionConnectionState.Disabled => "AccentColorL",
+                SessionConnectionState.Enabled => "SuccessColor",
+                SessionConnectionState.Connected => "DangerColor",
                 SessionConnectionState.Connecting => "WarningColor",
-                SessionConnectionState.Unreachable => "DangerColor",
+                SessionConnectionState.Unreachable => "SuccessColor",
                 _ => "BorderBrush"
             };
 

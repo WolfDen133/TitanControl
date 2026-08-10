@@ -38,70 +38,99 @@
                 Value="34" />
 
         <Setter Property="Template">
-            <ControlTemplate>
-                <Border
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="{TemplateBinding CornerRadius}">
+    <ControlTemplate>
+        <Border
+            Background="{TemplateBinding Background}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            CornerRadius="{TemplateBinding CornerRadius}">
 
-                    <Grid ColumnDefinitions="*,28">
+            <ButtonSpinner
+                Name="PART_Spinner"
+                AllowSpin="{TemplateBinding AllowSpin}"
+                ShowButtonSpinner="{TemplateBinding ShowButtonSpinner}"
+                ButtonSpinnerLocation="{TemplateBinding ButtonSpinnerLocation}"
+                BorderBrush="{TemplateBinding BorderBrush}">
 
-                        <!-- Text editor -->
+                <!-- NumericUpDown editor -->
+                <TextBox
+                    Name="PART_TextBox"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="10,0"
+                    VerticalContentAlignment="Center"
+                   
+                    PlaceholderText="{TemplateBinding PlaceholderText}" />
 
-                        <TextBox
-                            Name="PART_TextBox"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Padding="10,0"
-                            VerticalContentAlignment="Center"/>
+                <ButtonSpinner.Template>
+                    <ControlTemplate>
 
-                        <!-- Spinner -->
+                        <Grid ColumnDefinitions="*,Auto">
 
-                        <Border
-                            Grid.Column="1"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1,0,0,0">
+                            <!-- Content / TextBox -->
+                            <ContentPresenter
+                                Grid.Column="0"
+                                Content="{TemplateBinding Content}"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch" />
 
-                            <Grid RowDefinitions="*,*">
+                            <!-- Custom spinner -->
+                            <Border
+                                Grid.Column="1"
+                                Name="PART_CustomSpinner"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="0,6,6,0"
+                                BorderThickness="1,0,0,0">
 
-                                <RepeatButton
-                                    Name="PART_IncreaseButton"
-                                    Grid.Row="0"
-                                    Background="Transparent"
-                                    BorderThickness="0">
+                                <Grid RowDefinitions="*,*">
 
-                                    <Svg
-                                        Width="10"
-                                        Height="10"
-                                        CurrentColor="{DynamicResource Foreground}"
-                                        Path="/Assets/Icons/arrow-up.svg" />
+                                    <RepeatButton
+                                        Name="PART_IncreaseButton"
+                                        Grid.Row="0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="10,0"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch">
 
-                                </RepeatButton>
+                                        <Svg
+                                            Width="10"
+                                            Height="10"
+                                            CurrentColor="{DynamicResource Foreground}"
+                                            Path="/Assets/Icons/arrow-up.svg" />
 
-                                <RepeatButton
-                                    Name="PART_DecreaseButton"
-                                    Grid.Row="1"
-                                    Background="Transparent"
-                                    BorderThickness="0">
+                                    </RepeatButton>
 
-                                    <Svg
-                                        Width="10"
-                                        Height="10"
-                                        CurrentColor="{DynamicResource Foreground}"
-                                        Path="/Assets/Icons/arrow-down.svg" />
+                                    <RepeatButton
+                                        Name="PART_DecreaseButton"
+                                        Grid.Row="1"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="10,0"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch">
 
-                                </RepeatButton>
+                                        <Svg
+                                            Width="10"
+                                            Height="10"
+                                            CurrentColor="{DynamicResource Foreground}"
+                                            Path="/Assets/Icons/arrow-down.svg" />
 
-                            </Grid>
+                                    </RepeatButton>
 
-                        </Border>
+                                </Grid>
+                            </Border>
 
-                    </Grid>
+                        </Grid>
 
-                </Border>
+                    </ControlTemplate>
+                </ButtonSpinner.Template>
 
-            </ControlTemplate>
-        </Setter>
+            </ButtonSpinner>
+
+        </Border>
+    </ControlTemplate>
+</Setter>
     </ControlTheme>
 </ResourceDictionary>

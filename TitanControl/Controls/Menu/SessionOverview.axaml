@@ -67,21 +67,19 @@
                     Grid.Column="3" 
                     Grid.RowSpan="2" 
                     TextVisible="False" 
-                    BorderBrush="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.5}" 
+                    BorderBrush="{Binding SessionStatus, RelativeSource={RelativeSource AncestorType=local:SessionOverview}, Converter={StaticResource SessionStatusToNextBrushConverter}, ConverterParameter=0.5}" 
                     Command="{Binding Command, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}" 
                     CommandParameter="{Binding CommandParameter, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}">
                     <common:IconButton.Icon>
                         <Panel>
                             <Panel.Styles>
                                 <Style Selector="common|TwoToneSvg">
-                                    <Setter Property="CurrentColor" Value="{Binding SessionStatus, Converter={StaticResource SessionStatusToColorConverter}, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
-                                    <Setter Property="PrimaryColor" Value="{Binding SessionStatus, Converter={StaticResource SessionStatusToColorConverter}, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
-                                    <Setter Property="SecondaryColor" Value="{Binding SessionStatus, Converter={StaticResource SessionStatusToColorConverter}, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
+                                    <Setter Property="CurrentColor" Value="{Binding SessionStatus, Converter={StaticResource SessionStatusToNextColorConverter}, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
+                                    <Setter Property="PrimaryColor" Value="{Binding SessionStatus, Converter={StaticResource SessionStatusToNextColorConverter}, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
+                                    <Setter Property="SecondaryColor" Value="{Binding SessionStatus, Converter={StaticResource SessionStatusToNextColorConverter}, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
                                 </Style>
                             </Panel.Styles>
-                            <common:TwoToneSvg Path="/Assets/Icons/connect.svg" 
-                                               IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Disconnected, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
-
+                
                             <common:TwoToneSvg Path="/Assets/Icons/disconnect.svg" 
                                                IsVisible="{Binding SessionStatus, Converter={StaticResource EnumMatchConverter}, ConverterParameter=Connected, RelativeSource={RelativeSource AncestorType=local:SessionOverview}}"/>
 

@@ -95,7 +95,7 @@ namespace TitanControl.WebAPI.Queue
                 _queue.Enqueue(item, priority);
             }
 
-            Log.Debug(
+            Log.Trace(
                 $"Queued operation '{operationName}' with priority {priority}.",
                 category);
 
@@ -157,7 +157,7 @@ namespace TitanControl.WebAPI.Queue
 
         private async Task ProcessQueueAsync()
         {
-            Log.Debug(
+            Log.Trace(
                 "Priority task queue worker started.",
                 category: "TaskQueue");
 
@@ -191,7 +191,7 @@ namespace TitanControl.WebAPI.Queue
             catch (OperationCanceledException)
                 when (_shutdownCts.IsCancellationRequested)
             {
-                Log.Debug(
+                Log.Warning(
                     "Priority task queue worker was canceled during shutdown.",
                     category: "TaskQueue");
             }

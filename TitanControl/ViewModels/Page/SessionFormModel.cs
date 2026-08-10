@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -8,33 +9,53 @@ using System.Text;
 using System.Threading.Tasks;
 using TitanControl.Disk.Model.Session;
 using TitanControl.Logging;
+using TitanControl.Session.Interface;
+using TitanControl.Validation;
 
 namespace TitanControl.ViewModels.Page
 {
-    public class SessionFormModel : BaseViewModel
+    public partial class SessionFormModel : ObservableValidator
     {
         public required Guid Id;
-        public string SessionName { get; set; } = string.Empty;
-        public string IpAddress { get; set; } = null!;
 
-        public static ValidationResult? ValidateIp(string? value)
+        public SessionFormModel()
         {
-            return IPAddress.TryParse(value, out _)
-                ? ValidationResult.Success
-                : new ValidationResult("Enter a valid IPv4 or IPv6 address.");
+            ErrorsChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(IsValid));
+            };
         }
 
-        public int Port { get; set; }
-        public int? PortInteractive { get; set; } 
+        public bool IsValid => !HasErrors;
 
-        public bool AutoTimeout { get; set; }
-        public bool Reconnect { get; set; }
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required(ErrorMessage = "Session name is required.")]
+        public string sessionName = string.Empty;
+
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required(ErrorMessage = "IP Address is required.")]
+        [IpAddress(ErrorMessage = "Enter a valid IP address.")]
+        public string ipAddress = null!;
+
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required(ErrorMessage = "Port is required.")]
+        public int port;
+
+        public int? PortInteractive { get; set; }
+
+        [ObservableProperty]
+        public bool autoTimeout;
+        [ObservableProperty]
+        public bool reconnect; 
         public int? AutoTimeoutMinuates { get; set; }
         public int KeepAliveSeconds { get; set; }
         public int? ReconnectAttempts { get; set; }
         public bool UseHttps { get; set; }
 
-        public static SessionFormModel FromModel(SessionModel model)
+        public static SessionFormModel FromModel(ISession model)
         {
             return new SessionFormModel
             {
@@ -45,41 +66,14 @@ namespace TitanControl.ViewModels.Page
                 PortInteractive = model.PortInteractive,
                 AutoTimeout = model.AutoTimeout != null,
                 Reconnect = model.ReconnectIterations != 0,
-                AutoTimeoutMinuates = model.AutoTimeout,
-                ReconnectAttempts = model.ReconnectIterations,
+                AutoTimeoutMinuates = model.AutoTimeout != null ? model.AutoTimeout : null,
+                ReconnectAttempts = model.ReconnectIterations != 0 ? model.ReconnectIterations : null,
                 KeepAliveSeconds = model.KeepAlive,
                 UseHttps = model.UseHttps
             };
         }
 
-        public SessionModel ToModel()
-        {
-            if (ValidateIp(IpAddress) is ValidationResult result)
-            {
-                var ex = new InvalidDataException("IPAddress is invalid.");
-                Log.Error(ex, $"SessionFormModel {Id}:{SessionName} has invalid IP Address: {IpAddress}");
-                throw ex;
-            }
+        public static SessionFormModel Empty => new SessionFormModel() { Id = Guid.Empty };
 
-            if (ReconnectAttempts is null)
-            {
-                var ex = new InvalidDataException("Reconnect attempts is null.");
-                Log.Error(ex, $"SessionFormModel {Id}:{SessionName} has invalid ReconnectionAttempts of null");
-                throw ex;
-            }
-
-            return new SessionModel
-            {
-                ID = Id,
-                Name = SessionName,
-                IPAddress = IPAddress.Parse(IpAddress),
-                Port = Port,
-                PortInteractive = PortInteractive,
-                AutoTimeout = AutoTimeout ? AutoTimeoutMinuates : null,
-                KeepAlive = KeepAliveSeconds,
-                ReconnectIterations = Reconnect ? (int)ReconnectAttempts : 0,
-                UseHttps = UseHttps,
-            };
-        }
     }
 }

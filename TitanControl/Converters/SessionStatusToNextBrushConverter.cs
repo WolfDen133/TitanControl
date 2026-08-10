@@ -8,7 +8,7 @@ using TitanControl.Session;
 
 namespace TitanControl.Converters
 {
-    internal class SessionStatusToBrushConverter : IValueConverter
+    internal class SessionStatusToNextBrushConverter : IValueConverter
     {
         public object Convert(
         object? value,
@@ -48,11 +48,11 @@ namespace TitanControl.Converters
             var resourceKey = state switch
             {
                 SessionConnectionState.Available => "AccentBrush",
-                SessionConnectionState.Disabled => "ForegroundSecondaryBrush",
-                SessionConnectionState.Enabled => "AccentLBrush",
-                SessionConnectionState.Connected => "SuccessBrush",
+                SessionConnectionState.Disabled => "AccentLBrush",
+                SessionConnectionState.Enabled => "SuccessBrush",
+                SessionConnectionState.Connected => "DangerBrush",
                 SessionConnectionState.Connecting => "WarningBrush",
-                SessionConnectionState.Unreachable => "DangerBrush",
+                SessionConnectionState.Unreachable => "SuccessBrush",
                 _ => "BorderBrush"
             };
 

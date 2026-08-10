@@ -41,6 +41,7 @@ namespace TitanControl.WebAPI
 
         public Titan(string consoleAddress) : this(IPAddress.Parse(consoleAddress), NormalPort)
         {
+
         }
 
         public Titan(IPAddress consoleAddress, int port, int interactivePort = -1, bool https = false, IPAddress? localInterfaceAddress = null)
@@ -57,14 +58,13 @@ namespace TitanControl.WebAPI
 
             string protocol = https ? "https" : "http";
 
-            _queue = new PriorityTaskQueue();
-            _http = new HttpClient() 
+            _httpHandler = CreateHandler(localInterfaceAddress);
+            _http = new HttpClient(_httpHandler) 
             { 
-                BaseAddress = new Uri($"{protocol}://{consoleAddress}:{port}")
+                BaseAddress = new Uri($"{protocol}://{consoleAddress}:{port}"),
             };
 
-            _httpHandler = CreateHandler(localInterfaceAddress);
-
+            _queue = new PriorityTaskQueue();
             Handles = new Handles(_http, _queue);
         }
 

@@ -6,7 +6,9 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.ComponentModel;
 using System.Diagnostics.Tracing;
+using TitanControl.Events.Control;
 using TitanControl.Helper;
 using TitanControl.Session;
 using TitanControl.Session.Utils;
@@ -98,11 +100,7 @@ namespace TitanControl.Controls.Menu
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);
-            set
-            {
-                SetValue(IsSelectedProperty, value);
-                Select(value);
-            }
+            set => SetValue(IsSelectedProperty, value);
         }
 
         public Guid Id 
@@ -111,7 +109,7 @@ namespace TitanControl.Controls.Menu
             set => SetValue(IdProperty, value);
         }
 
-        public event EventHandler<bool>? OnSelect;
+        public event EventHandler<SessionOverviewSelectedEventArgs>? OnSelect;
 
         public string PortsString => PortInteractive is not null ? $"{Port} / {PortInteractive}" : Port;
 
@@ -120,6 +118,16 @@ namespace TitanControl.Controls.Menu
         public SessionOverview()
         {
             InitializeComponent();
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+
+            if (change.Property == IsSelectedProperty)
+            {
+                Select(change.GetNewValue<bool>());
+            }
         }
 
         protected override void OnPointerEntered(PointerEventArgs e)
@@ -153,18 +161,21 @@ namespace TitanControl.Controls.Menu
 
             if (mouseDown)
             {
-                IsSelected = !IsSelected;
+                OnSelect?.Invoke(
+                    this,
+                    new SessionOverviewSelectedEventArgs(
+                        Id,
+                        true));
             }
 
             mouseDown = false;
         }
 
-        public void Select(bool isSelected = true)
+        private void Select(bool isSelected = true)
         {
             BorderThickness = isSelected ? new Thickness(2) : new Thickness(1);
             BorderBrush = isSelected ? ResourceHelper.GetThemeBrush("SelectionFocusBrush") : ResourceHelper.GetThemeBrush("BorderSubtleBrush");
             Background = isSelected ? ResourceHelper.GetThemeBrush("BackgroundLLBrush") : ResourceHelper.GetThemeBrush("BackgroundLBrush");
-            OnSelect?.Invoke(this, isSelected);
         }
     }
 }

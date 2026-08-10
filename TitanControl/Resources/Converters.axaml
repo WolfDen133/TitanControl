@@ -3,10 +3,23 @@
                     xmlns:converters="using:TitanControl.Converters"
                     >
     <converters:SessionStatusToBrushConverter x:Key="SessionStatusToBrushConverter"/>
-    <converters:EnumMatchConverter x:Key="EnumMatchConverter"/>
+    <converters:SessionStatusToNextBrushConverter x:Key="SessionStatusToNextBrushConverter"/>
+
     <converters:SessionStatusToColorConverter x:Key="SessionStatusToColorConverter"/>
+    <converters:SessionStatusToNextColorConverter x:Key="SessionStatusToNextColorConverter"/>
+
+    <converters:EnumMatchConverter x:Key="EnumMatchConverter"/>
+
+    <converters:ObjectIsNullConverter x:Key="ObjectIsNullConverter"/>
+    <converters:ObjectIsNullConverter Inverted="True" x:Key="InvertedObjectIsNullConverter"/>
+
     <converters:BoolToStateConverter x:Key="BoolToStateConverter"/>
+
+    <converters:ObservableCollectionIsEmptyToBoolConverter x:Key="ObservableCollectionIsEmptyToBoolConverter"/>
+    <converters:ObservableCollectionIsEmptyToBoolConverter Inverted="True" x:Key="InvertedObservableCollectionIsEmptyToBoolConverter"/>
+    
     <converters:IsSessionAssignedToWorkspaceConverter x:Key="IsSessionAssignedToWorkspaceConverter"/>
     <converters:IsSessionAssignedToWorkspaceConverter Invert="True" x:Key="InvertedSessionAssignedToWorkspaceConverter"/>
-    <converters:ObjectIsNullConverter x:Key="ObjectIsNullConverter"/>
+    
+    <converters:SessionStateToVisibilityConverter x:Key="SessionStateToVisibilityConverter"/>
 </ResourceDictionary>

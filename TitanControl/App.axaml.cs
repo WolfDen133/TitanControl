@@ -20,7 +20,7 @@ public partial class App : Application
 {
     private ResourceHelper? _resourceHelper;
     private IDisposable? _dispatcherLogging;
-    public static SessionManager<Titan> SessionManager { get; private set; } = default!;
+    public static SessionManager SessionManager { get; private set; } = default!;
     public static WorkspaceManager WorkspaceManager { get; private set; } = default!;
 
     public override void Initialize()
@@ -43,11 +43,7 @@ public partial class App : Application
 
         FileHandler.Initialize();
 
-        SessionManager = new SessionManager<TitanControl.WebAPI.Titan>
-        (
-            new SessionOptions()
-        );
-
+        SessionManager = new SessionManager();
         WorkspaceManager = new WorkspaceManager();
     }
 

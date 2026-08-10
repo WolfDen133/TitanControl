@@ -22,7 +22,7 @@ namespace TitanControl.Controls.Models
         {
             get; 
             set;
-        } = SessionConnectionState.Disconnected;
+        } = SessionConnectionState.Unreachable;
 
         public string TitleBegining => AppConstants.AppName.Substring(0, 5);
         public string TitleEnding => AppConstants.AppName.Substring(6, 7);

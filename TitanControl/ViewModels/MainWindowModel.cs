@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using TitanControl.Disk.Model.Workspace;
@@ -21,8 +22,8 @@ namespace TitanControl.ViewModels
         
         private BasePage? _currentPage;
 
-        public ISession<TitanControl.WebAPI.Titan> CurrentSession { get; set; } = null!;
         public WorkspaceModel CurrentWorkspace = null!;
+        public ISession? CurrentSession = null!;
         
         public BasePage? CurrentPage 
         {
@@ -32,13 +33,15 @@ namespace TitanControl.ViewModels
 
         public void Initialize()
         {
-            LoadWorkspace();
+            _ = App.SessionManager.Load();
+            _ = LoadWorkspace();
         }
 
-        public void LoadWorkspace()
+        public async Task LoadWorkspace()
         {
-            CurrentSession = App.SessionManager.Create("Default Session", System.Net.IPAddress.Parse("127.0.0.1"), 4430, -1, false);
-            CurrentWorkspace = App.WorkspaceManager.Create("Default Workspace");
+            CurrentWorkspace = App.WorkspaceManager.HasLastWorkspace() 
+                ? await App.WorkspaceManager.LoadLastWorkspace()
+                : App.WorkspaceManager.Create("Untitled workspace");
 
             if (MainWindow.PageManager.TryGetPage(PageId.Workspace, out var page))
             {

@@ -3,20 +3,22 @@ using Avalonia.Data.Converters;
 using ShimSkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TitanControl.Session;
 
 namespace TitanControl.Converters
 {
-    public class ObjectIsNullConverter : IValueConverter
+    public class ObservableCollectionIsEmptyToBoolConverter : IValueConverter
     {
         public bool Inverted { get; set; } = false;
 
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            bool result = value is null;
+            bool result = ((ObservableCollection<TitanSession>?)value)!.Count == 0;
 
             return Inverted ? !result : result;
         }

@@ -59,8 +59,6 @@ namespace TitanControl.Views.Page
             foreach (var page in _pages.Values)
             {
                 _root.Children.Add(page);
-
-                page.IsVisible = false;
             }
         }
 

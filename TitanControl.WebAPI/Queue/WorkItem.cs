@@ -78,7 +78,7 @@ namespace TitanControl.WebAPI.Queue
             catch (OperationCanceledException)
                 when (token.IsCancellationRequested)
             {
-                Log.Debug(
+                Log.Warning(
                     $"Queued operation '{OperationName}' was canceled.",
                     _category);
 
@@ -96,7 +96,7 @@ namespace TitanControl.WebAPI.Queue
 
         public void Cancel(CancellationToken cancellationToken)
         {
-            Log.Debug(
+            Log.Warning(
                 $"Queued operation '{OperationName}' was canceled " +
                 "before execution.",
                 _category);

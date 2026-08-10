@@ -37,7 +37,7 @@ public partial class MainWindow : Window
 
         Log.Debug("MainWindow initialized.", "MainWindow");
 
-        model.CurrentSession.StateChanged += (sender, args) =>
+        model.CurrentSession?.StateChanged += (sender, args) =>
         {
             Dispatcher.UIThread.Invoke(() => PART_Toolbar.UpdateSessionStatus(args.CurrentState));
         };

@@ -7,6 +7,8 @@ using TitanControl.Disk.Model.Session;
 using TitanControl.Disk.Model.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
+using TitanControl.Session;
+using TitanControl.Session.Interface;
 
 namespace TitanControl.Disk
 {
@@ -51,14 +53,13 @@ namespace TitanControl.Disk
         {
             if (!File.Exists(WorkspaceRecordPath))
             {
-                File.Create(WorkspaceRecordPath);
                 _ = SaveWorkspaceRecord(new WorkspaceRecordModel());
                 Log.Information($"Workspace record was not found therefore re-written to: {WorkspaceRecordPath}", LoggingCategory);
             }
 
             if (!File.Exists(SessionsPath))
             {
-                File.Create(SessionsPath);
+                _ = SaveSessions(new());
                 Log.Information($"Sessions was not found therefore re-written to: {SessionsPath}", LoggingCategory);
             }
 
@@ -69,10 +70,17 @@ namespace TitanControl.Disk
             }
         }
 
-        public static async Task<SessionRecordModel> LoadSessions()
+        public static async Task<List<TitanSession>> LoadSessions()
         {
             string raw = await File.ReadAllTextAsync(SessionsPath);
-            return JsonModelLoader.ParseAndValidate<SessionRecordModel>(raw, SessionsSchema);
+            return JsonModelLoader.ParseAndValidate<List<TitanSession>>(raw, SessionsSchema);
+        }
+
+        public static async Task SaveSessions(List<TitanSession> sessions)
+        {
+            string raw = JsonModelLoader.Serialize(sessions);
+            await File.WriteAllTextAsync(SessionsPath, raw);
+            Log.Information($"Sessions record saved.", LoggingCategory);
         }
 
         public static async Task<WorkspaceRecordModel> LoadWorkspaceRecord()
@@ -106,7 +114,7 @@ namespace TitanControl.Disk
         public static async Task SaveWorkspaceRecord(WorkspaceRecordModel record)
         {
             string raw = JsonModelLoader.Serialize(record);
-            await File.AppendAllTextAsync(WorkspaceRecordPath, raw);
+            await File.WriteAllTextAsync(WorkspaceRecordPath, raw);
             Log.Information($"Workspace record saved.", LoggingCategory);
         }
     }

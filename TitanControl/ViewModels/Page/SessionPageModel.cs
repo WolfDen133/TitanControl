@@ -4,16 +4,19 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.Arm;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TitanControl.Controls.Menu;
 using TitanControl.Disk.Model.Session;
 using TitanControl.Disk.Model.Workspace;
+using TitanControl.Events.Control;
 using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.Session;
@@ -30,74 +33,13 @@ namespace TitanControl.ViewModels
         private const string LoggingCategory = "SessionPageModel";
 
         private List<KeyValuePair<string, IPAddress>> _nics = new();
-        private SessionScanner? _scanner;
         private int selectedNic;
         private bool refreshEnabled;
-        private ObservableCollection<SessionModel> sessions = Design.IsDesignMode ? new(dummySessions) : new();
         public bool editing = false;
         private SessionFormModel? formModel;
+        private ISession? selectedSession;
 
-        private SessionModel? selectedSession = new SessionModel
-        {
-            ID = Guid.NewGuid(),
-            Name = "Test session"
-        };
-
-        private static ObservableCollection<SessionModel> dummySessions { get; } = new()
-        {
-            new SessionModel()
-            {
-                Name = "Titan Session",
-                State = Session.SessionConnectionState.Disabled,
-                PortInteractive = 4431,
-                ComputerName = "Test computer"
-            },
-            new SessionModel()
-            {
-                Name = "Titan Session",
-                State = Session.SessionConnectionState.Enabled,
-                PortInteractive = 4431
-            },
-            new SessionModel()
-            {
-                Name = "Titan Session",
-                State = Session.SessionConnectionState.Available
-            },
-            new SessionModel()
-            {
-                Name = "Titan Session",
-                State = Session.SessionConnectionState.Connected
-            },
-            new SessionModel()
-            {
-                Name = "Titan Session",
-                State = Session.SessionConnectionState.Connecting
-            },
-            new SessionModel()
-            {
-                Name = "Titan Session",
-                State = Session.SessionConnectionState.Disconnected
-            },
-            new SessionModel()
-            {
-                Name = "Titan Session",
-                State = Session.SessionConnectionState.Unreachable
-            }
-        };
-
-        public ObservableCollection<string> Interfaces { get; private set; } = new();
-
-        public ObservableCollection<SessionModel> Sessions 
-        { 
-            get => sessions;
-            set
-            {
-                sessions = value;
-                OnPropertyChanged(nameof(EnabledSessions));
-            }
-        }
-
-        public SessionModel? SelectedSession 
+        public ISession? SelectedSession 
         { 
             get => selectedSession; 
             set
@@ -105,21 +47,6 @@ namespace TitanControl.ViewModels
                 selectedSession = value;
                 OnPropertyChanged(nameof(SelectedSession));
                 OnPropertyChanged(nameof(Endpoint));
-            }
-        }
-
-        public SessionScanner? Scanner
-        {
-            get => _scanner;
-            private set
-            {
-                if (ReferenceEquals(_scanner, value))
-                    return;
-
-                _scanner = value;
-
-                OnPropertyChanged(nameof(ScanResults));
-                OnPropertyChanged(nameof(RefreshEnabled));
             }
         }
 
@@ -154,7 +81,6 @@ namespace TitanControl.ViewModels
             set
             {
                 editing = value;
-
                 OnPropertyChanged(nameof(IsEditing));
             }
         }
@@ -169,31 +95,8 @@ namespace TitanControl.ViewModels
             }
         }
 
-        public ObservableCollection<SessionModel> EnabledSessions => 
-            Design.IsDesignMode 
-                ? new ObservableCollection<SessionModel>
-                {
-                    new SessionModel
-                    {
-                        ID = Guid.Empty,
-                        State = Session.SessionConnectionState.Enabled,
-                        Name = "Enabled session"
-                    },
-                    new SessionModel
-                    {
-                        ID = Guid.Empty,
-                        State = Session.SessionConnectionState.Connected,
-                        Name = "Active session"
-                    }
-                }
-                : new ObservableCollection<SessionModel>(sessions.Where(
-                    s => s.State is
-                        Session.SessionConnectionState.Enabled or
-                        Session.SessionConnectionState.Disabled or
-                        Session.SessionConnectionState.Connected or
-                        Session.SessionConnectionState.Connected).ToArray());
-
-        public ReadOnlyObservableCollection<SessionModel> ScanResults => Scanner?.Results!;
+        public ObservableCollection<string> Interfaces { get; private set; } = new();
+        public ObservableCollection<ISession> EnabledSessions { get; } = new();
 
         public string Endpoint =>
          SelectedSession is not null
@@ -203,37 +106,61 @@ namespace TitanControl.ViewModels
          : "-";
 
         public WorkspaceModel CurrentWorkspace => App.WorkspaceManager.CurrentWorkspace;
+        public ObservableCollection<TitanSession> Sessions => App.SessionManager.Sessions;
+        public ReadOnlyObservableCollection<SessionModel> ScanResults => App.SessionManager.ScanResults;
 
-        public SessionPageModel? CurrentSession { get; set; }
+        public bool HasNoSessions => Sessions.Count == 0;
+
+        public SessionPageModel()
+        {
+            App.SessionManager.ScannerRunningChanged +=
+                (_, isRunning) =>
+                {
+                    RefreshEnabled = !isRunning;
+                };
+
+            Sessions.CollectionChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(HasNoSessions));
+            };
+        }
 
         public async Task RegisterScanner(bool start = false)
         {
-            if (Scanner != null)
-            {
-                await Scanner.DisposeAsync();
-                Scanner = null;
-            }
+            if (_nics.Count == 0)
+                return;
 
-            Scanner = new SessionScanner(
+            await App.SessionManager.ConfigureScannerAsync(
                 _nics[SelectedNic].Value,
-                TimeSpan.FromSeconds(20),
-                TimeSpan.FromMilliseconds(100),
+                TimeSpan.FromSeconds(30),
+                TimeSpan.FromMilliseconds(300),
                 TimeSpan.FromSeconds(4),
-                24,
-                false
-            );
+                64,
+                false);
 
-            Scanner.OnScannerRunning += (_, isRunning) =>
-            {
-                RefreshEnabled = !isRunning;
-            };
+            UpdateSessions();
 
             if (start)
                 await StartScanner();
         }
 
+        private void UpdateSessions()
+        {
+            foreach (var session in Sessions)
+            {
+                if (session.State != SessionConnectionState.Connected)
+                    return;
+
+                session.Stop();
+                session.Start(_nics[selectedNic].Value);
+            }
+        }
+
         public void Initialize()
         {
+            Interfaces.Clear();
+            _nics.Clear();
+
             var nics = NicHelper.GetNics();
             var defaultIp = NicHelper.GetDefaultIPv4Address();
 
@@ -243,70 +170,129 @@ namespace TitanControl.ViewModels
                 Interfaces.Add($"{nic.Key} - {nic.Value}");
                 _nics.Add(nicRecord);
 
-                if (nicRecord.Value.Equals(defaultIp) && Scanner is null)
+                Log.Debug($"Discovered network interface {nic.Key} - {nic.Value}", LoggingCategory);
+
+                if (nicRecord.Value.Equals(defaultIp))
                 {
                     selectedNic = _nics.IndexOf(nicRecord);
                     OnPropertyChanged(nameof(SelectedNic));
 
                     _ = RegisterScanner();
 
-                    Log.Debug($"Default nic {defaultIp}, assigned to index {SelectedNic}");
+                    Log.Debug($"Default network interface selected {nic.Key} - {defaultIp}", LoggingCategory);
                 }   
             }
         }
 
-        public void UpdateSessions()
-        {
-            foreach(var session in App.SessionManager.GetAll())
-            {
-                var model = new SessionModel
-                {
-                    ID = session.ID,
-                    Name = session.Name,
-                    ComputerName = session.Api.ConnectedDevice?.ComputerName ?? "-",
-                    IPAddress = session.Api.Address,
-                    Port = session.Api.Port,
-                    PortInteractive = session.Api.PortInteractive,
-                    State = session.State == SessionConnectionState.Available 
-                         && CurrentWorkspace.Options.Session == session.ID 
-                        ? SessionConnectionState.Enabled 
-                        : SessionConnectionState.Disabled
-                };
-
-                Sessions.Add(model);
-            }
-
-            editing = true;
-        }
-
         public async Task StartScanner()
         {
-            await Scanner?.StartAsync()!;
+            await App.SessionManager.StartScannerAsync();
         }
 
         public void StopScanner()
         {
-            Scanner?.Stop();
+            App.SessionManager.StopScanner();
         }
 
-        public void SelectSession(Guid id)
+        private bool _selectingSession;
+
+        public async void HandleSessionSelect(
+            object? sender,
+            SessionOverviewSelectedEventArgs e)
         {
-            var session = Sessions.FirstOrDefault(s => s.ID == id);
-
-            if (session == null)
-            {
-                var ex = new InvalidOperationException("Session was not found.");
-                Log.Error(ex, "Selected session was not found in list", LoggingCategory);
+            if (_selectingSession)
                 return;
-            }
 
-            SelectedSession = session;
+            _selectingSession = true;
+
+            try
+            {
+                var session = Sessions.FirstOrDefault(s => s.ID == e.SessionId);
+
+                if (session == null)
+                {
+                    if (ScanResults.Any(s => s.ID == e.SessionId))
+                        return;
+
+                    Log.Error(
+                        $"Selected session {e.SessionId} was not found in list",
+                        LoggingCategory);
+
+                    return;
+                }
+
+                if (IsEditing)
+                {
+                    var accepted = await MainWindow.DialogService
+                        .ShowConfirmationAsync(
+                            "Unsaved changes",
+                            "Are you sure you wish to cancel? All changes will not be saved.");
+
+                    if (!accepted)
+                        return;
+
+                    DisableForm();
+                }
+
+                if (SelectedSession?.ID == session.ID && session.IsSelected)
+                {
+                    ReleaseSelect(session);
+                    return;
+                }
+
+                foreach (var s in Sessions)
+                {
+                    s.IsSelected = s.ID == session.ID;
+                }
+
+                SelectedSession = session;
+                Log.Information($"Selected session: {session.Name}", LoggingCategory);
+            }
+            finally
+            {
+                _selectingSession = false;
+            }
+        }
+
+        public void ReleaseSelect(ISession session)
+        {
+            session.IsSelected = false;
+            SelectedSession = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session);
         }
 
         public async Task Clear()
         {
-            Sessions.Clear();
-            await Scanner?.ClearResultsAsync()!;
+            await App.SessionManager.ClearScanResultsAsync();
+            SelectedSession = null;
+        }
+
+        public void EnableSession(Guid sessionId)
+        {
+            if (sessionId == Guid.Empty)
+            {
+                CurrentWorkspace.Options.Session = Guid.Empty;
+                SelectedSession = Sessions.FirstOrDefault(s => s.IsSelected);
+            }
+                
+
+            foreach (var s in Sessions)
+            {
+                if (s.ID == sessionId)
+                {
+                    s.Enable();
+                    CurrentWorkspace.Options.Session = s.ID;
+                    EnabledSessions.Add(s);
+                    SelectedSession = s;
+
+                    Log.Information($"Enabled session: {s.Name}", LoggingCategory);
+                    continue;
+                }
+
+                s.Stop();
+                s.Enable(false);
+                EnabledSessions.Remove(s);
+            }
+
         }
 
         private void EnableForm()
@@ -324,18 +310,16 @@ namespace TitanControl.ViewModels
 
         private void DisableForm()
         {
-            FormData = null;
+            FormData = SessionFormModel.Empty;
             IsEditing = false;
 
             OnPropertyChanged(nameof(FormData));
         }
 
         [RelayCommand]
-        public void SessionQuickAction(Guid sessionId)
+        public async Task SessionQuickAction(Guid sessionId)
         {
-            Log.Debug($"Hit quick action command for {sessionId}");
-
-            SessionModel? session = Sessions.FirstOrDefault(s => s.ID == sessionId);
+            ISession? session = Sessions.FirstOrDefault(s => s.ID == sessionId);
             if (session == null)
                 session = ScanResults.FirstOrDefault(s => s.ID == sessionId);
 
@@ -350,64 +334,110 @@ namespace TitanControl.ViewModels
             switch (session.State)
             {
                 case SessionConnectionState.Available:
-                    // TODO
-                    break;
-                case SessionConnectionState.Disconnected:
-                    Connect();
-                    break;
-                case SessionConnectionState.Connected:
-                    Disconnect();
-                    break;
-                case SessionConnectionState.Disabled:
-                    CurrentWorkspace.Options.Session = sessionId;
-                    SelectedSession!.State = SessionConnectionState.Enabled;
-                    OnPropertyChanged(nameof(SelectedSession));
-                    break;
-                case SessionConnectionState.Enabled:
-                    Connect();
+                    var apiSession = App.SessionManager.Create(session.Name);
+                    apiSession.IPAddress = session.IPAddress;
+                    apiSession.Port = session.Port;
+                    apiSession.PortInteractive = session.PortInteractive;
+                    apiSession.UseHttps = session.UseHttps;
+                    apiSession.ReconnectIterations = session.ReconnectIterations;
+                    apiSession.KeepAlive = session.KeepAlive;
+                    apiSession.AutoTimeout = session.AutoTimeout;
 
                     break;
+
                 case SessionConnectionState.Unreachable:
-                    // TODO
+
+                    Connect(sessionId);
+                    break;
+
+                case SessionConnectionState.Connected:
+
+                    Disconnect(sessionId);
+                    break;
+
+                case SessionConnectionState.Disabled:
+
+                    EnableSession(sessionId);
+                    break;
+
+                case SessionConnectionState.Enabled:
+
+                    Connect(sessionId);
                     break;
             }
         }
 
         [RelayCommand]
+        public async Task Enable()
+        {
+            EnableSession(SelectedSession!.ID);
+        }
+
+        [RelayCommand]
+        public async Task Disable()
+        {
+            EnableSession(Guid.Empty);
+        }
+
+
+        [RelayCommand]
         public void AddManual()
         {
-            Log.Debug($"Hit add manual command");
+            var session = App.SessionManager.Create(GetNextName("Titan Session"));
 
-            int sessionIndex = Sessions.Count;
-            string sessionName = string.Empty;
-            do {
-                sessionIndex++;
-                sessionName = $"Titan Session {sessionName}";
-            } while (Sessions.FirstOrDefault(s => s.Name == sessionName) is SessionModel);
-
-            SelectedSession = new SessionModel()
+            if (IsEditing)
+                return;
+           
+            foreach (var s in Sessions)
             {
-                ID = Guid.NewGuid(),
-                Name = sessionName
-            };
+                s.IsSelected = s.ID == session.ID;
+            }
 
+            SelectedSession = session;
             EnableForm();
+
+            Log.Information("Added a new session manually", LoggingCategory);
         }
 
         [RelayCommand]
         public void SaveSession()
         {
-            SelectedSession = FormData.ToModel();
-            App.SessionManager.Update(SelectedSession.ID, SelectedSession);
+            ISession? session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == SelectedSession!.ID);
+
+            if (session == null)
+            {
+                Log.Error("Session could not be found", LoggingCategory);
+                return;
+            }
+
+            if (FormData == null)
+            {
+                Log.Error("Form data is null", LoggingCategory);
+                return;
+            }
+
+            if (SelectedSession is not SessionModel)
+                session.Name = FormData.SessionName;
+
+            session.IPAddress = IPAddress.Parse(FormData.IpAddress);
+            session.Port = FormData.Port;
+            session.PortInteractive = FormData.PortInteractive;
+            session.UseHttps = FormData.UseHttps;
+            session.ReconnectIterations = FormData.Reconnect ? (int)FormData.ReconnectAttempts! : 0;
+            session.KeepAlive = FormData.KeepAliveSeconds;
+            session.AutoTimeout = FormData.AutoTimeout ? FormData.AutoTimeoutMinuates : null;
+
+            OnPropertyChanged(nameof(Sessions));
+            SelectedSession = session;
 
             DisableForm();
+
+            Log.Information($"Saved session {session.Name}.", LoggingCategory);
         }
 
         [RelayCommand]
         public async Task Cancel()
         {
-            Log.Debug($"Hit cancel command");
-
             if (!FormData!.Equals(SelectedSession))
             {
                 var accepted = await MainWindow.DialogService.ShowConfirmationAsync("Unsaved changes", "Are you sure you wish to cancel, all changes will not be saved?");
@@ -431,15 +461,17 @@ namespace TitanControl.ViewModels
                 sessionId = SelectedSession.ID;
             }
 
-            if (!App.SessionManager.TryGet((Guid)sessionId, out var session))
+            var session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId);
+
+            if (session is null)
             {
-                Log.Warning($"Session {sessionId} not found.");
+                Log.Warning($"Session {sessionId} not found.", LoggingCategory);
                 return;
             }
 
-            session?.Start();
-            
-            Log.Debug($"Hit connect command");
+            Log.Information($"Attempting to start session: {session.Name}", LoggingCategory);
+
+            session.Start(_nics[selectedNic].Value);
         }
 
 
@@ -454,13 +486,17 @@ namespace TitanControl.ViewModels
                 sessionId = SelectedSession.ID;
             }
 
-            if (!App.SessionManager.TryGet((Guid)sessionId, out var session))
+            var session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId);
+
+            if (session is null)
             {
-                Log.Warning($"Session {sessionId} not found.");
+                Log.Warning($"Session {sessionId} not found.", LoggingCategory);
                 return;
             }
 
-            session?.Stop();
+            Log.Information($"Attempting to stop session: {session.Name}", LoggingCategory);
+
+            App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId)!.Stop();
         }
 
 
@@ -475,37 +511,107 @@ namespace TitanControl.ViewModels
         [RelayCommand]
         public void Duplicate(Guid? sessionId = null)
         {
-            Log.Debug($"Hit duplicate command");
-
             if (sessionId == null)
             {
                 if (SelectedSession == null)
+                {
+                    Log.Warning($"There is no session to duplicate.", LoggingCategory);
                     return;
+                }
+                    
 
                 sessionId = SelectedSession.ID;
             }
 
-            if (!App.SessionManager.TryGet((Guid)sessionId, out var session))
+            var session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId);
+
+            if (session is null)
             {
-                Log.Warning($"Session {sessionId} not found.");
+                Log.Warning($"Session {sessionId} not found.", LoggingCategory);
                 return;
             }
 
-            int identicalSessions = App.SessionManager
-                .GetAll()
-                .Where(s => s.Name == session!.Name)
-                .Count();
+            var newSession = App.SessionManager.Create(GetNextName(session.Name));
+            newSession.IPAddress = session.IPAddress;
+            newSession.Port = session.Port;
+            newSession.PortInteractive = session.PortInteractive;
+            newSession.UseHttps = session.UseHttps;
+            newSession.ReconnectIterations = session.ReconnectIterations;
+            newSession.KeepAlive = session.KeepAlive;
+            newSession.AutoTimeout = session.AutoTimeout;
 
-            identicalSessions++;
+            Log.Information($"Duplicated session: {session.Name}", LoggingCategory);
 
-            
+            if (IsEditing)
+                return;
+
+            foreach (var s in Sessions)
+            {
+                s.IsSelected = s.ID == newSession.ID;
+            }
+
+            SelectedSession = newSession;
+        }
+
+        public string GetNextName(string baseName)
+        {
+            var names = Sessions.Select(s => s.Name).ToHashSet();
+
+            // Remove an existing trailing number.
+            // "Titan control 1" -> "Titan control"
+            var match = Regex.Match(baseName, @"^(.*?)(?:\s+(\d+))?$");
+
+            var rootName = match.Groups[1].Value.TrimEnd();
+
+            // If the exact name doesn't exist, return it unchanged.
+            if (!names.Contains(baseName))
+                return baseName;
+
+            int i = 1;
+
+            while (names.Contains($"{rootName} {i}"))
+                i++;
+
+            return $"{rootName} {i}";
         }
 
 
         [RelayCommand]
-        public void Remove()
+        public async Task Remove(Guid? sessionId = null)
         {
-            Log.Debug($"Hit remove command");
+            if (sessionId == null)
+            {
+                if (SelectedSession == null)
+                {
+                    Log.Warning($"There is no session to duplicate.", LoggingCategory);
+                    return;
+                }
+
+
+                sessionId = SelectedSession.ID;
+            }
+
+            var session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId);
+
+            if (session is null)
+            {
+                Log.Warning($"Session {sessionId} not found.", LoggingCategory);
+                return;
+            }
+
+            var accepted = await MainWindow.DialogService
+                        .ShowConfirmationAsync(
+                            "Remove session",
+                            $"Are you sure you wish to remove the session: {session.Name}.\nThis action cannot be undone.");
+
+            if (!accepted)
+                return;
+
+            SelectedSession = Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session);
+
+            App.SessionManager.Remove((Guid)sessionId);
+
+            Log.Information($"Removed session: {session.Name}", LoggingCategory);
         }
     }
 }

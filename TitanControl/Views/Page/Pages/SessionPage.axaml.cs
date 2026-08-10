@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TitanControl.Controls.Menu;
+using TitanControl.Events.Control;
 using TitanControl.Logging;
 using TitanControl.ViewModels;
 
@@ -45,7 +46,6 @@ namespace TitanControl.Views.Page.Pages
             if (DataContext is SessionPageModel model)
             {
                 _ = model.StartScanner();
-                Task.Run(model.UpdateSessions);
             }
         }
 
@@ -58,18 +58,11 @@ namespace TitanControl.Views.Page.Pages
             }
         }
 
-        // TODO: Fix
-        private void SessionOverview_OnSelect(object? sender, bool e)
+        private void SessionOverview_OnSelect(object? sender, SessionOverviewSelectedEventArgs e)
         {
-            if (sender is SessionOverview sessionOverview)
+            if (sender is SessionOverview && DataContext is SessionPageModel model) 
             {
-                Log.Debug("Is Session");
-                if (DataContext is SessionPageModel model)
-                {
-                    Log.Debug("Is Model");
-
-                    model.SelectSession(sessionOverview.Id);
-                }
+                model.HandleSessionSelect(sender, e);
             }
         }
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TitanControl.Session
+namespace TitanControl.Session.Event
 {
     public sealed class SessionStateChangedEventArgs : EventArgs
     {
