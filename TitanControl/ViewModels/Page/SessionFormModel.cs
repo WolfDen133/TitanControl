@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using TitanControl.Disk.Model.Session;
 using TitanControl.Logging;
 using TitanControl.Session.Interface;
 using TitanControl.Validation;

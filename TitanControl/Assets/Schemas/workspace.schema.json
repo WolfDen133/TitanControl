@@ -19,14 +19,22 @@
       "type": "object",
       "properties": {
         "session": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "gridSize": {
           "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
           "items": {
-            "type": "integer",
-            "maxItems": 2,
-            "minItems": 2
+            "type": "integer"
           }
         }
       },
@@ -37,7 +45,7 @@
       "items": {
         "type": "object",
         "properties": {
-          "type": {
+          "controlId": {
             "type": "string",
             "enum": [
               "fader",
@@ -47,10 +55,10 @@
           },
           "location": {
             "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
             "items": {
-              "type": "integer",
-              "maxItems": 4,
-              "minItems": 4
+              "type": "integer"
             }
           },
           "titanId": {

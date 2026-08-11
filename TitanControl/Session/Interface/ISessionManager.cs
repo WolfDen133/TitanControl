@@ -6,7 +6,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TitanControl.Disk.Model.Session;
 using TitanControl.WebAPI;
 
 namespace TitanControl.Session.Interface
@@ -15,7 +14,7 @@ namespace TitanControl.Session.Interface
     {
         ObservableCollection<TitanSession> Sessions { get; }
 
-        ReadOnlyObservableCollection<SessionModel> ScanResults { get; }
+        ReadOnlyObservableCollection<ISession> ScanResults { get; }
 
         bool IsScannerRunning { get; }
 

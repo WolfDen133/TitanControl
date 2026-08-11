@@ -29,11 +29,20 @@
             "portInteractive": {
               "type": "integer"
             },
-            "useInteractive": {
+            "useHttp": {
               "type": "boolean"
+            },
+            "reconnectAttempts": {
+              "type": "integer"
+            },
+            "keepAliveInterval": {
+              "type": "integer"
+            },
+            "autoTimeout": {
+              "type": "integer"
             }
           },
-          "required": [ "sessionId", "name", "ipAddress", "portNormal", "portInteractive", "useInteractive" ]
+          "required": [ "sessionId", "name", "ipAddress", "portNormal", "portInteractive", "useHttps", "reconnectAttempts", "keepAliveInterval", "autoTimeout" ]
         }
       }
     }

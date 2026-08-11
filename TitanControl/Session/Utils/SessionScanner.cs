@@ -1,5 +1,4 @@
-﻿using global::TitanControl.Disk.Model.Session;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,6 +12,7 @@ using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using TitanControl.Logging;
 using TitanControl.Session.Interface;
 using TitanControl.WebAPI.Data.Model;
@@ -40,13 +40,13 @@ namespace TitanControl.Session.Utils
         private readonly bool _useHttps;
         private readonly HttpClient _http;
 
-        private readonly ObservableCollection<SessionModel> _results = new();
-        private readonly ReadOnlyObservableCollection<SessionModel> _readOnlyResults;
+        private readonly ObservableCollection<ISession> _results = new();
+        private readonly ReadOnlyObservableCollection<ISession> _readOnlyResults;
 
         // Contains only sessions discovered by this scanner. Existing persisted
         // sessions supplied to StartAsync are kept separately and are updated
         // directly rather than copied into Results.
-        private readonly ConcurrentDictionary<string, SessionModel> _knownSessions =
+        private readonly ConcurrentDictionary<string, TitanSession> _knownSessions =
             new(StringComparer.OrdinalIgnoreCase);
 
         private readonly SynchronizationContext? _synchronizationContext;
@@ -63,7 +63,7 @@ namespace TitanControl.Session.Utils
         /// Gets newly discovered Titan sessions that are not already represented
         /// by one of the existing sessions supplied to StartAsync.
         /// </summary>
-        public ReadOnlyObservableCollection<SessionModel> Results =>
+        public ReadOnlyObservableCollection<ISession> Results =>
             _readOnlyResults;
 
         /// <summary>
@@ -170,12 +170,12 @@ namespace TitanControl.Session.Utils
             _useHttps = useHttps;
             _http = CreateHttpClient(localInterfaceAddress);
 
-            // Construct the scanner on the UI thread if Results and SessionModel
+            // Construct the scanner on the UI thread if Results and TitanSession
             // properties are bound directly to UI controls.
             _synchronizationContext = SynchronizationContext.Current;
 
             _readOnlyResults =
-                new ReadOnlyObservableCollection<SessionModel>(_results);
+                new ReadOnlyObservableCollection<ISession>(_results);
 
             Log.Debug(
                 $"Created session scanner on {_localInterfaceAddress}.",
@@ -207,7 +207,7 @@ namespace TitanControl.Session.Utils
         /// </summary>
         /// <remarks>
         /// The supplied collection is snapshotted when scanning starts, but the
-        /// SessionModel objects themselves are not copied. State, ComputerName and
+        /// TitanSession objects themselves are not copied. State, ComputerName and
         /// PortInteractive changes are therefore applied to the caller's objects.
         /// </remarks>
         public async Task StartAsync(
@@ -234,7 +234,7 @@ namespace TitanControl.Session.Utils
                 }
 
                 // Preserve object references so PropertyChanged is raised on the
-                // exact SessionModel instances owned by the caller.
+                // exact TitanSession instances owned by the caller.
                 _existingSessions = existingSessions
                     .Where(session => session is not null)
                     .ToArray();
@@ -375,12 +375,12 @@ namespace TitanControl.Session.Utils
                 NormalPort,
                 _useHttps);
 
-            // Previously discovered sessions are updated in place. SessionModel
+            // Previously discovered sessions are updated in place. TitanSession
             // raises PropertyChanged, so the ObservableCollection item does not
             // need to be removed/reinserted.
             if (_knownSessions.TryGetValue(
                     key,
-                    out SessionModel? knownSession))
+                    out TitanSession? knownSession))
             {
                 await RefreshDiscoveredSessionAsync(
                         knownSession,
@@ -447,10 +447,8 @@ namespace TitanControl.Session.Utils
                 return;
             }
 
-            var session = new SessionModel
+            var session = new TitanSession(Guid.NewGuid(), device.Legend ?? string.Empty)
             {
-                ID = Guid.NewGuid(),
-                Name = device.Legend ?? string.Empty,
                 ComputerName = device.ComputerName ?? string.Empty,
                 IPAddress = address,
                 Port = NormalPort,

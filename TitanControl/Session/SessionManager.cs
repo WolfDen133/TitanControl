@@ -10,13 +10,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TitanControl.Disk;
-using TitanControl.Disk.Model.Session;
+using TitanControl.Disk.Model;
 using TitanControl.Logging;
 using TitanControl.Session.Interface;
 using TitanControl.Session.Utils;
 using TitanControl.WebAPI;
+using TitanControl.Session;
 
-namespace TitanControl.Session
+namespace TitanControl.Disk.Model
 {
     public sealed class SessionManager : ISessionManager, IAsyncDisposable
     {
@@ -24,8 +25,8 @@ namespace TitanControl.Session
 
         private readonly SynchronizationContext? _synchronizationContext;
 
-        private readonly ObservableCollection<SessionModel> _scanResults = new();
-        private readonly ReadOnlyObservableCollection<SessionModel> _readOnlyScanResults;
+        private readonly ObservableCollection<ISession> _scanResults = new();
+        private readonly ReadOnlyObservableCollection<ISession> _readOnlyScanResults;
 
         private SessionScanner? _scanner;
         private TimeSpan _scannerDuration;
@@ -46,7 +47,7 @@ namespace TitanControl.Session
         /// Newly discovered sessions. This collection object is also stable for
         /// the lifetime of SessionManager, even if the scanner/NIC is replaced.
         /// </summary>
-        public ReadOnlyObservableCollection<SessionModel> ScanResults =>
+        public ReadOnlyObservableCollection<ISession> ScanResults =>
             _readOnlyScanResults;
 
         public bool IsScannerRunning =>
@@ -70,7 +71,7 @@ namespace TitanControl.Session
             _synchronizationContext = SynchronizationContext.Current;
 
             _readOnlyScanResults =
-                new ReadOnlyObservableCollection<SessionModel>(_scanResults);
+                new ReadOnlyObservableCollection<ISession>(_scanResults);
         }
 
         public ISession Create(
@@ -127,8 +128,8 @@ namespace TitanControl.Session
         public async Task Save()
         {
             ThrowIfDisposed();
-
-            await FileHandler.SaveSessions(Sessions.ToList());
+            
+            await FileHandler.SaveSessions(Sessions.Select(s => (SessionModel)s.ToModel()).ToList());
         }
 
         public async Task Load()
@@ -140,7 +141,9 @@ namespace TitanControl.Session
             var sessions = await FileHandler.LoadSessions();
 
             foreach (var session in sessions)
-                Sessions.Add(session);
+            {
+                Sessions.Add((TitanSession)session.ToInstance());
+            } 
         }
 
         /// <summary>
@@ -292,7 +295,7 @@ namespace TitanControl.Session
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems is not null)
                     {
-                        foreach (SessionModel session in e.NewItems)
+                        foreach (ISession session in e.NewItems)
                         {
                             if (!_scanResults.Contains(session))
                                 _scanResults.Add(session);
@@ -303,7 +306,7 @@ namespace TitanControl.Session
                 case NotifyCollectionChangedAction.Remove:
                     if (e.OldItems is not null)
                     {
-                        foreach (SessionModel session in e.OldItems)
+                        foreach (ISession session in e.OldItems)
                             _scanResults.Remove(session);
                     }
                     break;
@@ -321,7 +324,7 @@ namespace TitanControl.Session
         {
             _scanResults.Clear();
 
-            foreach (SessionModel session in scanner.Results)
+            foreach (ISession session in scanner.Results)
                 _scanResults.Add(session);
         }
 

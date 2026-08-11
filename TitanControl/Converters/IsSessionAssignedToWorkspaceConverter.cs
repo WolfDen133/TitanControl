@@ -7,8 +7,9 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
-using TitanControl.Disk.Model.Session;
+using TitanControl.Disk.Model;
 using TitanControl.Disk.Model.Workspace;
+using TitanControl.Session.Interface;
 
 namespace TitanControl.Converters
 {
@@ -18,7 +19,7 @@ namespace TitanControl.Converters
 
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is not SessionModel session)
+            if (value is not ISession session)
                 return BindingOperations.DoNothing;
 
             if (parameter is not WorkspaceModel workspace)

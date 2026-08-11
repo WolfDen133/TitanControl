@@ -4,38 +4,30 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using TitanControl.Disk.Model.Session;
+using TitanControl.Disk.Interface;
 using TitanControl.Session.Interface;
 using TitanControl.WebAPI;
+using TitanControl.Workspaces;
 
 namespace TitanControl.Disk.Model.Workspace
 {
-    public class WorkspaceOptionsModel : INotifyPropertyChanged
+    public class WorkspaceOptionsModel : ISaveModel
     {
-        private Guid? session;
-        public Guid? Session
+        [JsonPropertyName("session")]
+        public Guid? Session { get; set; }
+
+        [JsonPropertyName("gridSize")]
+        public int[] GridSize { get; set; } = new int[2];
+
+        public ISaveable ToInstance()
         {
-            get => session;
-            set
+            return new WorkspaceOptions
             {
-                session = value;
-                OnPropertyChanged(nameof(Session));
-            }
-        }
-
-        public Size GridSize = new Size(18, 18);
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public void OnPropertyChanged(string type)
-        {
-            OnPropertyChanged(new PropertyChangedEventArgs(type));
-        }
-
-        protected void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            PropertyChanged?.Invoke(this, e);
+                Session = Session,
+                GridSize = FileUtilities.ToSizeFromArray(GridSize)
+            };
         }
     }
 }

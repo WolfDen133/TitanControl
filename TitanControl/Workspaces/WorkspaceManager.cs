@@ -11,17 +11,17 @@ using TitanControl.Disk.Model.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
 
-namespace TitanControl.Workspace
+namespace TitanControl.Workspaces
 {
     public class WorkspaceManager : INotifyPropertyChanged
     {
-        private WorkspaceModel currentWorkspace = null!;
+        private Workspace currentWorkspace = null!;
 
         private WorkspaceRecordModel record = new WorkspaceRecordModel();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public WorkspaceModel CurrentWorkspace { 
+        public Workspace CurrentWorkspace { 
             get => currentWorkspace; 
             private set
             {
@@ -40,14 +40,14 @@ namespace TitanControl.Workspace
             return record.LastWorkspace != Guid.Empty;
         }
 
-        public async Task<WorkspaceModel> LoadLastWorkspace()
+        public async Task<Workspace> LoadLastWorkspace()
         {
             return await Load(record.LastWorkspace);
         }
 
-        public async Task<WorkspaceModel> Load(Guid id)
+        public async Task<Workspace> Load(Guid id)
         {
-            if (!record.Workspaces.TryGetValue(id, out var workspace))
+            if (!record.Workspaces.TryGetValue(id, out var workspaceEntry))
             {
                 var ex = new InvalidDataException("Workspace could not be found");
                 Log.Error(ex, $"Workspace with key {id} could not be found in record.");
@@ -58,7 +58,7 @@ namespace TitanControl.Workspace
             if (record.Workspaces[id].Path != string.Empty)
                 path = record.Workspaces[id].Path;
             else
-                path = Path.Combine(PathHelper.DocumentsPath, workspace.Name + ".tcw");
+                path = Path.Combine(PathHelper.DocumentsPath, workspaceEntry.Name + ".tcw");
 
             if (!File.Exists(path))
             {
@@ -67,7 +67,9 @@ namespace TitanControl.Workspace
                 throw ex;
             }
 
-            CurrentWorkspace = await FileHandler.LoadWorkspace(path);
+            var workspaceModel = await FileHandler.LoadWorkspace(path);
+
+            CurrentWorkspace = (Workspace)workspaceModel.ToInstance();
             record.LastWorkspace = id;
 
             await SaveRecord();
@@ -75,20 +77,20 @@ namespace TitanControl.Workspace
             return CurrentWorkspace;
         } 
 
-        public async Task Save(WorkspaceModel workspace)
+        public async Task Save(Workspace workspace)
         {
             if (!record.Workspaces.TryGetValue(workspace.Id, out var workspaceEntry))
             {
                 workspaceEntry = new WorkspaceEntryModel
                 {
                     Name = workspace.Name,
-                    Path = Path.Combine(PathHelper.DocumentsPath, workspace.Name)
+                    Path = Path.Combine(PathHelper.DocumentsPath, workspace.Name + ".tcw")
                 };
 
                 record.Workspaces.Add(workspace.Id, workspaceEntry);
             }
 
-            await FileHandler.SaveWorkspace(workspace, workspaceEntry.Path);
+            await FileHandler.SaveWorkspace((WorkspaceModel)workspace.ToModel(), workspaceEntry.Path);
 
             await SaveRecord();
         }
@@ -103,13 +105,13 @@ namespace TitanControl.Workspace
             await FileHandler.SaveWorkspaceRecord(record);
         }
 
-        public WorkspaceModel Create(string name)
+        public Workspace Create(string name)
         {
-            var workspace =  new WorkspaceModel
+            var workspace = new Workspace
             {
                 Id = Guid.NewGuid(),
                 Name = name,
-                Options = new WorkspaceOptionsModel
+                Options = new WorkspaceOptions
                 {
                     Session = Guid.Empty,
                     GridSize = new System.Drawing.Size(12, 12)

@@ -11,8 +11,9 @@ using TitanControl.ViewModels;
 using TitanControl.WebAPI;
 using TitanControl.Helper;
 using Avalonia.Logging;
-using TitanControl.Workspace;
+using TitanControl.Workspaces;
 using TitanControl.Disk;
+using TitanControl.Disk.Model;
 
 namespace TitanControl;
 

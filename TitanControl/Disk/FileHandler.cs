@@ -1,9 +1,10 @@
 ﻿using Json.Schema;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using TitanControl.Disk.Model.Session;
+using TitanControl.Disk.Model;
 using TitanControl.Disk.Model.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
@@ -31,12 +32,12 @@ namespace TitanControl.Disk
 
         public static void Initialize()
         {
-            Log.Information("Initializing disk operations...", LoggingCategory);
+            Log.Debug("Initializing disk operations...", LoggingCategory);
             EnsureDirectoriesExist();
             EnsureFilesExist();
 
 
-            Log.Information("Loading json schemas...", LoggingCategory);
+            Log.Debug("Loading json schemas...", LoggingCategory);
             WorkspaceSchema = SchemaLoader.Load("workspace");
             WorkspaceRecordSchema = SchemaLoader.Load("workspaces");
             SessionsSchema = SchemaLoader.Load("sessions");
@@ -44,7 +45,7 @@ namespace TitanControl.Disk
 
         private static void EnsureDirectoriesExist()
         {
-            Log.Information("Ensuring directories exist...", LoggingCategory);
+            Log.Debug("Ensuring directories exist...", LoggingCategory);
             Directory.CreateDirectory(SavePath);
             Directory.CreateDirectory(PathHelper.AppDataPath);
         }
@@ -54,40 +55,43 @@ namespace TitanControl.Disk
             if (!File.Exists(WorkspaceRecordPath))
             {
                 _ = SaveWorkspaceRecord(new WorkspaceRecordModel());
-                Log.Information($"Workspace record was not found therefore re-written to: {WorkspaceRecordPath}", LoggingCategory);
+                Log.Debug($"Workspace record was not found therefore re-written to: {WorkspaceRecordPath}", LoggingCategory);
             }
 
             if (!File.Exists(SessionsPath))
             {
                 _ = SaveSessions(new());
-                Log.Information($"Sessions was not found therefore re-written to: {SessionsPath}", LoggingCategory);
+                Log.Debug($"Sessions was not found therefore re-written to: {SessionsPath}", LoggingCategory);
             }
 
             if (!File.Exists(ConfigPath))
             {
                 File.Create(ConfigPath);
-                Log.Information($"Config was not found therefore re-written to: {ConfigPath}", LoggingCategory);
+                Log.Debug($"Config was not found therefore re-written to: {ConfigPath}", LoggingCategory);
             }
         }
 
-        public static async Task<List<TitanSession>> LoadSessions()
+        public static async Task<List<SessionModel>> LoadSessions()
         {
             string raw = await File.ReadAllTextAsync(SessionsPath);
-            return JsonModelLoader.ParseAndValidate<List<TitanSession>>(raw, SessionsSchema);
+            var sessions = JsonModelLoader.ParseAndValidate<SessionModel[]>(raw, SessionsSchema);
+            Log.Debug("Read sessions", LoggingCategory);
+            Log.Debug($"\n{raw}", "JsonObject");
+            return sessions.ToList();
         }
 
-        public static async Task SaveSessions(List<TitanSession> sessions)
+        public static async Task SaveSessions(List<SessionModel> sessions)
         {
-            string raw = JsonModelLoader.Serialize(sessions);
+            string raw = JsonModelLoader.Serialize(sessions.ToArray());
             await File.WriteAllTextAsync(SessionsPath, raw);
-            Log.Information($"Sessions record saved.", LoggingCategory);
+            Log.Debug($"Sessions record saved.", LoggingCategory);
         }
 
         public static async Task<WorkspaceRecordModel> LoadWorkspaceRecord()
         {
             string raw = await File.ReadAllTextAsync(WorkspaceRecordPath);
             var recordModel = JsonModelLoader.ParseAndValidate<WorkspaceRecordModel>(raw, WorkspaceRecordSchema);
-            Log.Information("Sucessfully loaded workspace record", LoggingCategory);
+            Log.Debug("Read workspace record", LoggingCategory);
             Log.Debug($"\n{raw}", "JsonObject");
             return recordModel;
         }
@@ -101,21 +105,26 @@ namespace TitanControl.Disk
             }
 
             string raw = await File.ReadAllTextAsync(path);
-            return JsonModelLoader.ParseAndValidate<WorkspaceModel>(raw, WorkspaceSchema);
+            var workspace = JsonModelLoader.ParseAndValidate<WorkspaceModel>(raw, WorkspaceSchema);
+
+            Log.Debug($"Read workspace: {workspace.Name}", LoggingCategory);
+            Log.Debug($"\n{raw}", "JsonObject");
+
+            return workspace;
         }
 
         public static async Task SaveWorkspace(WorkspaceModel workspace, string path)
         {
             string raw = JsonModelLoader.Serialize(workspace);
             await File.WriteAllTextAsync(path, raw);
-            Log.Information($"Workspace '{workspace.Name}' saved to: {path}", LoggingCategory);
+            Log.Debug($"Workspace '{workspace.Name}' saved to: {path}", LoggingCategory);
         }
 
         public static async Task SaveWorkspaceRecord(WorkspaceRecordModel record)
         {
             string raw = JsonModelLoader.Serialize(record);
             await File.WriteAllTextAsync(WorkspaceRecordPath, raw);
-            Log.Information($"Workspace record saved.", LoggingCategory);
+            Log.Debug($"Workspace record saved.", LoggingCategory);
         }
     }
 }

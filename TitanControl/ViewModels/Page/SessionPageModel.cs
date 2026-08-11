@@ -14,7 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TitanControl.Controls.Menu;
-using TitanControl.Disk.Model.Session;
+using TitanControl.Disk.Model;
 using TitanControl.Disk.Model.Workspace;
 using TitanControl.Events.Control;
 using TitanControl.Helper;
@@ -25,6 +25,7 @@ using TitanControl.Session.Utils;
 using TitanControl.ViewModels.Page;
 using TitanControl.Views;
 using TitanControl.WebAPI;
+using TitanControl.Workspaces;
 
 namespace TitanControl.ViewModels
 {
@@ -105,9 +106,9 @@ namespace TitanControl.ViewModels
              : $"{SelectedSession!.IPAddress} : {SelectedSession!.Port}")
          : "-";
 
-        public WorkspaceModel CurrentWorkspace => App.WorkspaceManager.CurrentWorkspace;
+        public Workspace CurrentWorkspace => App.WorkspaceManager.CurrentWorkspace;
         public ObservableCollection<TitanSession> Sessions => App.SessionManager.Sessions;
-        public ReadOnlyObservableCollection<SessionModel> ScanResults => App.SessionManager.ScanResults;
+        public ReadOnlyObservableCollection<ISession> ScanResults => App.SessionManager.ScanResults;
 
         public bool HasNoSessions => Sessions.Count == 0;
 
@@ -293,6 +294,7 @@ namespace TitanControl.ViewModels
                 EnabledSessions.Remove(s);
             }
 
+            _ = App.WorkspaceManager.Save(CurrentWorkspace);
         }
 
         private void EnableForm()
@@ -365,6 +367,8 @@ namespace TitanControl.ViewModels
                     Connect(sessionId);
                     break;
             }
+
+            _ = App.SessionManager.Save();
         }
 
         [RelayCommand]
@@ -396,6 +400,8 @@ namespace TitanControl.ViewModels
             SelectedSession = session;
             EnableForm();
 
+            _ = App.SessionManager.Save();
+
             Log.Information("Added a new session manually", LoggingCategory);
         }
 
@@ -416,9 +422,7 @@ namespace TitanControl.ViewModels
                 return;
             }
 
-            if (SelectedSession is not SessionModel)
-                session.Name = FormData.SessionName;
-
+            session.Name = FormData.SessionName;
             session.IPAddress = IPAddress.Parse(FormData.IpAddress);
             session.Port = FormData.Port;
             session.PortInteractive = FormData.PortInteractive;
@@ -431,6 +435,8 @@ namespace TitanControl.ViewModels
             SelectedSession = session;
 
             DisableForm();
+
+            _ = App.SessionManager.Save();
 
             Log.Information($"Saved session {session.Name}.", LoggingCategory);
         }
@@ -542,6 +548,8 @@ namespace TitanControl.ViewModels
 
             Log.Information($"Duplicated session: {session.Name}", LoggingCategory);
 
+            _ = App.SessionManager.Save();
+
             if (IsEditing)
                 return;
 
@@ -607,11 +615,13 @@ namespace TitanControl.ViewModels
             if (!accepted)
                 return;
 
-            SelectedSession = Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session);
-
             App.SessionManager.Remove((Guid)sessionId);
 
+            SelectedSession = Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session);
+
             Log.Information($"Removed session: {session.Name}", LoggingCategory);
+
+            _ = App.SessionManager.Save();
         }
     }
 }

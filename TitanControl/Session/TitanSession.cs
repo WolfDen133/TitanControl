@@ -8,6 +8,8 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TitanControl.Disk.Interface;
+using TitanControl.Disk.Model;
 using TitanControl.Logging;
 using TitanControl.Session.Event;
 using TitanControl.Session.Interface;
@@ -16,7 +18,7 @@ using Tmds.DBus.Protocol;
 
 namespace TitanControl.Session
 {
-    public sealed class TitanSession : ISession
+    public sealed class TitanSession : ISession, ISaveable
     {
         private const string LoggingCategory = "TitanSession";
 
@@ -410,6 +412,22 @@ namespace TitanControl.Session
         public void OnPropertyChanged(PropertyChangedEventArgs e)
         {
             PropertyChanged?.Invoke(this, e);
+        }
+
+        public ISaveModel ToModel()
+        {
+            return new SessionModel
+            {
+                ID = ID,
+                Name = Name,
+                IPAddress = IPAddress.ToString(),
+                Port = Port,
+                PortInteractive = PortInteractive,
+                UseHttps = UseHttps,
+                AutoTimeout = AutoTimeout,
+                KeepAlive = KeepAlive,
+                ReconnectIterations = ReconnectIterations
+            };
         }
     }
 }

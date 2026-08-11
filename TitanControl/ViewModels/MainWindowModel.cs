@@ -12,7 +12,7 @@ using TitanControl.Session;
 using TitanControl.Session.Interface;
 using TitanControl.Views.Page;
 using TitanControl.Views.Page.Pages;
-using TitanControl.Workspace;
+using TitanControl.Workspaces;
 
 namespace TitanControl.ViewModels
 {
@@ -22,7 +22,7 @@ namespace TitanControl.ViewModels
         
         private BasePage? _currentPage;
 
-        public WorkspaceModel CurrentWorkspace = null!;
+        public Workspace CurrentWorkspace = null!;
         public ISession? CurrentSession = null!;
         
         public BasePage? CurrentPage 
@@ -33,15 +33,18 @@ namespace TitanControl.ViewModels
 
         public void Initialize()
         {
-            _ = App.SessionManager.Load();
             _ = LoadWorkspace();
         }
 
         public async Task LoadWorkspace()
         {
+            await App.SessionManager.Load();
+
             CurrentWorkspace = App.WorkspaceManager.HasLastWorkspace() 
                 ? await App.WorkspaceManager.LoadLastWorkspace()
                 : App.WorkspaceManager.Create("Untitled workspace");
+
+            App.SessionManager.Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session)?.Enable();
 
             if (MainWindow.PageManager.TryGetPage(PageId.Workspace, out var page))
             {
