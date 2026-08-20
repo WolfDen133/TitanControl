@@ -15,5 +15,16 @@ namespace TitanControl.Disk.Model.Workspace
 
         [JsonPropertyName("workspaces")]
         public Dictionary<Guid, WorkspaceEntryModel> Workspaces { get; set; } = new();
+
+        [JsonPropertyName("workspaceEntries")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
+        public Dictionary<Guid, WorkspaceEntryModel>? LegacyWorkspaceEntries
+        {
+            set
+            {
+                if (value != null)
+                    Workspaces = value;
+            }
+        }
     }
 }

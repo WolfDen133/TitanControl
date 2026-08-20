@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using TitanControl.Disk.Converter;
 using TitanControl.Disk.Interface;
 using TitanControl.Session.Interface;
 using TitanControl.WebAPI;
@@ -16,17 +17,18 @@ namespace TitanControl.Disk.Model.Workspace
     public class WorkspaceOptionsModel : ISaveModel
     {
         [JsonPropertyName("session")]
-        public Guid? Session { get; set; }
+        public Guid Session { get; set; } = Guid.NewGuid();
 
         [JsonPropertyName("gridSize")]
-        public int[] GridSize { get; set; } = new int[2];
+        [JsonConverter(typeof(SizeArrayJsonConverter))]
+        public Size GridSize { get; set; } = new Size(18, 18);
 
         public ISaveable ToInstance()
         {
             return new WorkspaceOptions
             {
                 Session = Session,
-                GridSize = FileUtilities.ToSizeFromArray(GridSize)
+                GridSize = GridSize
             };
         }
     }

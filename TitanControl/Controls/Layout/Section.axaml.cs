@@ -7,19 +7,19 @@ namespace TitanControl.Controls.Layout;
 
 public class Section : ContentControl
 {
-    public static StyledProperty<object?> HeaderContentProperty =
+    public static readonly StyledProperty<object?> HeaderContentProperty =
         AvaloniaProperty.Register<Section, object?>(nameof(HeaderContent));
 
-    public static StyledProperty<object?> FooterContentProperty =
+    public static readonly StyledProperty<object?> FooterContentProperty =
         AvaloniaProperty.Register<Section, object?>(nameof(HeaderContent));
 
-    public static StyledProperty<string?> TitleProperty =
+    public static readonly StyledProperty<string?> TitleProperty =
         AvaloniaProperty.Register<Section, string?>(nameof(Title), "Section title");
 
-    public static StyledProperty<string?> SubtitleProperty =
+    public static readonly StyledProperty<string?> SubtitleProperty =
         AvaloniaProperty.Register<Section, string?>(nameof(Subtitle), "Section subtitle");
 
-    public static StyledProperty<object?> IconProperty =
+    public static readonly StyledProperty<object?> IconProperty =
         AvaloniaProperty.Register<Section, object?>(nameof(Icon), null);
 
     public static readonly StyledProperty<bool?> IsDisabledProperty =

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "sessions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "address": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 4,
+              "minItems": 4
+            },
+            "port": {
+              "type": "integer"
+            }
+          },
+          "required": [ "id", "name", "address", "port" ]
+        }
+      }
+    }
+  }
+}

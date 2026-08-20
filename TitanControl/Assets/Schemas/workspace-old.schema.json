@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+
+  "properties": {
+    "workspaceId": {
+      "type": "string"
+    },
+
+    "name": {
+      "type": "string"
+    },
+
+    "version": {
+      "type": "integer"
+    },
+
+    "lastModified": {
+      "type": "string",
+      "format": "date-time"
+    },
+
+    "settings": {
+      "type": "object",
+
+      "properties": {
+        "session": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+
+        "gridSize": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+
+      "required": [
+        "session"
+      ],
+
+      "additionalProperties": false
+    },
+
+    "uiElements": {
+      "type": "array",
+
+      "items": {
+        "type": "object",
+
+        "properties": {
+          "elementId": {
+            "type": "integer",
+            "enum": [-1, 0, 1, 2]
+          },
+
+          "coords": {
+            "type": "string"
+          },
+
+          "titanId": {
+            "type": "integer"
+          },
+
+          "handleType": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "fixtureHandle",
+                  "groupHandle",
+                  "cueHandle",
+                  "cueListHandle",
+                  "chaseHandle",
+                  "trackHandle",
+                  "paletteHandle",
+                  "macroHandle",
+                  "masterHandle",
+                  "abMasterHandle",
+                  "rateMasterHandle",
+                  "playbackGroupHandle"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+
+        "required": [
+          "elementId",
+          "coords",
+          "titanId",
+          "handleType"
+        ],
+
+        "additionalProperties": false
+      }
+    }
+  },
+
+  "required": [
+    "workspaceId",
+    "name",
+    "lastModified",
+    "settings",
+    "uiElements"
+  ],
+
+  "additionalProperties": false
+}

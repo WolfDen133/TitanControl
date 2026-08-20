@@ -13,10 +13,10 @@ namespace TitanControl.Workspaces
 {
     public class WorkspaceOptions : INotifyPropertyChanged, ISaveable
     {
-        private Guid? session;
+        private Guid session;
         private Size gridSize = new Size(18, 18);
 
-        public Guid? Session
+        public Guid Session
         {
             get => session;
             set
@@ -53,7 +53,7 @@ namespace TitanControl.Workspaces
             return new WorkspaceOptionsModel
             {
                 Session = session,
-                GridSize = FileUtilities.ToArrayFromSize(GridSize)
+                GridSize = GridSize
             };
         }
     }

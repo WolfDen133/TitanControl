@@ -25,7 +25,7 @@ namespace TitanControl.Controls.Handle
             return new WorkspaceControlModel
             {
                 ControlId = ControlId,
-                Location = FileUtilities.ToArrayFromRectangle(Location),
+                Location = Location,
                 TitanId = TitanId,
                 HandleType = HandleType,
                 KeyProfile = KeyProfile

@@ -1,0 +1,56 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+
+namespace TitanControl.Disk.Converter
+{
+    public sealed class RectangleArrayJsonConverter : JsonConverter<Rectangle>
+    {
+        public override Rectangle Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options)
+        {
+            if (reader.TokenType != JsonTokenType.StartArray)
+                throw new JsonException("Expected an array for Rectangle.");
+
+            reader.Read();
+            int x = reader.GetInt32();
+
+            reader.Read();
+            int y = reader.GetInt32();
+
+            reader.Read();
+            int width = reader.GetInt32();
+
+            reader.Read();
+            int height = reader.GetInt32();
+
+            reader.Read();
+
+            if (reader.TokenType != JsonTokenType.EndArray)
+                throw new JsonException(
+                    "Rectangle must contain exactly 4 values.");
+
+            return new Rectangle(x, y, width, height);
+        }
+
+        public override void Write(
+            Utf8JsonWriter writer,
+            Rectangle value,
+            JsonSerializerOptions options)
+        {
+            writer.WriteStartArray();
+            writer.WriteNumberValue(value.X);
+            writer.WriteNumberValue(value.Y);
+            writer.WriteNumberValue(value.Width);
+            writer.WriteNumberValue(value.Height);
+            writer.WriteEndArray();
+        }
+    }
+}

@@ -10,12 +10,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TitanControl.Disk;
-using TitanControl.Disk.Model;
 using TitanControl.Logging;
 using TitanControl.Session.Interface;
 using TitanControl.Session.Utils;
 using TitanControl.WebAPI;
 using TitanControl.Session;
+using TitanControl.Disk.Model.Session;
 
 namespace TitanControl.Disk.Model
 {
@@ -128,8 +128,14 @@ namespace TitanControl.Disk.Model
         public async Task Save()
         {
             ThrowIfDisposed();
+
+            var record = new SessionRecordModel
+            {
+                LastSession = App.WorkspaceManager.CurrentWorkspace.Options.Session,
+                Sessions = Sessions.Select(s => (SessionModel)s.ToModel()).ToList()
+            };
             
-            await FileHandler.SaveSessions(Sessions.Select(s => (SessionModel)s.ToModel()).ToList());
+            await FileHandler.SaveSessions(record);
         }
 
         public async Task Load()
@@ -140,7 +146,7 @@ namespace TitanControl.Disk.Model
 
             var sessions = await FileHandler.LoadSessions();
 
-            foreach (var session in sessions)
+            foreach (var session in sessions.Sessions)
             {
                 Sessions.Add((TitanSession)session.ToInstance());
             } 

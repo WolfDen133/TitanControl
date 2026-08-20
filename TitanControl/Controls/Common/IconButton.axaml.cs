@@ -8,13 +8,13 @@ namespace TitanControl.Controls.Common;
 
 public class IconButton : Button, INotifyPropertyChanged
 {
-    public static StyledProperty<object?> IconProperty =
+    public static readonly StyledProperty<object?> IconProperty =
         AvaloniaProperty.Register<IconButton, object?>(nameof(Icon), null);
 
-    public static StyledProperty<string?> TextProperty =
+    public static readonly StyledProperty<string?> TextProperty =
         AvaloniaProperty.Register<IconButton, string?>(nameof(Text), "Button");
 
-    public static StyledProperty<bool> TextVisibleProperty =
+    public static readonly StyledProperty<bool> TextVisibleProperty =
         AvaloniaProperty.Register<IconButton, bool>(nameof(TextVisible), true);
 
 

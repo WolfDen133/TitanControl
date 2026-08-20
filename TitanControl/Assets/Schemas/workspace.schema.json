@@ -15,19 +15,11 @@
       "type": "string",
       "format": "date-time"
     },
-    "settings": {
+    "options": {
       "type": "object",
       "properties": {
         "session": {
-          "anyOf": [
-            {
-              "type": "string",
-              "format": "uuid"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": ["string", "null"]
         },
         "gridSize": {
           "type": "array",
@@ -45,7 +37,7 @@
       "items": {
         "type": "object",
         "properties": {
-          "controlId": {
+          "type": {
             "type": "string",
             "enum": [
               "fader",
@@ -67,6 +59,7 @@
           "handleType": {
             "type": "string",
             "enum": [
+              "none",
               "fixtureHandle",
               "groupHandle",
               "cueHandle",
@@ -84,13 +77,13 @@
           "keyProfile": {
             "type": "string",
             "enum": [
-              "Latch",
-              "Flash",
-              "TimedFlash",
-              "Go",
-              "GoBack",
-              "Release",
-              "TapTempo"
+              "latch",
+              "flash",
+              "timedFlash",
+              "go",
+              "goBack",
+              "release",
+              "tapTempo"
             ]
           }
         },
@@ -98,5 +91,5 @@
       }
     }
   },
-  "required": ["workspaceId", "name", "lastModified", "settings"]
+  "required": [ "workspaceId", "name", "lastModified", "options", "controls" ]
 }

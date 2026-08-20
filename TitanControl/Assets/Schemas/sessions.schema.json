@@ -1,50 +1,59 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "sessions": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "sessionId": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "ipAddress": {
-              "type": "array",
-              "items": {
-                "type": "integer"
+  "type": "object",
+  "properties": {
+    "lastSession": {
+      "type": "string"
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sessions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sessionId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "ipAddress": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  },
+                  "maxItems": 4,
+                  "minItems": 4
+                },
+                "port": {
+                  "type": "integer"
+                },
+                "portInteractive": {
+                  "type": "integer"
+                },
+                "useHttps": {
+                  "type": "boolean"
+                },
+                "reconnectAttempts": {
+                  "type": "integer"
+                },
+                "keepAliveInterval": {
+                  "type": "integer"
+                },
+                "autoTimeout": {
+                  "type": "integer"
+                }
               },
-              "maxItems": 4,
-              "minItems": 4
-            },
-            "port": {
-              "type": "integer"
-            },
-            "portInteractive": {
-              "type": "integer"
-            },
-            "useHttp": {
-              "type": "boolean"
-            },
-            "reconnectAttempts": {
-              "type": "integer"
-            },
-            "keepAliveInterval": {
-              "type": "integer"
-            },
-            "autoTimeout": {
-              "type": "integer"
+              "required": [ "sessionId", "name", "ipAddress", "port", "portInteractive", "useHttps", "reconnectAttempts", "keepAliveInterval", "autoTimeout" ]
             }
-          },
-          "required": [ "sessionId", "name", "ipAddress", "portNormal", "portInteractive", "useHttps", "reconnectAttempts", "keepAliveInterval", "autoTimeout" ]
+          }
         }
       }
     }
-  }
+  },
+  "required": ["lastSession", "sessions"]
 }

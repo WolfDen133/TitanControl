@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TitanControl.Disk.Interface;
 using TitanControl.Disk.Model;
+using TitanControl.Disk.Model.Session;
 using TitanControl.Logging;
 using TitanControl.Session.Event;
 using TitanControl.Session.Interface;
@@ -420,7 +421,7 @@ namespace TitanControl.Session
             {
                 ID = ID,
                 Name = Name,
-                IPAddress = IPAddress.ToString(),
+                IPAddress = IPAddress,
                 Port = Port,
                 PortInteractive = PortInteractive,
                 UseHttps = UseHttps,
