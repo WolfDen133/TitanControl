@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using TitanControl.Controls.Models;
-using TitanControl.Session;
+using TitanControl.Services.Session;
 
 namespace TitanControl.Controls.Toolbar;
 

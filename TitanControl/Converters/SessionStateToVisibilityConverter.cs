@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TitanControl.Session;
+using TitanControl.Services.Session;
 
 namespace TitanControl.Converters
 {

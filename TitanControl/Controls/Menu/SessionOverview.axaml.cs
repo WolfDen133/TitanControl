@@ -10,7 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics.Tracing;
 using TitanControl.Events.Control;
 using TitanControl.Helper;
-using TitanControl.Session;
+using TitanControl.Services.Session;
 using TitanControl.Session.Utils;
 using static TitanControl.Controls.Toolbar.Buttons.ToolbarButton;
 

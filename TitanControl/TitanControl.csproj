@@ -42,9 +42,16 @@
 
   <ItemGroup>
     <Folder Include="Themes\" />
+    <Folder Include="Windows\" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\Pages\SessionPage.axaml.cs">
+      <DependentUpon>SessionPage.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Pages\WorkspacePage.axaml.cs">
+      <DependentUpon>WorkspacePage.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\ModalDialogWindow.axaml.cs">
       <DependentUpon>ModalDialogWindow.axaml</DependentUpon>
     </Compile>

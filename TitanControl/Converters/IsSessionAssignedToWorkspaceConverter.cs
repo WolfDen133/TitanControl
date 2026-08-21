@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TitanControl.Disk.Model;
 using TitanControl.Disk.Model.Workspace;
-using TitanControl.Session.Interface;
+using TitanControl.Services.Session;
 
 namespace TitanControl.Converters
 {

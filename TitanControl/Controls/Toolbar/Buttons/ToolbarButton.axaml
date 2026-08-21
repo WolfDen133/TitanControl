@@ -16,7 +16,12 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <svg:TwoToneSvg x:Name="ButtonSvg" PrimaryColor="{DynamicResource ForegroundSecondary}" SecondaryColor="{DynamicResource AccentColorD}" Grid.Row="0" Margin="5"/>
+            <svg:TwoToneSvg x:Name="ButtonSvg" 
+                            PrimaryColor="{DynamicResource ForegroundSecondary}" 
+                            SecondaryColor="{DynamicResource AccentColorD}" 
+                            Grid.Row="0" 
+                            Margin="5"
+                            Path="{Binding Path, RelativeSource={RelativeSource Self}}"/>
             <Image x:Name="ButtonImage" Grid.Row="0" Margin="8"/>
             <Viewbox Height="27" VerticalAlignment="Bottom" Grid.Row="1" Margin="3">
                 <Border>

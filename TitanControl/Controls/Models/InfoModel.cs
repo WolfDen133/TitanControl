@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TitanControl.Logging;
-using TitanControl.Session;
+using TitanControl.Services.Session;
 using TitanControl.ViewModels;
 
 namespace TitanControl.Controls.Models

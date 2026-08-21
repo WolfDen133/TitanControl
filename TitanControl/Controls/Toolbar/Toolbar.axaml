@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:buttons="using:TitanControl.Controls.Toolbar.Buttons"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -20,11 +21,13 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <toolbar:ContextToolstrip/>
+            <toolbar:Toolstrip Exclusive="True">
+                <buttons:ToolbarButton Text="Add" Path="/Assets/Icons/add.svg" OnClick="ToolbarButton_OnClick"/>
+            </toolbar:Toolstrip>
             <Border Padding="4" ClipToBounds="False" Grid.Column="1">
-                <toolbar:InfoPane x:Name="PART_InfoPane" ClipToBounds="False" Classes="drop-l"/>
+                <toolbar:InfoPane x:Name="PART_InfoPane" ClipToBounds="False" Classes="drop-l" DataContext="{Binding InfoModel}"/>
             </Border>
-            <toolbar:SystemToolstrip Grid.Column="3"/>
+            
         </Grid>
     </Border>
 </UserControl>

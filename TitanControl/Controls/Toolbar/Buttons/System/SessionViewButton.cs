@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TitanControl.ViewModels;
-using TitanControl.Views.Page;
+using TitanControl.ViewModels.Page;
 using sToolstrip = TitanControl.Controls.Toolbar.SystemToolstrip;
 
 namespace TitanControl.Controls.Toolbar.Buttons.SystemToolstrip

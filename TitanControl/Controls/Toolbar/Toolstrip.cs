@@ -4,12 +4,14 @@ using Avalonia.Input;
 using Avalonia.Input.Raw;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TitanControl.Controls.Models;
 using TitanControl.Controls.Toolbar.Buttons;
 using TitanControl.Logging;
 
@@ -19,17 +21,11 @@ namespace TitanControl.Controls.Toolbar
     {
         private const string LogCategory = "Toolstrip";
 
-        private readonly Dictionary<int, ToolbarButton> _menuTree = new();
-
         private int _current = -1;
-        private bool _initialized;
 
         public static int MaxPerPage { get; } = 6;
-
+        public ObservableCollection<ToolbarButton> MenuTree { get; set; } = new();
         public bool Exclusive { get; set; }
-
-        public IDictionary<int, ToolbarButton> MenuTree =>
-            _menuTree;
 
         public int Current => _current;
 
@@ -40,39 +36,22 @@ namespace TitanControl.Controls.Toolbar
             Margin = new Thickness(4);
         }
 
-        protected override void OnInitialized()
+        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
         {
-            base.OnInitialized();
+            base.OnAttachedToVisualTree(e);
 
-            LoadMenuItems();
             InitializeButtons();
             LoadDefaultPage();
         }
 
-        protected virtual void LoadMenuItems()
-        {
-            _menuTree.Add(-1, new BackButton() { Toolstrip = this });
-        }
-
         private void InitializeButtons()
         {
-            if (_initialized)
-                return;
-
-            foreach (ToolbarButton button in _menuTree.Values)
+            foreach (ToolbarButton button in MenuTree.Values)
             {
                 button.IsVisible = false;
 
                 button.PointerReleased += OnButtonPointerReleased;
-
-                /*
-                 * Every button is added exactly once. Its SVG control remains
-                 * attached to this Toolstrip for the Toolstrip's lifetime.
-                 */
-                Children.Add(button);
             }
-
-            _initialized = true;
         }
 
         private void OnButtonPointerReleased(

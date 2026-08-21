@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using TitanControl.Controls.Toolbar;
 
@@ -14,6 +15,7 @@ public partial class ToolbarButton : UserControl
 {
     public required Toolstrip Toolstrip;
 
+    public string? Path { get; set; }
     public int ID { get; set; }
     public int[]? Children { get; set; } = null;
     public string Text
@@ -142,7 +144,7 @@ public partial class ToolbarButton : UserControl
 
     protected virtual void ClickAction(ButtonAction action)
     { 
-    
+        
     }
 
     private IBrush? FindResource(string key)

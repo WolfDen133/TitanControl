@@ -6,15 +6,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TitanControl.Disk.Interface;
-using TitanControl.Disk.Model.Session;
-using TitanControl.Disk.Model.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
+using TitanControl.Models;
+using TitanControl.Models.Session;
+using TitanControl.Models.Workspace;
 
 namespace TitanControl.Disk
 {
-    public static class FileHandler
+    public class FileHandler
     {
         private const string LoggingCategory = "FileHandler";
 
@@ -32,22 +32,25 @@ namespace TitanControl.Disk
 
         // Models are cached by normalized full path. A successful load/update only touches disk once;
         // subsequent Load* calls return the same in-memory model instance.
-        private static readonly ConcurrentDictionary<string, ISaveModel> ModelCache =
+        private readonly ConcurrentDictionary<string, ISaveModel> ModelCache =
             new(PathComparer);
 
         // Serializes file I/O for each individual path without blocking unrelated files.
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> FileLocks =
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> FileLocks =
             new(PathComparer);
 
-        private static readonly object InitializationSync = new();
-        private static Task? initializationTask;
+        private readonly object InitializationSync = new();
+        private readonly JsonModelLoader _modelLoader = new();
+        private readonly SchemaLoader _schemaLoader = new();
 
-        private static JsonSchema WorkspaceSchema = null!;
-        private static JsonSchema WorkspaceOldSchema = null!;
-        private static JsonSchema WorkspaceRecordSchema = null!;
-        private static JsonSchema WorkspaceRecordOldSchema = null!;
-        private static JsonSchema SessionsSchema = null!;
-        private static JsonSchema SessionsOldSchema = null!;
+        private Task? initializationTask;
+
+        private JsonSchema WorkspaceSchema = null!;
+        private JsonSchema WorkspaceOldSchema = null!;
+        private JsonSchema WorkspaceRecordSchema = null!;
+        private JsonSchema WorkspaceRecordOldSchema = null!;
+        private JsonSchema SessionsSchema = null!;
+        private JsonSchema SessionsOldSchema = null!;
 
         public enum FileUpdateResult
         {
@@ -62,7 +65,7 @@ namespace TitanControl.Disk
         /// Existing callers can continue to call FileHandler.Initialize() without blocking startup.
         /// Any Load*/Save* method automatically awaits initialization before accessing files.
         /// </summary>
-        public static void Initialize()
+        public void Initialize()
         {
             _ = EnsureInitializationStarted();
         }
@@ -71,15 +74,15 @@ namespace TitanControl.Disk
         /// Starts (or joins) the single initialization operation.
         /// Await this when a caller explicitly needs disk state to be ready.
         /// </summary>
-        public static Task InitializeAsync()
+        public Task InitializeAsync()
         {
             return EnsureInitializationStarted();
         }
 
-        public static bool IsInitialized =>
+        public bool IsInitialized =>
             initializationTask is { Status: TaskStatus.RanToCompletion };
 
-        private static Task EnsureInitializationStarted()
+        private Task EnsureInitializationStarted()
         {
             lock (InitializationSync)
             {
@@ -88,7 +91,7 @@ namespace TitanControl.Disk
             }
         }
 
-        private static async Task InitializeCoreAsync()
+        private async Task InitializeCoreAsync()
         {
             try
             {
@@ -110,21 +113,21 @@ namespace TitanControl.Disk
             }
         }
 
-        private static void LoadSchemas()
+        private void LoadSchemas()
         {
             Log.Debug("Loading JSON schemas.", LoggingCategory);
 
-            WorkspaceSchema = SchemaLoader.Load("workspace");
-            WorkspaceOldSchema = SchemaLoader.Load("workspace-old");
+            WorkspaceSchema = _schemaLoader.Load("workspace");
+            WorkspaceOldSchema = _schemaLoader.Load("workspace-old");
 
-            WorkspaceRecordSchema = SchemaLoader.Load("workspaces");
-            WorkspaceRecordOldSchema = SchemaLoader.Load("workspaces-old");
+            WorkspaceRecordSchema = _schemaLoader.Load("workspaces");
+            WorkspaceRecordOldSchema = _schemaLoader.Load("workspaces-old");
 
-            SessionsSchema = SchemaLoader.Load("sessions");
-            SessionsOldSchema = SchemaLoader.Load("sessions-old");
+            SessionsSchema = _schemaLoader.Load("sessions");
+            SessionsOldSchema = _schemaLoader.Load("sessions-old");
         }
 
-        private static void EnsureDirectoriesExist()
+        private void EnsureDirectoriesExist()
         {
             Directory.CreateDirectory(SavePath);
             Directory.CreateDirectory(PathHelper.AppDataPath);
@@ -133,13 +136,13 @@ namespace TitanControl.Disk
             Log.Debug("Verified application data directories.", LoggingCategory);
         }
 
-        private static async Task EnsureFilesExistAsync()
+        private async Task EnsureFilesExistAsync()
         {
             if (!File.Exists(WorkspaceRecordPath))
             {
                 await File.WriteAllTextAsync(
                     WorkspaceRecordPath,
-                    JsonModelHelper.Serialize(new WorkspaceRecordModel()))
+                    _modelLoader.Serialize(new WorkspaceRecordModel()))
                     .ConfigureAwait(false);
 
                 Log.Information(
@@ -151,7 +154,7 @@ namespace TitanControl.Disk
             {
                 await File.WriteAllTextAsync(
                     SessionsPath,
-                    JsonModelHelper.Serialize(new SessionRecordModel()))
+                    _modelLoader.Serialize(new SessionRecordModel()))
                     .ConfigureAwait(false);
 
                 Log.Information(
@@ -171,7 +174,7 @@ namespace TitanControl.Disk
             }
         }
 
-        private static async Task AttemptUpgradeAsync()
+        private async Task AttemptUpgradeAsync()
         {
             Log.Debug("Validating and migrating persisted data.", LoggingCategory);
 
@@ -194,7 +197,7 @@ namespace TitanControl.Disk
                 .ConfigureAwait(false);
         }
 
-        private static async Task UpdateWorkspaceRecordEntriesAsync(
+        private async Task UpdateWorkspaceRecordEntriesAsync(
             WorkspaceRecordModel existing)
         {
             var workspaceFiles = new HashSet<string>(PathComparer);
@@ -276,7 +279,7 @@ namespace TitanControl.Disk
             }
         }
 
-        private static async Task<(FileUpdateResult Result, T? Model)> UpdateFileAsync<T>(
+        private async Task<(FileUpdateResult Result, T? Model)> UpdateFileAsync<T>(
             string path,
             Type modelType)
             where T : class, ISaveModel
@@ -301,9 +304,9 @@ namespace TitanControl.Disk
                 (JsonSchema currentSchema, JsonSchema oldSchema) = GetSchemas(modelType);
                 string raw = await File.ReadAllTextAsync(normalizedPath).ConfigureAwait(false);
 
-                if (JsonModelHelper.IsValid(raw, currentSchema))
+                if (_modelLoader.IsValid(raw, currentSchema))
                 {
-                    T model = (T)JsonModelHelper.ParseAndValidate(
+                    T model = (T)_modelLoader.ParseAndValidate(
                         modelType,
                         raw,
                         currentSchema);
@@ -317,10 +320,10 @@ namespace TitanControl.Disk
                     return (FileUpdateResult.UpToDate, model);
                 }
 
-                if (JsonModelHelper.IsValid(raw, oldSchema))
+                if (_modelLoader.IsValid(raw, oldSchema))
                 {
-                    string migratedJson = JsonModelHelper.MigrateJson(modelType, raw);
-                    T model = (T)JsonModelHelper.ParseAndValidate(
+                    string migratedJson = _modelLoader.MigrateJson(modelType, raw);
+                    T model = (T)_modelLoader.ParseAndValidate(
                         modelType,
                         migratedJson,
                         currentSchema);
@@ -378,7 +381,7 @@ namespace TitanControl.Disk
         // Cache helpers
         //
 
-        private static async Task<T> LoadCachedAsync<T>(
+        private async Task<T> LoadCachedAsync<T>(
             string path,
             JsonSchema schema)
             where T : class, ISaveModel
@@ -422,7 +425,7 @@ namespace TitanControl.Disk
                 }
 
                 string raw = await File.ReadAllTextAsync(normalizedPath).ConfigureAwait(false);
-                T model = JsonModelHelper.ParseAndValidate<T>(raw, schema);
+                T model = _modelLoader.ParseAndValidate<T>(raw, schema);
 
                 ModelCache[normalizedPath] = model;
 
@@ -438,14 +441,14 @@ namespace TitanControl.Disk
             }
         }
 
-        private static async Task SaveCachedAsync<T>(string path, T model)
+        private async Task SaveCachedAsync<T>(string path, T model)
             where T : class, ISaveModel
         {
             await EnsureInitializationStarted().ConfigureAwait(false);
             await SaveModelCoreAsync(path, model).ConfigureAwait(false);
         }
 
-        private static async Task SaveModelCoreAsync<T>(string path, T model)
+        private async Task SaveModelCoreAsync<T>(string path, T model)
             where T : class, ISaveModel
         {
             string normalizedPath = NormalizePath(path);
@@ -467,24 +470,24 @@ namespace TitanControl.Disk
             }
         }
 
-        private static Task WriteModelUnlockedAsync<T>(string path, T model)
+        private Task WriteModelUnlockedAsync<T>(string path, T model)
             where T : class, ISaveModel
         {
-            string raw = JsonModelHelper.Serialize(model);
+            string raw = _modelLoader.Serialize(model);
             return File.WriteAllTextAsync(path, raw);
         }
 
-        private static SemaphoreSlim GetFileLock(string path)
+        private SemaphoreSlim GetFileLock(string path)
         {
-            return FileLocks.GetOrAdd(path, static _ => new SemaphoreSlim(1, 1));
+            return FileLocks.GetOrAdd(path, _ => new SemaphoreSlim(1, 1));
         }
 
-        private static string NormalizePath(string path)
+        private string NormalizePath(string path)
         {
             return Path.GetFullPath(path);
         }
 
-        private static (JsonSchema Current, JsonSchema Legacy) GetSchemas(Type modelType)
+        private (JsonSchema Current, JsonSchema Legacy) GetSchemas(Type modelType)
         {
             return modelType switch
             {
@@ -502,7 +505,7 @@ namespace TitanControl.Disk
             };
         }
 
-        private static string GetModelName(Type modelType)
+        private string GetModelName(Type modelType)
         {
             string name = modelType.Name;
 
@@ -518,12 +521,12 @@ namespace TitanControl.Disk
         /// Removes a cached model so the next Load* call reads it from disk again.
         /// Useful if a file may have been changed externally.
         /// </summary>
-        public static bool InvalidateCache(string path)
+        public bool InvalidateCache(string path)
         {
             return ModelCache.TryRemove(NormalizePath(path), out _);
         }
 
-        public static void ClearCache()
+        public void ClearCache()
         {
             ModelCache.Clear();
             Log.Debug("Cleared persisted model cache.", LoggingCategory);
@@ -533,30 +536,30 @@ namespace TitanControl.Disk
         // Callable tasks for application function
         //
 
-        public static Task<SessionRecordModel> LoadSessions()
+        public Task<SessionRecordModel> LoadSessions()
         {
             return LoadCachedAsync<SessionRecordModel>(SessionsPath, SessionsSchema);
         }
 
-        public static async Task SaveSessions(SessionRecordModel sessions)
+        public async Task SaveSessions(SessionRecordModel sessions)
         {
             await SaveCachedAsync(SessionsPath, sessions).ConfigureAwait(false);
             Log.Debug("Saved session record.", LoggingCategory);
         }
 
-        public static Task<WorkspaceRecordModel> LoadWorkspaceRecord()
+        public Task<WorkspaceRecordModel> LoadWorkspaceRecord()
         {
             return LoadCachedAsync<WorkspaceRecordModel>(
                 WorkspaceRecordPath,
                 WorkspaceRecordSchema);
         }
 
-        public static Task<WorkspaceModel> LoadWorkspace(string path)
+        public Task<WorkspaceModel> LoadWorkspace(string path)
         {
             return LoadCachedAsync<WorkspaceModel>(path, WorkspaceSchema);
         }
 
-        public static async Task SaveWorkspace(WorkspaceModel workspace, string path)
+        public async Task SaveWorkspace(WorkspaceModel workspace, string path)
         {
             await SaveCachedAsync(path, workspace).ConfigureAwait(false);
 
@@ -565,7 +568,7 @@ namespace TitanControl.Disk
                 LoggingCategory);
         }
 
-        public static async Task SaveWorkspaceRecord(WorkspaceRecordModel record)
+        public async Task SaveWorkspaceRecord(WorkspaceRecordModel record)
         {
             await SaveCachedAsync(WorkspaceRecordPath, record).ConfigureAwait(false);
             Log.Debug("Saved workspace record.", LoggingCategory);

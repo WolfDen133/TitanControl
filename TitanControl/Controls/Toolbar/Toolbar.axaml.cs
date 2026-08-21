@@ -5,8 +5,8 @@ using System;
 using System.Diagnostics;
 using TitanControl.Controls.Models;
 using TitanControl.Controls.Toolbar;
-using TitanControl.Session;
-using TitanControl.Session.Interface;
+using TitanControl.Controls.Toolbar.Buttons;
+using TitanControl.Services.Session;
 using TitanControl.WebAPI;
 
 namespace TitanControl;
@@ -23,7 +23,7 @@ public partial class Toolbar : UserControl
         int height = CalculateHeight(windowWidth);
 
         Height = height;
-        
+
         InvalidateMeasure();
         InvalidateArrange();
     }
@@ -40,5 +40,11 @@ public partial class Toolbar : UserControl
     public void UpdateSessionStatus(SessionConnectionState state)
     {
         PART_InfoPane.UpdateStatus(state);
+    }
+
+    private void ToolbarButton_OnClick(object? sender, ToolbarButton.ButtonAction e)
+    {
+        if (sender is ToolbarButton button)
+
     }
 }

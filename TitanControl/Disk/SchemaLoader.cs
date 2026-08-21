@@ -7,14 +7,14 @@ using TitanControl.Logging;
 
 namespace TitanControl.Disk
 {
-    public static class SchemaLoader
+    public class SchemaLoader
     {
         private const string LoggingCategory = "SchemaLoader";
 
-        private static readonly ConcurrentDictionary<string, JsonSchema> Cache =
+        private readonly ConcurrentDictionary<string, JsonSchema> Cache =
             new(StringComparer.OrdinalIgnoreCase);
 
-        public static JsonSchema Load(string schemaName)
+        public JsonSchema Load(string schemaName)
         {
             if (string.IsNullOrWhiteSpace(schemaName))
                 throw new ArgumentException("Schema name cannot be empty.", nameof(schemaName));
@@ -22,7 +22,7 @@ namespace TitanControl.Disk
             return Cache.GetOrAdd(schemaName, LoadFromAssets);
         }
 
-        private static JsonSchema LoadFromAssets(string schemaName)
+        private JsonSchema LoadFromAssets(string schemaName)
         {
             var uri = new Uri(
                 $"avares://{AppConstants.AppName}/Assets/Schemas/{schemaName}.schema.json");
