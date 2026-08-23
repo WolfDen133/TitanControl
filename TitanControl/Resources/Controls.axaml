@@ -5,6 +5,8 @@
       <ResourceInclude Source="avares://TitanControl/Controls/Common/IconButton.axaml"/>
       <ResourceInclude Source="avares://TitanControl/Controls/Common/Field.axaml"/>
       <ResourceInclude Source="avares://TitanControl/Controls/Common/Input/NumericUpDown.axaml"/>
-
+      <ResourceInclude Source="avares://TitanControl/Controls/Common/Input/NumericUpDown.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Controls/Handle/HandleButtonControl.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Controls/Handle/HandleFaderControl.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

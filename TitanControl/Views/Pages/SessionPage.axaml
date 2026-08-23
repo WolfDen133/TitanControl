@@ -5,7 +5,7 @@
              xmlns:layout="using:TitanControl.Controls.Layout"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:menu="using:TitanControl.Controls.Menu"
-             xmlns:viewmodels="using:TitanControl.ViewModels"
+             xmlns:viewmodels="using:TitanControl.ViewModels.Page"
              mc:Ignorable="d" d:DesignWidth="1900" d:DesignHeight="1000"
              x:DataType="viewmodels:SessionPageModel"
              x:Name="SessionPageRoot"
@@ -194,7 +194,7 @@
                     </layout:Section.FooterContent>
                 </layout:Section>
                 <layout:Section Grid.Column="2" Title="Current session" Subtitle="Currently selected or connected session"
-                                IsDisabled="{Binding SelectedSession, Converter={StaticResource ObjectIsNullConverter}}">
+                                IsDisabled="{Binding !DetailsEnabled}">
                     <layout:Section.Icon>
                         <common:TwoToneSvg SvgSource="{StaticResource StatisticSvgSource}" PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource AccentColor}"/>
                     </layout:Section.Icon>

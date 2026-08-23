@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TitanControl.ViewModels.Page
+﻿namespace TitanControl.ViewModels.Page
 {
     public enum PageId
     {

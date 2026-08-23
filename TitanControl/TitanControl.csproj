@@ -41,11 +41,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Themes\" />
-    <Folder Include="Windows\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Compile Update="Controls\Handle\HandleButtonControl.axaml.cs">
+      <DependentUpon>HandleButtonControl.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\Handle\HandleFaderControl.axaml.cs">
+      <DependentUpon>HandleFaderControl.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\Pages\SessionPage.axaml.cs">
       <DependentUpon>SessionPage.axaml</DependentUpon>
     </Compile>

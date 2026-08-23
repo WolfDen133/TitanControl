@@ -1,21 +1,14 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Avalonia.VisualTree;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TitanControl.Controls.Menu;
 using TitanControl.Events.Control;
-using TitanControl.Logging;
 using TitanControl.ViewModels;
 using TitanControl.ViewModels.Page;
 
 namespace TitanControl.Views.Page.Pages
 {
-    public partial class SessionPage : UserControl, IPage
+    public partial class SessionPage : UserControl
     {
         public SessionPageModel Model
         {
@@ -27,8 +20,6 @@ namespace TitanControl.Views.Page.Pages
                 return m;
             }
         }
-
-        public PageId Id => PageId.Session;
 
         public SessionPage()
         {
@@ -49,16 +40,9 @@ namespace TitanControl.Views.Page.Pages
             Model.StopScanner();
         }
 
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            Model.Initialize();
-        }
-
         private void SessionOverview_OnSelect(object? sender, SessionOverviewSelectedEventArgs e)
         {
-            if (sender is SessionOverview) 
+            if (sender is SessionOverview)
                 Model.HandleSessionSelect(sender, e);
         }
 

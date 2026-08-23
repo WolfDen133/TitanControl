@@ -2,8 +2,6 @@
 using Avalonia.Svg.Skia;
 using System;
 using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
 using TitanControl.Helper;
 using TitanControl.Logging;
 

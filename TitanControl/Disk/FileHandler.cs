@@ -3,9 +3,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TitanControl.Disk.Json;
 using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.Models;
@@ -41,7 +41,7 @@ namespace TitanControl.Disk
 
         private readonly object InitializationSync = new();
         private readonly JsonModelLoader _modelLoader = new();
-        private readonly SchemaLoader _schemaLoader = new();
+        private readonly JsonSchemaLoader _schemaLoader = new();
 
         private Task? initializationTask;
 

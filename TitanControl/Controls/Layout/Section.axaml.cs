@@ -1,7 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using TitanControl.Controls.Common;
 
 namespace TitanControl.Controls.Layout;
 
@@ -46,7 +44,7 @@ public class Section : ContentControl
     public string? Title
     {
         get => GetValue(TitleProperty);
-        set => SetValue(TitleProperty, value); 
+        set => SetValue(TitleProperty, value);
     }
 
     public string? Subtitle

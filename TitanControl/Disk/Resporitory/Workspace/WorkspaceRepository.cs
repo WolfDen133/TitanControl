@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using TitanControl.Helper;
 using TitanControl.Logging;
@@ -14,13 +13,30 @@ namespace TitanControl.Disk.Resporitory.Workspace
     {
         private const string LoggingCategory = "Workspace Repo";
 
-        private WorkspaceRecordModel _record;
         private FileHandler _fileHandler;
+        private WorkspaceRecordModel _record = null!;
 
-        public WorkspaceRepository(WorkspaceRecordModel record, FileHandler fileHandler)
+        public Guid LastWorkspace => _record.LastWorkspace;
+
+        public string[] WorkspaceNames => [.. _record.Workspaces.Values.Select(x => x.Name)];
+
+        public WorkspaceRepository(FileHandler fileHandler)
         {
-            _record = record;
             _fileHandler = fileHandler;
+        }
+
+        public async Task LoadRecord()
+        {
+            _record = await _fileHandler.LoadWorkspaceRecord();
+
+            foreach(var entry in _record.Workspaces)
+            {
+                if (!File.Exists(entry.Value.Path))
+                    _record.Workspaces.Remove(entry.Key);
+            }
+
+            if (!_record.Workspaces.ContainsKey(LastWorkspace))
+                _record.LastWorkspace = Guid.Empty;
         }
 
         public async Task<WorkspaceModel> LoadAsync(Guid id)
@@ -72,6 +88,7 @@ namespace TitanControl.Disk.Resporitory.Workspace
                 };
 
                 _record.Workspaces.Add(workspace.Id, entryModel);
+                _record.LastWorkspace = workspace.Id;
             }
 
             // Save

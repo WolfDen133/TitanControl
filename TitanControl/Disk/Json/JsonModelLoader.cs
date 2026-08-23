@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -11,7 +12,7 @@ using TitanControl.Models;
 using TitanControl.Models.Session;
 using TitanControl.Models.Workspace;
 
-namespace TitanControl.Disk
+namespace TitanControl.Disk.Json
 {
     public class JsonModelLoader
     {
@@ -26,6 +27,8 @@ namespace TitanControl.Disk
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }
         };
+
+        private JsonSchemaValidator _validator = new();
 
         public T ParseAndValidate<T>(string json, JsonSchema schema)
         {
@@ -44,25 +47,13 @@ namespace TitanControl.Disk
                     nameof(type));
             }
 
-            EvaluationResults results = Evaluate(json, schema);
-
-            if (!results.IsValid)
+            if (!IsValid(json, schema))
             {
-                List<string> errors = GetValidationErrors(results);
-                var ex = new JsonSchemaException("Specified JSON is invalid.");
-
-                Log.Error(
-                    ex,
-                    $"JSON failed schema validation for {type.Name}.",
-                    LoggingCategory,
-                    new Dictionary<string, object?>
-                    {
-                        ["Errors"] = string.Join(", ", errors),
-                    });
-
+                var ex = new InvalidDataException($"Specified JSON is invald.");
+                Log.Error(ex, $"JSON could not be validated.", LoggingCategory);
                 throw ex;
             }
-
+            
             object? modelObject = JsonSerializer.Deserialize(json, type, Options);
 
             if (modelObject is not ISaveModel saveModel)
@@ -85,16 +76,9 @@ namespace TitanControl.Disk
         /// Returns false for invalid schema data and malformed JSON. Schema/configuration errors
         /// themselves are intentionally not swallowed.
         /// </summary>
-        public bool IsValid(string json, JsonSchema schema)
+        public bool IsValid(string json, JsonSchema schema, bool silent = false)
         {
-            try
-            {
-                return Evaluate(json, schema).IsValid;
-            }
-            catch (JsonException)
-            {
-                return false;
-            }
+            return _validator.IsValid(json, schema);
         }
 
         /// <summary>
@@ -131,30 +115,6 @@ namespace TitanControl.Disk
 
                 _ => rawJson
             };
-        }
-
-        private EvaluationResults Evaluate(string json, JsonSchema schema)
-        {
-            using JsonDocument document = JsonDocument.Parse(json);
-
-            return schema.Evaluate(
-                document.RootElement,
-                new EvaluationOptions
-                {
-                    OutputFormat = OutputFormat.List
-                });
-        }
-
-        private List<string> GetValidationErrors(EvaluationResults results)
-        {
-            return results.Details?
-                .Where(detail => !detail.IsValid)
-                .SelectMany(detail =>
-                    detail.Errors?.Select(error =>
-                        $"{detail.InstanceLocation} [{error.Key}]: {error.Value}")
-                    ?? [])
-                .ToList()
-                ?? [];
         }
 
         private string MigrateWorkspace(JsonNode json)

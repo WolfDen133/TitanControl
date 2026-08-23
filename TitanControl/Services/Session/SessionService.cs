@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TitanControl.Disk;
 using TitanControl.Disk.Resporitory.Session;
 using TitanControl.Logging;
 using TitanControl.Models.Session;
@@ -24,8 +21,8 @@ namespace TitanControl.Services.Session
 
         private readonly ObservableCollection<ISession> _scanResults = new();
         private readonly ReadOnlyObservableCollection<ISession> _readOnlyScanResults;
-        private readonly WorkspaceService _workspaceService;
-        private readonly SessionRepository _sessionRepository;
+        private readonly IWorkspaceService _workspaceService;
+        private readonly ISessionRepository _sessionRepository;
 
         private SessionScanner? _scanner;
         private TimeSpan _scannerDuration;
@@ -79,7 +76,7 @@ namespace TitanControl.Services.Session
         public event EventHandler<bool>? ScannerRunningChanged;
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public SessionService(SessionRepository repo, WorkspaceService workspaceService)
+        public SessionService(SessionRepository repo, IWorkspaceService workspaceService)
         {
             _synchronizationContext = SynchronizationContext.Current;
 
@@ -88,6 +85,11 @@ namespace TitanControl.Services.Session
 
             _sessionRepository = repo;
             _workspaceService = workspaceService;
+        }
+
+        public async Task InitializeAsync()
+        {
+            await LoadAsync();
         }
 
         public async Task<TitanSession> Create(string name)

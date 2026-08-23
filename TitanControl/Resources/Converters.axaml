@@ -20,6 +20,8 @@
     
     <converters:IsSessionAssignedToWorkspaceConverter x:Key="IsSessionAssignedToWorkspaceConverter"/>
     <converters:IsSessionAssignedToWorkspaceConverter Invert="True" x:Key="InvertedSessionAssignedToWorkspaceConverter"/>
+
+    <converters:HaloStringToBrushConverter x:Key="HaloStringToBrushConverter"/>
     
     <converters:SessionStateToVisibilityConverter x:Key="SessionStateToVisibilityConverter"/>
 </ResourceDictionary>

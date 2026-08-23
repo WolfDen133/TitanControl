@@ -5,9 +5,9 @@ using System.Collections.Concurrent;
 using System.IO;
 using TitanControl.Logging;
 
-namespace TitanControl.Disk
+namespace TitanControl.Disk.Json
 {
-    public class SchemaLoader
+    public class JsonSchemaLoader
     {
         private const string LoggingCategory = "SchemaLoader";
 

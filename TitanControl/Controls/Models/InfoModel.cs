@@ -1,41 +1,41 @@
-﻿using Avalonia.Media;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TitanControl.Logging;
-using TitanControl.Services.Session;
+﻿using TitanControl.Services.Session;
 using TitanControl.ViewModels;
 
 namespace TitanControl.Controls.Models
 {
     public class InfoModel : BaseViewModel
     {
+        private string _session = "Titan Session";
+        private string _workspace = "Default";
+        private string _status = "Ready";
+        private SessionConnectionState _state = SessionConnectionState.Unreachable;
+
         public string Version => AppConstants.AppVersion.ToString();
         public string Author => AppConstants.Author;
-        public string Status { get; set; } = "Ready";
-        public string Workspace { get; set; } = "Default";
-        public string Session { get; set; } = "Titan Session";
-        public SessionConnectionState SessionStatus
+        public string Status
         {
-            get; 
-            set;
-        } = SessionConnectionState.Unreachable;
+            get => _status;
+            set => SetProperty(ref _status, value, nameof(Status));
+
+        }
+        public string Workspace
+        {
+            get => _workspace;
+            set => SetProperty(ref _workspace, value, nameof(Workspace));
+        }
+        public string Session
+        {
+            get => _session;
+            set => SetProperty(ref _session, value, nameof(Session));
+        }
+
+        public SessionConnectionState SessionState
+        {
+            get => _state;
+            set => SetProperty(ref _state, value, nameof(SessionState));
+        }
 
         public string TitleBegining => AppConstants.AppName.Substring(0, 5);
         public string TitleEnding => AppConstants.AppName.Substring(6, 7);
-
-        public void UpdateSessionState(SessionConnectionState state)
-        {
-            SessionStatus = state;
-            OnPropertyChanged(nameof(SessionStatus));
-        }
-
-        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            base.OnPropertyChanged(e);
-        }
     }
 }

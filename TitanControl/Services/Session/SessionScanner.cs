@@ -12,7 +12,6 @@ using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using TitanControl.Logging;
 using TitanControl.WebAPI.Data.Model;
 

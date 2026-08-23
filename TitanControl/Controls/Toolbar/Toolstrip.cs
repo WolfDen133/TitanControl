@@ -1,17 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Input.Raw;
+using Avalonia.Interactivity;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Resources;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using TitanControl.Controls.Models;
 using TitanControl.Controls.Toolbar.Buttons;
 using TitanControl.Logging;
 
@@ -19,13 +12,23 @@ namespace TitanControl.Controls.Toolbar
 {
     public class Toolstrip : StackPanel
     {
-        private const string LogCategory = "Toolstrip";
+        private const string LogCategory = nameof(Toolstrip);
 
+        private readonly Dictionary<int, ToolbarButton> _buttonsById = new();
+        private bool _initialized;
         private int _current = -1;
 
         public static int MaxPerPage { get; } = 6;
-        public ObservableCollection<ToolbarButton> MenuTree { get; set; } = new();
-        public bool Exclusive { get; set; }
+
+        /// <summary>
+        /// Flat collection of every button registered with this Toolstrip.
+        /// Buttons may be declared as direct Toolstrip children or nested inside
+        /// ToolbarButton.Children in AXAML.
+        /// </summary>
+        public ObservableCollection<ToolbarButton> MenuTree { get; } = [];
+        public List<int> DefaultIndexes = [];
+
+        public bool Exclusive { get; set; } = false;
 
         public int Current => _current;
 
@@ -36,104 +39,144 @@ namespace TitanControl.Controls.Toolbar
             Margin = new Thickness(4);
         }
 
-        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            base.OnAttachedToVisualTree(e);
+            base.OnLoaded(e);
+
+            if (_initialized)
+                return;
+
+            _initialized = true;
+
+            // Snapshot the direct AXAML children before we add nested menu children
+            // to the StackPanel's visual collection.
+            var rootButtons = Children
+                .OfType<ToolbarButton>()
+                .ToList();
+
+            DefaultIndexes = [.. rootButtons.Where(b => b.ID != -1).Select(b => b.ID)];
+
+            RegisterButtonTree(rootButtons);
 
             InitializeButtons();
-            LoadDefaultPage();
+            ShowDefaultPage();
+        }
+
+        /// <summary>
+        /// Recursively registers buttons declared in ToolbarButton.Children.
+        /// Nested buttons are also attached to this StackPanel so visibility/layout
+        /// can continue to be controlled by the Toolstrip exactly as before.
+        /// </summary>
+        private void RegisterButtonTree(IEnumerable<ToolbarButton> buttons)
+        {
+            foreach (var button in buttons)
+            {
+                if (_buttonsById.ContainsKey(button.ID))
+                {
+                    throw new InvalidOperationException(
+                        $"A toolbar button with ID {button.ID} has already been registered.");
+                }
+
+                _buttonsById.Add(button.ID, button);
+                MenuTree.Add(button);
+
+                // The Toolstrip owns the toolbar button's UI lifetime.
+                button.Toolstrip = this;
+
+                // Snapshot because descendants will be attached to Children below.
+                var childButtons = button.Children.ToList();
+
+                RegisterButtonTree(childButtons);
+
+                foreach (var child in childButtons)
+                {
+                    if (!Children.Contains(child))
+                        Children.Add(child);
+                }
+            }
         }
 
         private void InitializeButtons()
         {
-            foreach (ToolbarButton button in MenuTree.Values)
+            foreach (var button in MenuTree)
             {
-                button.IsVisible = false;
-
-                button.PointerReleased += OnButtonPointerReleased;
+                button.OnClick += OnButtonClick;
             }
         }
 
-        private void OnButtonPointerReleased(
+        private void OnButtonClick(
             object? sender,
-            PointerReleasedEventArgs e)
+            ToolbarButton.ButtonAction action)
         {
-            if (!Exclusive || sender is not ToolbarButton selectedButton)
+            if (sender is not ToolbarButton selectedButton)
                 return;
 
-            foreach (ToolbarButton button in _menuTree.Values)
+            if (selectedButton.Children.Count > 0)
+                ShowPage(selectedButton, selectedButton.Children.Count > 0);
+
+            if (selectedButton.ID == -1)
             {
-                if (!ReferenceEquals(button, selectedButton))
-                    button.ReleaseToggle();
-            }
-        }
-
-        /* TODO
-        protected override void OnDoubleClick(EventArgs e)
-        {
-            base.OnDoubleClick(e);
-
-            WorkspaceView.Instance?.EnableEditMode(false);
-        }*/
-
-        protected virtual void LoadDefaultPage()
-        {
-            ShowPage(-1, false);
-        }
-
-        public void LoadPage(int index)
-        {
-            if (index == 0)
-            {
-                LoadDefaultPage();
+                ShowDefaultPage();
                 return;
             }
 
-            if (!_menuTree.TryGetValue(index, out ToolbarButton? pageButton))
+            if (!Exclusive) return;
+
+            foreach (var button in MenuTree)
+            {
+                if (button.ID != selectedButton.ID)
+                    button.ReleaseToggle(true);
+            }
+        }
+
+        protected virtual void ShowDefaultPage()
+        {
+            ShowPage(null, includeBackButton: false);
+        }
+
+        public void LoadPage(int id)
+        {
+            if (id == 0 || id == -1)
+            {
+                ShowDefaultPage();
+                return;
+            }
+
+            if (!_buttonsById.TryGetValue(id, out var pageButton))
             {
                 Log.Warning(
-                    $"Unable to load toolbar page {index}: " +
-                    "the page does not exist.",
+                    $"Unable to load toolbar page {id}: the page does not exist.",
                     LogCategory);
 
                 return;
             }
 
-            if (pageButton.ID == -1)
-            {
-                LoadDefaultPage();
-                return;
-            }
-
-            if (pageButton.Children is null)
+            if (pageButton.Children?.Count == 0)
             {
                 Log.Warning(
-                    $"Unable to load toolbar page {index}: " +
-                    "the page has no child buttons.",
+                    $"Unable to load toolbar page {id}: the page has no child buttons.",
                     LogCategory);
 
                 return;
             }
 
-            ShowPage(index, includeBackButton: true);
+            ShowPage(pageButton, includeBackButton: true);
         }
 
-        private void ShowPage(int index, bool includeBackButton)
+        private void ShowPage(
+            ToolbarButton? page,
+            bool includeBackButton)
         {
-            /*
-             * Hide everything first. The controls remain attached and retain
-             * their loaded SVG state.
-             */
-            foreach (ToolbarButton button in _menuTree.Values)
+            foreach (var button in MenuTree)
                 button.IsVisible = false;
 
             if (includeBackButton &&
-                _menuTree.TryGetValue(-1, out ToolbarButton? backButton))
+                _buttonsById.TryGetValue(-1, out var backButton))
             {
                 backButton.IsVisible = true;
             }
 
-            if (index == -1)
+            if (page is null)
             {
                 ShowDefaultButtons();
                 _current = -1;
@@ -143,26 +186,11 @@ namespace TitanControl.Controls.Toolbar
                 return;
             }
 
-            ToolbarButton page = _menuTree[index];
+            // Children are now the actual ToolbarButton instances.
+            foreach (var child in page.Children)
+                child.IsVisible = true;
 
-            foreach (int childId in page.Children!)
-            {
-                if (_menuTree.TryGetValue(
-                        childId,
-                        out ToolbarButton? childButton))
-                {
-                    childButton.IsVisible = true;
-                }
-                else
-                {
-                    Log.Warning(
-                        $"Toolbar page {index} references missing " +
-                        $"button {childId}.",
-                        LogCategory);
-                }
-            }
-
-            _current = index;
+            _current = page.ID;
 
             InvalidateMeasure();
             InvalidateArrange();
@@ -170,22 +198,14 @@ namespace TitanControl.Controls.Toolbar
 
         protected virtual void ShowDefaultButtons()
         {
-            SetButtonVisible(1);
-            SetButtonVisible(2);
-            SetButtonVisible(3);
-            SetButtonVisible(4);
-            SetButtonVisible(5);
-            SetButtonVisible(6);
+            foreach (var index in DefaultIndexes)
+                SetButtonVisible(index);
         }
 
         protected void SetButtonVisible(int buttonId, bool visible = true)
         {
-            if (_menuTree.TryGetValue(
-                    buttonId,
-                    out ToolbarButton? button))
-            {
+            if (_buttonsById.TryGetValue(buttonId, out var button))
                 button.IsVisible = visible;
-            }
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -226,7 +246,6 @@ namespace TitanControl.Controls.Toolbar
             return new Size(
                 Math.Min(desiredWidth, availableSize.Width),
                 Math.Min(desiredHeight, availableSize.Height));
-
         }
     }
 }

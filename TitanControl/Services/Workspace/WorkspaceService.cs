@@ -1,17 +1,8 @@
-using Avalonia.Markup.Xaml.MarkupExtensions;
-using ExCSS;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Design.Serialization;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using TitanControl.Disk;
 using TitanControl.Disk.Resporitory.Workspace;
 using TitanControl.Events.Workspace;
-using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.Models.Workspace;
 
@@ -52,15 +43,23 @@ namespace TitanControl.Services.Workspace
 
                 _currentWorkspace = value;
                 OnPropertyChanged(nameof(CurrentWorkspace));
-                OnPropertyChanged(nameof(HasCurrentWorkspace));
+                OnPropertyChanged(nameof(HasWorkspace));
             }
         }
 
-        public bool HasCurrentWorkspace => _currentWorkspace != null;
+        public bool HasWorkspace => _currentWorkspace != null;
+        public bool HasLastWorkspace => _workspaceRepo.LastWorkspace != Guid.Empty;
+
+        public string[] WorkspaceNames => _workspaceRepo.WorkspaceNames;
+
+        public async Task InitializeAsync()
+        {
+            await _workspaceRepo.LoadRecord();
+        }
 
         public async Task LoadAsync()
         {
-            if (!_workspaceRepo.HasLastWorkspace)
+            if (!HasLastWorkspace)
             {
                 var ex = new InvalidOperationException("Last workspace not specified");
                 Log.Error("Cannot load default workspace as no workspace was last used.");
@@ -109,8 +108,11 @@ namespace TitanControl.Services.Workspace
             WorkspaceCreated?.Invoke(this, new WorkspaceEventArgs(workspace));
 
             // Save current workspace
-            var previous = CurrentWorkspace;
-            await SaveAsync(previous);
+            if (HasWorkspace)
+            {
+                var previous = CurrentWorkspace;
+                await SaveAsync(previous);
+            }
 
             // Open new workspace
             CurrentWorkspace = workspace;

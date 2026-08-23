@@ -1,6 +1,7 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:common="using:TitanControl.Controls.Common">
+        xmlns:common="using:TitanControl.Controls.Common"
+        xmlns:handle="using:TitanControl.Controls.Handle">
   <Design.PreviewWith>
     <Border Padding="20" Background="{DynamicResource BackgroundBrush}">
         <StackPanel Width="200" Spacing="5">
@@ -18,11 +19,28 @@
             </ComboBox>
             <Button Content="Button" Classes="app-input" BorderBrush="White"/>
             <CheckBox/>
+            <handle:HandleButtonControl/>
+            <handle:HandleFaderControl/>
         </StackPanel>
       
     </Border>
   </Design.PreviewWith>
 
+
+    <Style Selector="handle|HandleFaderControl, handle|HandleButtonControl">
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundBrush}"/>
+
+        <Setter Property="BorderThickness"
+                Value="2"/>
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="handle|HandleButtonControl:pressed">
+        <Setter Property="Background" Value="{DynamicResource BackgroundLBrush}"/>
+    </Style>
 
     <Style Selector="TextBox.app-input,
                  ComboBox.app-input,

@@ -1,13 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using TitanControl.Logging;
 using TitanControl.Services.Session;
 using TitanControl.Validation;
 
@@ -48,7 +41,7 @@ namespace TitanControl.ViewModels.Page
         [ObservableProperty]
         public bool autoTimeout;
         [ObservableProperty]
-        public bool reconnect; 
+        public bool reconnect;
         public int? AutoTimeoutMinuates { get; set; }
         public int KeepAliveSeconds { get; set; }
         public int? ReconnectAttempts { get; set; }

@@ -1,14 +1,12 @@
 using Avalonia;
-using Avalonia.Animation;
-using Avalonia.Animation.Easings;
 using Avalonia.Controls;
-using Avalonia.LogicalTree;
-using Avalonia.Markup.Xaml;
-using System;
-using System.Diagnostics;
-using System.Numerics;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.VisualTree;
+using System.Collections.Generic;
+using System.Linq;
 using TitanControl.Controls.Handle;
-using TitanControl.Logging;
+using TitanControl.Models.Control;
 
 namespace TitanControl.Controls.Layout
 {
@@ -19,6 +17,11 @@ namespace TitanControl.Controls.Layout
 
         public static readonly StyledProperty<int> ColumnsProperty =
             AvaloniaProperty.Register<GridLayout, int>(nameof(Columns), 12);
+
+        public static readonly StyledProperty<IEnumerable<IHandleControl>?> ControlsProperty =
+        AvaloniaProperty.Register<ControlGrid, IEnumerable<IHandleControl>?>(
+            nameof(Controls));
+
 
         public bool SnapSelection = false;
 
@@ -33,31 +36,80 @@ namespace TitanControl.Controls.Layout
             get => GetValue(ColumnsProperty);
             set => SetValue(ColumnsProperty, value);
         }
+
+        public IEnumerable<IHandleControl>? Controls
+        {
+            get => GetValue(ControlsProperty);
+            set => SetValue(ControlsProperty, value);
+        }
+
+        private GridLayout? _gridLayout;
+
         public ControlGrid()
         {
             InitializeComponent();
+
+            Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
         }
 
-        protected override void OnInitialized()
+        private void OnLoaded(object? sender, RoutedEventArgs e)
         {
-            base.OnInitialized();
+            _gridLayout = this
+                .GetVisualDescendants()
+                .OfType<GridLayout>()
+                .SingleOrDefault();
 
-            GridLayout.PointerPressed += (_, _) =>
-            {
-                UpdateSelectionRectangle(!SnapSelection ? GridLayout.GetSelectedArea() : GridLayout.GetSelectedCoordsArea());
+            if (_gridLayout is null)
+                return; // Or throw while developing.
 
-                Selection.IsVisible = true;
-            };
+            _gridLayout.PointerPressed += OnGridPointerPressed;
+            _gridLayout.PointerMoved += OnGridPointerMoved;
+            _gridLayout.PointerReleased += OnGridPointerReleased;
+        }
 
-            GridLayout.PointerMoved += (_, _) =>
-            {
-                UpdateSelectionRectangle(!SnapSelection ? GridLayout.GetSelectedArea() : GridLayout.GetSelectedCoordsArea());
-            };
+        private void OnUnloaded(object? sender, RoutedEventArgs e)
+        {
+            if (_gridLayout is null)
+                return;
 
-            GridLayout.PointerReleased += (_, _) =>
-            {
-                Selection.IsVisible = false;
-            };
+            _gridLayout.PointerPressed -= OnGridPointerPressed;
+            _gridLayout.PointerMoved -= OnGridPointerMoved;
+            _gridLayout.PointerReleased -= OnGridPointerReleased;
+
+            _gridLayout = null;
+        }
+
+        private void OnGridPointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            if (_gridLayout is null)
+                return;
+
+            UpdateSelectionRectangle(
+                !SnapSelection
+                    ? _gridLayout.GetSelectedArea()
+                    : _gridLayout.GetSelectedCoordsArea());
+
+            Selection.IsVisible = true;
+        }
+
+        private void OnGridPointerMoved(object? sender, PointerEventArgs e)
+        {
+            if (_gridLayout is null)
+                return;
+
+            UpdateSelectionRectangle(
+                !SnapSelection
+                    ? _gridLayout.GetSelectedArea()
+                    : _gridLayout.GetSelectedCoordsArea());
+        }
+
+        private void OnGridPointerReleased(object? sender, PointerReleasedEventArgs e)
+        {
+            if (_gridLayout is null)
+                return;
+
+            Selection.IsVisible = false;
         }
 
         private void UpdateSelectionRectangle(Rect bounds)
@@ -75,11 +127,6 @@ namespace TitanControl.Controls.Layout
 
             Selection.Height =
                 bounds.Height;
-        }
-
-        public void AddControl(BaseHandleControl control)
-        {
-            GridLayout.Children.Add(control);
         }
     }
 }

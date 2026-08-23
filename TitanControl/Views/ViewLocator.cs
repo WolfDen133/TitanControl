@@ -3,28 +3,36 @@ using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Xml.Linq;
+using TitanControl.Controls.Handle;
+using TitanControl.Controls.Models.Handle;
+using TitanControl.ViewModels;
+using TitanControl.ViewModels.Page;
+using TitanControl.Views.Page.Pages;
+using TitanControl.Views.Pages;
 
 namespace TitanControl.Views
 {
-    public sealed class ViewLocator : IDataTemplate
+    public class ViewLocator : IDataTemplate
     {
+        public Dictionary<Type, Type> PageMap = new();
+
+        public ViewLocator()
+        {
+            PageMap.Add(typeof(WorkspacePageModel), typeof(WorkspacePage));
+            PageMap.Add(typeof(SessionPageModel), typeof(SessionPage));
+        }
+
         public Control? Build(object? data)
         {
-            if (data is null) return new TextBlock { Text = "No view data provided" };
+            if (data is not object) return new TextBlock { Text = "No view data provided" };
 
-            var name = data.GetType().FullName!
-                .Replace("ViewModel", "View", StringComparison.Ordinal);
+            if (!PageMap.TryGetValue(data.GetType(), out Type? type))
+            {
+                return new TextBlock { Text = $"View not found: {data.GetType()}" };
+            }
 
-            var type = Type.GetType(name);
-
-            if (type is not null)
-                return (Control)Activator.CreateInstance(type)!;
-
-            return new TextBlock { Text = $"View not found: {name}" };
+            return (Control)Activator.CreateInstance(type)!;
         }
 
         public bool Match(object? data)

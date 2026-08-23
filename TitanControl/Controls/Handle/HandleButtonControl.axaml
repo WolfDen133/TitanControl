@@ -1,0 +1,86 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:TitanControl.Controls.Handle">
+
+    <!--
+        Additional resources
+        Using Control Themes:
+            https://docs.avaloniaui.net/docs/basics/user-interface/styling/control-themes
+        Using Theme Variants:
+            https://docs.avaloniaui.net/docs/guides/styles-and-resources/how-to-use-theme-variants
+    -->
+
+    <Design.PreviewWith>
+        <StackPanel Width="200" Height="170" Spacing="10">
+            <StackPanel Background="{DynamicResource SystemRegionBrush}">
+                <controls:HandleButtonControl />
+            </StackPanel>
+        </StackPanel>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type controls:HandleButtonControl}"
+                  TargetType="controls:HandleButtonControl">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                 <Border
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}}"
+                    BorderThickness="{TemplateBinding BorderThickness}">
+
+                    <Grid RowDefinitions="Auto,*">
+
+                        <Border Padding="5, 4"
+                                Background="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.2}"> 
+
+                            <Grid
+                                ColumnDefinitions="Auto,*,Auto">
+                                <Border
+                                    Padding="5,2"
+                                    CornerRadius="3"
+                                    Background="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.2}"
+                                    BorderThickness="1"
+                                    BorderBrush="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.4}">
+
+                                    <TextBlock
+                                        Text="{TemplateBinding UserNumber}"
+                                        
+                                        HorizontalAlignment="Center"/>
+                                </Border>
+
+                                <TextBlock
+                                    Grid.Column="2"
+                                    Text="{TemplateBinding KeyProfile}"
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
+                            </Grid>
+
+                        </Border>
+                        <Grid Grid.Row="1"
+                              Margin="5">
+
+                            <Border
+                                CornerRadius="5"
+                                ClipToBounds="True">
+
+                                <Image
+                                    Source="{TemplateBinding Image}"
+                                    Stretch="UniformToFill"/>
+                            </Border>
+
+                            <TextBlock
+                                Text="{TemplateBinding Legend}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontWeight="SemiBold"
+                                FontSize="12"/>
+                        </Grid>
+
+                    </Grid>
+
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

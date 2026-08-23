@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using TitanControl.Disk.Converter;
-using TitanControl.Session.Interface;
-using TitanControl.WebAPI;
 
 namespace TitanControl.Models.Workspace
 {
@@ -29,6 +23,7 @@ namespace TitanControl.Models.Workspace
         }
 
         [JsonPropertyName("gridSize")]
+        [JsonConverter(typeof(SizeArrayJsonConverter))]
         public Size GridSize
         {
             get => _gridSize;

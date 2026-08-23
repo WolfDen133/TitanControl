@@ -2,13 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TitanControl.Helper;
-using TitanControl.Logging;
 
 namespace TitanControl.Controls.Layout
 {

@@ -1,10 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
-using System.Reflection.Metadata;
-using TitanControl.Services.Interface;
 
 namespace TitanControl.Views;
 
@@ -18,13 +14,13 @@ public partial class ModalDialogWindow : Window
 
     public string Heading
     {
-        get => GetValue(HeadingProperty); 
-        set => SetValue(HeadingProperty, value);  
+        get => GetValue(HeadingProperty);
+        set => SetValue(HeadingProperty, value);
     }
 
     public string? Text
     {
-        get => GetValue(TextProperty); 
+        get => GetValue(TextProperty);
         set => SetValue(TextProperty, value);
     }
 

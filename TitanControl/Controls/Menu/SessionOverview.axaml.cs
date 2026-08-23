@@ -1,18 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
-using System.ComponentModel;
-using System.Diagnostics.Tracing;
 using TitanControl.Events.Control;
 using TitanControl.Helper;
 using TitanControl.Services.Session;
-using TitanControl.Session.Utils;
-using static TitanControl.Controls.Toolbar.Buttons.ToolbarButton;
 
 namespace TitanControl.Controls.Menu
 {
@@ -49,10 +42,10 @@ namespace TitanControl.Controls.Menu
            AvaloniaProperty.Register<SessionOverview, object?>(nameof(CommandParameter));
 
 
-        public string SessionName 
+        public string SessionName
         {
-            get => GetValue(SessionNameProperty); 
-            set => SetValue(SessionNameProperty, value); 
+            get => GetValue(SessionNameProperty);
+            set => SetValue(SessionNameProperty, value);
         }
 
         public SessionConnectionState SessionStatus
@@ -60,7 +53,7 @@ namespace TitanControl.Controls.Menu
             get => GetValue(SessionStatusProperty);
             set => SetValue(SessionStatusProperty, value);
         }
-        
+
         public string IpAddress
         {
             get => GetValue(IpAddressProperty);
@@ -103,8 +96,8 @@ namespace TitanControl.Controls.Menu
             set => SetValue(IsSelectedProperty, value);
         }
 
-        public Guid Id 
-        { 
+        public Guid Id
+        {
             get => GetValue(IdProperty);
             set => SetValue(IdProperty, value);
         }

@@ -1,9 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using TitanControl.Controls.Toolbar.Buttons;
 using TitanControl.Controls.Toolbar.Event;
 using TitanControl.Services.Session;
@@ -14,18 +9,12 @@ namespace TitanControl.Controls.Models
 {
     public class ToolbarModel : BaseViewModel
     {
-        private SessionService _sessionService;
-        private WorkspaceService _workspaceService;
-
         public event EventHandler<ToolButtonPressedEventArgs>? ButtonClicked;
 
         public InfoModel InfoModel { get; set; }
 
-        public ToolbarModel(SessionService sessionService, WorkspaceService workspaceService)
+        public ToolbarModel(ISessionService sessionService, IWorkspaceService workspaceService)
         {
-            _sessionService = sessionService;
-            _workspaceService = workspaceService;
-
             InfoModel = new InfoModel();
 
             sessionService.PropertyChanged += (sender, args) =>
@@ -34,15 +23,24 @@ namespace TitanControl.Controls.Models
                 {
                     sessionService.CurrentSession?.StateChanged += (_, stateEventArgs) =>
                     {
-                        InfoModel.UpdateSessionState(stateEventArgs.CurrentState);
+                        InfoModel.SessionState = stateEventArgs.CurrentState;
                     };
+
+                    InfoModel.Session = sessionService.CurrentSession?.Name!;
                 }
+            };
+
+            workspaceService.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(workspaceService.CurrentWorkspace))
+                    InfoModel.Workspace = workspaceService.CurrentWorkspace?.Name!;
             };
         }
 
         public void OnButtonClicked(ButtonId button, ToolbarButton.ButtonAction action)
         {
-            ButtonClicked?.Invoke(this, new ToolButtonPressedEventArgs {
+            ButtonClicked?.Invoke(this, new ToolButtonPressedEventArgs
+            {
                 ButtonId = button,
                 ButtonAction = action
             });

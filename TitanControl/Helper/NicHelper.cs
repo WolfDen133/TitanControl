@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 using TitanControl.Logging;
 
 namespace TitanControl.Helper
@@ -16,7 +13,7 @@ namespace TitanControl.Helper
         {
             var dic = new Dictionary<string, IPAddress>();
 
-            foreach(var nic in NetworkInterface.GetAllNetworkInterfaces())
+            foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
             {
                 var address = nic.GetIPProperties()
                     .UnicastAddresses

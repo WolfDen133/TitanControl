@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using TitanControl.Controls.Handle;
 using TitanControl.Models.Control;
 
 namespace TitanControl.Models.Workspace
@@ -23,9 +19,9 @@ namespace TitanControl.Models.Workspace
 
         [JsonPropertyName("workspaceId")]
         public required Guid Id
-        { 
-            get; 
-            init; 
+        {
+            get;
+            init;
         }
 
         [JsonPropertyName("name")]
@@ -47,12 +43,12 @@ namespace TitanControl.Models.Workspace
             {
                 _options = value;
                 OnPropertyChanged(nameof(Options));
-            } 
+            }
         }
 
         [JsonPropertyName("controls")]
-        public List<ControlModel> Controls 
-        { 
+        public List<ControlModel> Controls
+        {
             get => _controls;
             set
             {
@@ -61,14 +57,14 @@ namespace TitanControl.Models.Workspace
             }
         }
 
-        public DateTime LastModified 
-        { 
-            get => _lastModified; 
+        public DateTime LastModified
+        {
+            get => _lastModified;
             set
             {
                 _lastModified = value;
                 OnPropertyChanged(nameof(LastModified));
-            } 
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

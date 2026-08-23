@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 
 namespace TitanControl.Controls.Common;
 
@@ -12,7 +11,7 @@ public class Field : ContentControl
     public static readonly StyledProperty<bool> RequiredProperty =
         AvaloniaProperty.Register<Field, bool>(nameof(Required));
 
-    public string? Text 
+    public string? Text
     {
         get => GetValue(TextProperty);
         set => SetValue(TextProperty, value);

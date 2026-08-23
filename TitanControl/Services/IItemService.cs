@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace TitanControl.Services
@@ -15,5 +12,10 @@ namespace TitanControl.Services
 
         Task SaveAsync();
         Task LoadAsync();
+
+        Task InitializeAsync()
+        {
+            return null!;
+        }
     }
 }

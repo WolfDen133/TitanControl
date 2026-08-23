@@ -1,18 +1,19 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Logging;
 using Avalonia.Markup.Xaml;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using TitanControl.Disk;
+using TitanControl.Disk.Resporitory.Workspace;
+using TitanControl.Disk.Resporitory.Session;
 using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.Services.Session;
 using TitanControl.Services.Workspace;
 using TitanControl.ViewModels;
-using TitanControl.WebAPI;
+using TitanControl.Services.Dialog;
+using TitanControl.Services;
 
 namespace TitanControl;
 
@@ -20,10 +21,11 @@ public partial class App : Application
 {
     private ResourceHelper? _resourceHelper;
     private IDisposable? _dispatcherLogging;
-
-    private IWorkspaceService _workspaceService = null!;
-    private ISessionService _sessionService = null!;
-    private FileHandler _fileHandler = null!;
+    public static DialogService DialogService
+    {
+        get;
+        private set;
+    } = null!;
 
     public override void Initialize()
     {
@@ -35,11 +37,7 @@ public partial class App : Application
             Log.InitializeDesign();
             return;
         }
-        
-        RegisterSystems();
     }
-
-
 
     public override void OnFrameworkInitializationCompleted()
     {
@@ -51,20 +49,52 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow();
-
-            _ = RegisterSystems();
+            _ = StartAsync(desktop);
         }
 
         base.OnFrameworkInitializationCompleted();
     }
 
-    private async Task RegisterSystems()
+    private async Task StartAsync(IClassicDesktopStyleApplicationLifetime desktop)
     {
         Log.Information("Initializing TitanControl Application", "Application");
 
-        _workspaceService = new WorkspaceService(
-            new Disk.Resporitory.Workspace.WorkspaceRepository()
-            );
+        try
+        {
+            Log.Debug("Initialising file handler", "Application");
+            var fileHandler = new FileHandler();
+            await fileHandler.InitializeAsync();
+
+            Log.Debug("Initialising workspace service", "Application");
+            var workspaceService = new WorkspaceService(new WorkspaceRepository(fileHandler));
+            await workspaceService.InitializeAsync();
+
+            Log.Debug("Initialising session service", "Application");
+            var sessionService = new SessionService(new SessionRepository(fileHandler), workspaceService);
+            await sessionService.InitializeAsync();
+
+            Log.Debug("Initialising MainWindowModel", "Application");
+            var mainWindowModel = new MainWindowModel(workspaceService, sessionService);
+            await mainWindowModel.Initialize();
+
+            Log.Debug("Initialising MainWindow", "Application");
+            var mainWindow = new MainWindow
+            {
+                DataContext = mainWindowModel
+            };
+
+            Log.Debug("Initialising Dialog Service", "Application");
+            DialogService = new DialogService(mainWindow);
+
+            Log.Debug("Opening window", "Application");
+            desktop.MainWindow = mainWindow;
+            mainWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "A critical error has occured during application initialization, terminating...", "Application");
+            desktop.Shutdown(1);
+        } 
     }
+
 }

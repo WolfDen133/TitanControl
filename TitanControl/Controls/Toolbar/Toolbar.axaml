@@ -21,12 +21,47 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <toolbar:Toolstrip Exclusive="True">
-                <buttons:ToolbarButton Text="Add" Path="/Assets/Icons/add.svg" OnClick="ToolbarButton_OnClick"/>
+            <toolbar:Toolstrip x:Name="ContextToolstrip" Exclusive="True">
+                <buttons:ToolbarButton ID="-1" Text="Back" Path="/Assets/Icons/arrow.svg"/>
+                <buttons:ToolbarButton ID="1" Text="Add" Path="/Assets/Icons/add-control.svg">
+                    <buttons:ToolbarButton.Children>
+                        <buttons:ToolbarButton ID="11" Text="Button" Toggle="True" Path="button.png" OnClick="ToolbarButton_OnClick"/>
+                        <buttons:ToolbarButton ID="12" Text="Fader" Toggle="True" Path="fader.png" OnClick="ToolbarButton_OnClick"/>
+                        <buttons:ToolbarButton ID="13" Text="Color Pick" Toggle="True" Path="colorpicker.png" OnClick="ToolbarButton_OnClick"/>
+                    </buttons:ToolbarButton.Children>
+                </buttons:ToolbarButton>
+                <buttons:ToolbarButton ID="2" Text="Copy" Toggle="True" Path="/Assets/Icons/copy.svg" OnClick="ToolbarButton_OnClick"/>
+                <buttons:ToolbarButton ID="3" Text="Move" Toggle="True" Path="/Assets/Icons/move.svg" OnClick="ToolbarButton_OnClick"/>
+                <buttons:ToolbarButton ID="4" Text="Assign" Toggle="True" Path="/Assets/Icons/trigger.svg" OnClick="ToolbarButton_OnClick"/>
+                <buttons:ToolbarButton ID="5" Text="Options" Toggle="True" Path="/Assets/Icons/options.svg" OnClick="ToolbarButton_OnClick"/>
+                <buttons:ToolbarButton ID="6" Text="Remove" Toggle="True" Path="/Assets/Icons/remove.svg" OnClick="ToolbarButton_OnClick"/>
             </toolbar:Toolstrip>
             <Border Padding="4" ClipToBounds="False" Grid.Column="1">
                 <toolbar:InfoPane x:Name="PART_InfoPane" ClipToBounds="False" Classes="drop-l" DataContext="{Binding InfoModel}"/>
             </Border>
+            <toolbar:Toolstrip x:Name="SystemToolstrip" Grid.Column="2" Exclusive="False" FlowDirection="RightToLeft">
+                <buttons:ToolbarButton ID="-1" Text="Back" Path="/Assets/Icons/arrow.svg" FlowDirection="RightToLeft"/>
+                <buttons:ToolbarButton ID="7" Text="Config" Path="/Assets/Icons/cog.svg">
+                    <buttons:ToolbarButton.Children>
+                        <buttons:ToolbarButton ID="71" Text="Fullscreen" Toggle="True" Path="/Assets/Icons/expand.svg" OnClick="ToolbarButton_OnClick"/>
+                        <buttons:ToolbarButton ID="72" Text="Sessions" Toggle="True" Path="/Assets/Icons/session.svg" OnClick="ToolbarButton_OnClick"/>
+                    </buttons:ToolbarButton.Children>
+                </buttons:ToolbarButton>
+                <buttons:ToolbarButton ID="8" Text="Windows" Path="/Assets/Icons/window.svg">
+                    <buttons:ToolbarButton.Children>
+                        <buttons:ToolbarButton ID="81" Text="Circles" Path="/Assets/Icons/circle.svg" OnClick="ToolbarButton_OnClick"/>
+                    </buttons:ToolbarButton.Children>
+                </buttons:ToolbarButton>
+                <buttons:ToolbarButton ID="9" Text="Disk" Path="/Assets/Icons/disk.svg">
+                    <buttons:ToolbarButton.Children>
+                        <buttons:ToolbarButton ID="91" Text="Save" Path="/Assets/Icons/save.svg" OnClick="ToolbarButton_OnClick"/>
+                        <buttons:ToolbarButton ID="92" Text="Save As" Path="/Assets/Icons/save-as.svg" OnClick="ToolbarButton_OnClick"/>
+                        <buttons:ToolbarButton ID="93" Text="Load" Path="/Assets/Icons/load.svg" OnClick="ToolbarButton_OnClick"/>
+                        <buttons:ToolbarButton ID="94" Text="Rename" Path="/Assets/Icons/rename.svg" OnClick="ToolbarButton_OnClick"/>
+                        <buttons:ToolbarButton ID="95" Text="New" Path="/Assets/Icons/new.svg" OnClick="ToolbarButton_OnClick"/>
+                    </buttons:ToolbarButton.Children>
+                </buttons:ToolbarButton>
+            </toolbar:Toolstrip>
             
         </Grid>
     </Border>

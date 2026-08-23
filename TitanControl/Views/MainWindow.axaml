@@ -16,7 +16,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <local:Toolbar x:Name="PART_Toolbar" VerticalAlignment="Top"/>
-        <Grid Grid.Row="1" x:Name="PART_ContentGrid"/>
+        <local:Toolbar x:Name="PART_Toolbar" DataContext="{Binding ToolbarModel}" VerticalAlignment="Top"/>
+        <ContentControl Grid.Row="1" Content="{Binding CurrentPage}"/>
     </Grid>
 </Window>

@@ -65,7 +65,7 @@
                          <Grid RowDefinitions="*, 1.2*" VerticalAlignment="Center">
                              <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
                                  <Border Padding="0, 3" VerticalAlignment="Center">
-                                        <Ellipse Width="8" Height="8" Fill="{Binding SessionStatus, Converter={StaticResource SessionStatusToBrushConverter}}" VerticalAlignment="Center"/>
+                                        <Ellipse Width="8" Height="8" Fill="{Binding SessionState, Converter={StaticResource SessionStatusToBrushConverter}}" VerticalAlignment="Center"/>
                                  </Border>
                                  <TextBlock VerticalAlignment="Center" Classes="header" Text="Session" Foreground="{DynamicResource ForegroundDisabledBrush}"/>
                              </StackPanel>

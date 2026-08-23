@@ -1,6 +1,6 @@
+using Avalonia.Threading;
 using System;
 using System.Threading;
-using Avalonia.Threading;
 
 namespace TitanControl.Logging;
 

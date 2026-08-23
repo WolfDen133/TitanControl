@@ -1,19 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using TitanControl.Events.Session;
 using TitanControl.Logging;
 using TitanControl.Models;
 using TitanControl.Models.Session;
 using TitanControl.WebAPI;
-using Tmds.DBus.Protocol;
 
 namespace TitanControl.Services.Session
 {
@@ -33,7 +26,7 @@ namespace TitanControl.Services.Session
         private bool _isEnabled;
 
         private string name = string.Empty;
-        private IPAddress ipAddress = new IPAddress([127,0,0,1]);
+        private IPAddress ipAddress = new IPAddress([127, 0, 0, 1]);
         private int port = 4430;
         private int? portInteractive;
         private bool useHttps = false;
@@ -60,7 +53,7 @@ namespace TitanControl.Services.Session
         public Titan? Api { get; private set; }
         public DateTimeOffset? LastSuccessfulKeepAlive { get; private set; }
 
-        public string Name 
+        public string Name
         {
             get => name;
             set
@@ -229,7 +222,7 @@ namespace TitanControl.Services.Session
 
             if (_isEnabled)
                 SetState(SessionConnectionState.Enabled);
-            else 
+            else
                 SetState(SessionConnectionState.Disabled);
 
             Log.Debug(

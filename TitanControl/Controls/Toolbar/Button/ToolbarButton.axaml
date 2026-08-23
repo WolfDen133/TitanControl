@@ -8,6 +8,8 @@
              Width="{Binding Bounds.Height, RelativeSource={RelativeSource Self}}"
              x:DataType="local:ToolbarButton"
              FlowDirection="LeftToRight"
+             VerticalAlignment="Stretch"
+             x:Name="ButtonRoot"
              x:Class="TitanControl.Controls.Toolbar.Buttons.ToolbarButton" ClipToBounds="False" Classes="drop-m"> 
         
     <Border x:Name="ButtonBorder" Background="{DynamicResource BackgroundLBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2" CornerRadius="5">
@@ -17,12 +19,15 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <svg:TwoToneSvg x:Name="ButtonSvg" 
+                            IsVisible="{Binding #ButtonRoot.IsSvg}"
                             PrimaryColor="{DynamicResource ForegroundSecondary}" 
                             SecondaryColor="{DynamicResource AccentColorD}" 
                             Grid.Row="0" 
                             Margin="5"
-                            Path="{Binding Path, RelativeSource={RelativeSource Self}}"/>
-            <Image x:Name="ButtonImage" Grid.Row="0" Margin="8"/>
+                            Path="{Binding #ButtonRoot.Path}"/>
+            <Image 
+                IsVisible="{Binding !#ButtonRoot.IsSvg}" 
+                x:Name="ButtonImage" Grid.Row="0" Margin="8"/>
             <Viewbox Height="27" VerticalAlignment="Bottom" Grid.Row="1" Margin="3">
                 <Border>
                     <Label x:Name="TextLabel" HorizontalContentAlignment="Center" Foreground="{DynamicResource Foreground}" Content="Test" VerticalContentAlignment="Center" FontSize="16"/>

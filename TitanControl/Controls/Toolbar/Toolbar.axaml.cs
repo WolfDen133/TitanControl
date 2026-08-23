@@ -1,21 +1,34 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+using Avalonia.Interactivity;
 using System;
-using System.Diagnostics;
 using TitanControl.Controls.Models;
 using TitanControl.Controls.Toolbar;
 using TitanControl.Controls.Toolbar.Buttons;
 using TitanControl.Services.Session;
-using TitanControl.WebAPI;
 
 namespace TitanControl;
 
 public partial class Toolbar : UserControl
 {
+    public ToolbarModel Model
+    {
+        get
+        {
+            if (DataContext is not ToolbarModel m)
+                throw new InvalidOperationException($"Could not find valid data context for {nameof(MainWindow)}.");
+
+            return m;
+        }
+    }
+
     public Toolbar()
     {
         InitializeComponent();
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
     }
 
     public void DoResize(int windowWidth)
@@ -37,14 +50,9 @@ public partial class Toolbar : UserControl
         return (int)height;
     }
 
-    public void UpdateSessionStatus(SessionConnectionState state)
-    {
-        PART_InfoPane.UpdateStatus(state);
-    }
-
     private void ToolbarButton_OnClick(object? sender, ToolbarButton.ButtonAction e)
     {
-        if (sender is ToolbarButton button)
-
+        if (sender is ToolbarButton button && !Design.IsDesignMode)
+            Model.OnButtonClicked((ButtonId)button.ID, e);
     }
 }

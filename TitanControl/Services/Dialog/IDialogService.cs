@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TitanControl.Services.Data;
+﻿using System.Threading.Tasks;
 
 namespace TitanControl.Services.Dialog
 {
     public interface IDialogService
     {
-       
+
         Task<bool> ShowConfirmationAsync(
             string title, string message);
-        
+
     }
 }

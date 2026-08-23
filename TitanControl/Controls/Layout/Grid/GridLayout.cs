@@ -1,16 +1,10 @@
 ﻿using Avalonia;
-using Avalonia.Animation;
-using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using TitanControl.Logging;
+using TitanControl.Controls.Handle;
 
 namespace TitanControl.Controls.Layout
 {
@@ -22,11 +16,59 @@ namespace TitanControl.Controls.Layout
         public static readonly StyledProperty<int> ColumnsProperty =
             AvaloniaProperty.Register<GridLayout, int>(nameof(Columns), 12);
 
+
+        public static readonly AttachedProperty<int> GridXProperty =
+            AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
+                "GridX",
+                defaultValue: 0);
+
+        public static readonly AttachedProperty<int> GridYProperty =
+            AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
+                "GridY",
+                defaultValue: 0);
+
+        public static readonly AttachedProperty<int> GridXSpanProperty =
+            AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
+                "GridXSpan",
+                defaultValue: 1);
+
+        public static readonly AttachedProperty<int> GridYSpanProperty =
+            AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
+                "GridYSpan",
+                defaultValue: 1);
+
+
+        public static int GetGridX(Control control) =>
+            control.GetValue(GridXProperty);
+
+        public static void SetGridX(Control control, int value) =>
+            control.SetValue(GridXProperty, value);
+
+        public static int GetGridXSpan(Control control) =>
+            control.GetValue(GridXSpanProperty);
+
+        public static void SetGridXSpan(Control control, int value) =>
+            control.SetValue(GridXSpanProperty, value);
+
+        public static int GetGridY(Control control) =>
+            control.GetValue(GridYProperty);
+
+        public static void SetGridY(Control control, int value) =>
+            control.SetValue(GridYProperty, value);
+
+        public static int GetGridYSpan(Control control) =>
+            control.GetValue(GridYSpanProperty);
+
+        public static void SetGridYSpan(Control control, int value) =>
+            control.SetValue(GridYSpanProperty, value);
+
+
         private bool isMouseDown = false;
         private Point MouseStart = new Point(0, 0);
         private Point MouseEnd = new Point(0, 0);
 
         private Vector2 cellDimensions { get; set; }
+
         public int Rows
         {
             get => GetValue(RowsProperty);
@@ -164,71 +206,50 @@ namespace TitanControl.Controls.Layout
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            // Measure children unconstrained to determine natural cell size
-            double maxChildWidth = 0;
-            double maxChildHeight = 0;
+            var columns = Math.Max(1, Columns);
+            var rows = Math.Max(1, Rows);
+
+            var cellWidth = double.IsFinite(availableSize.Width)
+                ? availableSize.Width / columns
+                : double.PositiveInfinity;
+
+            var cellHeight = double.IsFinite(availableSize.Height)
+                ? availableSize.Height / rows
+                : double.PositiveInfinity;
 
             foreach (var child in Children)
             {
-                child.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                var d = child.DesiredSize;
-                maxChildWidth = Math.Max(maxChildWidth, d.Width);
-                maxChildHeight = Math.Max(maxChildHeight, d.Height);
+                var width = Math.Max(1, GetGridXSpan(child));
+                var height = Math.Max(1, GetGridYSpan(child));
+
+                child.Measure(new Size(cellWidth * width, cellHeight * height));
             }
 
-            int cols = Columns;
-            int rows = Rows;
-
-            if (cols <= 0 && rows <= 0)
-                cols = (int)Math.Ceiling(Math.Sqrt(Math.Max(1, Children.Count)));
-
-            if (cols <= 0)
-                cols = Math.Max(1, (int)Math.Ceiling((double)Children.Count / rows));
-
-            if (rows <= 0)
-                rows = Math.Max(1, (int)Math.Ceiling((double)Children.Count / cols));
-
-            var desired = new Size(cols * maxChildWidth, rows * maxChildHeight);
-
-            // Never return invalid size
-            if (double.IsInfinity(availableSize.Width) && double.IsInfinity(availableSize.Height))
-                return desired;
-
             return new Size(
-                double.IsInfinity(availableSize.Width) ? desired.Width : availableSize.Width,
-                double.IsInfinity(availableSize.Height) ? desired.Height : availableSize.Height);
+                double.IsFinite(availableSize.Width) ? availableSize.Width : 0,
+                double.IsFinite(availableSize.Height) ? availableSize.Height : 0);
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            int cols = Columns;
-            int rows = Rows;
+            var columns = Math.Max(1, Columns);
+            var rows = Math.Max(1, Rows);
 
-            if (cols <= 0 && rows <= 0)
-                cols = (int)Math.Ceiling(Math.Sqrt(Children.Count));
+            var cellWidth = finalSize.Width / columns;
+            var cellHeight = finalSize.Height / rows;
 
-            if (cols <= 0)
-                cols = Math.Max(1, (int)Math.Ceiling((double)Children.Count / rows));
-
-            if (rows <= 0)
-                rows = Math.Max(1, (int)Math.Ceiling((double)Children.Count / cols));
-
-            double cellWidth = finalSize.Width / cols;
-            double cellHeight = finalSize.Height / rows;
-
-            for (int i = 0; i < Children.Count; i++)
+            foreach (var child in Children)
             {
-                var child = Children[i];
-                int row = i / cols;
-                int col = i % cols;
+                var x = GetGridX(child);
+                var y = GetGridY(child);
+                var width = GetGridXSpan(child);
+                var height = GetGridYSpan(child);
 
-                var targetBounds = new Rect(
-                    col * cellWidth,
-                    row * cellHeight,
-                    cellWidth,
-                    cellHeight);
-
-                child.Arrange(targetBounds);
+                child.Arrange(new Rect(
+                    x * cellWidth,
+                    y * cellHeight,
+                    width * cellWidth,
+                    height * cellHeight));
             }
 
             return finalSize;

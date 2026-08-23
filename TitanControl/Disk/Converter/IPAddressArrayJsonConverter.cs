@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace TitanControl.Disk.Converter
 {
@@ -20,7 +16,7 @@ namespace TitanControl.Disk.Converter
                 throw new JsonException("Expected an array for IPAddress.");
 
             byte[] addressBytes = new byte[4];
-            
+
             for (int i = 0; i < addressBytes.Length; i++)
             {
                 reader.Read();

@@ -1,37 +1,28 @@
-﻿using Avalonia.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
+using ShimSkiaSharp.Editing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
-using System.Runtime.CompilerServices;
-using System.Runtime.Intrinsics.Arm;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TitanControl.Controls.Menu;
-using TitanControl.Disk.Model;
-using TitanControl.Disk.Model.Workspace;
 using TitanControl.Events.Control;
 using TitanControl.Helper;
 using TitanControl.Logging;
-using TitanControl.Session;
-using TitanControl.Session.Interface;
-using TitanControl.Session.Utils;
+using TitanControl.Models.Workspace;
+using TitanControl.Services.Session;
+using TitanControl.Services.Workspace;
 using TitanControl.ViewModels.Page;
-using TitanControl.Views;
-using TitanControl.WebAPI;
-using TitanControl.Workspaces;
 
-namespace TitanControl.ViewModels
+namespace TitanControl.ViewModels.Page
 {
-    public partial class SessionPageModel : BaseViewModel, INotifyPropertyChanged
+    public partial class SessionPageModel : BaseViewModel, IPage, INotifyPropertyChanged
     {
         private const string LoggingCategory = "SessionPageModel";
+
+        public PageId Id => PageId.Session;
 
         private List<KeyValuePair<string, IPAddress>> _nics = new();
         private int selectedNic;
@@ -39,14 +30,17 @@ namespace TitanControl.ViewModels
         public bool editing = false;
         private SessionFormModel? formModel;
         private ISession? selectedSession;
+        private IWorkspaceService _workspaceService;
+        private ISessionService _sessionService;
 
-        public ISession? SelectedSession 
-        { 
-            get => selectedSession; 
+        public ISession? SelectedSession
+        {
+            get => selectedSession;
             set
             {
                 selectedSession = value;
                 OnPropertyChanged(nameof(SelectedSession));
+                OnPropertyChanged(nameof(DetailsEnabled));
                 OnPropertyChanged(nameof(Endpoint));
             }
         }
@@ -62,7 +56,7 @@ namespace TitanControl.ViewModels
                 OnPropertyChanged(nameof(RefreshEnabled));
             }
         }
-      
+
         public int SelectedNic
         {
             get => selectedNic;
@@ -83,6 +77,7 @@ namespace TitanControl.ViewModels
             {
                 editing = value;
                 OnPropertyChanged(nameof(IsEditing));
+                OnPropertyChanged(nameof(DetailsEnabled));
             }
         }
 
@@ -106,15 +101,20 @@ namespace TitanControl.ViewModels
              : $"{SelectedSession!.IPAddress} : {SelectedSession!.Port}")
          : "-";
 
-        public Workspace CurrentWorkspace => App.WorkspaceManager.CurrentWorkspace;
-        public ObservableCollection<TitanSession> Sessions => App.SessionManager.Sessions;
-        public ReadOnlyObservableCollection<ISession> ScanResults => App.SessionManager.ScanResults;
+        public WorkspaceModel CurrentWorkspace => _workspaceService.CurrentWorkspace;
+        public ObservableCollection<TitanSession> Sessions => _sessionService.Sessions;
+        public ReadOnlyObservableCollection<ISession> ScanResults => _sessionService.ScanResults;
 
         public bool HasNoSessions => Sessions.Count == 0;
 
-        public SessionPageModel()
+        public bool DetailsEnabled => SelectedSession != null && !IsEditing;
+
+        public SessionPageModel(ISessionService sessionService, IWorkspaceService workspaceService)
         {
-            App.SessionManager.ScannerRunningChanged +=
+            _sessionService = sessionService;
+            _workspaceService = workspaceService;
+
+            sessionService.ScannerRunningChanged +=
                 (_, isRunning) =>
                 {
                     RefreshEnabled = !isRunning;
@@ -131,7 +131,7 @@ namespace TitanControl.ViewModels
             if (_nics.Count == 0)
                 return;
 
-            await App.SessionManager.ConfigureScannerAsync(
+            await _sessionService.ConfigureScannerAsync(
                 _nics[SelectedNic].Value,
                 TimeSpan.FromSeconds(30),
                 TimeSpan.FromMilliseconds(300),
@@ -142,7 +142,7 @@ namespace TitanControl.ViewModels
             UpdateSessions();
 
             if (start)
-                await StartScanner();
+                StartScanner();
         }
 
         private void UpdateSessions()
@@ -157,13 +157,20 @@ namespace TitanControl.ViewModels
             }
         }
 
-        public void Initialize()
+        public async Task InitializeAsync()
         {
             Interfaces.Clear();
             _nics.Clear();
 
             var nics = NicHelper.GetNics();
-            var defaultIp = NicHelper.GetDefaultIPv4Address();
+            var defaultIp = _sessionService.ScannerInterfaceAddress ?? NicHelper.GetDefaultIPv4Address();
+
+            if (_sessionService.Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session) is ISession session)
+            {
+                SelectedSession = session;
+                SelectedSession?.Enable();
+                EnabledSessions.Add(session);
+            }
 
             foreach (var nic in nics)
             {
@@ -177,22 +184,21 @@ namespace TitanControl.ViewModels
                 {
                     selectedNic = _nics.IndexOf(nicRecord);
                     OnPropertyChanged(nameof(SelectedNic));
-
-                    _ = RegisterScanner();
+                    await RegisterScanner();
 
                     Log.Debug($"Default network interface selected {nic.Key} - {defaultIp}", LoggingCategory);
-                }   
+                }
             }
         }
 
-        public async Task StartScanner()
+        public void StartScanner()
         {
-            await App.SessionManager.StartScannerAsync();
+            _ = _sessionService.StartScannerAsync();
         }
 
         public void StopScanner()
         {
-            App.SessionManager.StopScanner();
+            _sessionService.StopScanner();
         }
 
         private bool _selectingSession;
@@ -200,7 +206,7 @@ namespace TitanControl.ViewModels
         public async void HandleSessionSelect(
             object? sender,
             SessionOverviewSelectedEventArgs e)
-        {
+        { 
             if (_selectingSession)
                 return;
 
@@ -224,7 +230,7 @@ namespace TitanControl.ViewModels
 
                 if (IsEditing)
                 {
-                    var accepted = await MainWindow.DialogService
+                    var accepted = await App.DialogService
                         .ShowConfirmationAsync(
                             "Unsaved changes",
                             "Are you sure you wish to cancel? All changes will not be saved.");
@@ -258,12 +264,12 @@ namespace TitanControl.ViewModels
         public void ReleaseSelect(ISession session)
         {
             session.IsSelected = false;
-            SelectedSession = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session);
+            SelectedSession = _sessionService.Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session);
         }
 
         public async Task Clear()
         {
-            await App.SessionManager.ClearScanResultsAsync();
+            await _sessionService.ClearScanResultsAsync();
             SelectedSession = null;
         }
 
@@ -274,7 +280,6 @@ namespace TitanControl.ViewModels
                 CurrentWorkspace.Options.Session = Guid.Empty;
                 SelectedSession = Sessions.FirstOrDefault(s => s.IsSelected);
             }
-                
 
             foreach (var s in Sessions)
             {
@@ -294,7 +299,7 @@ namespace TitanControl.ViewModels
                 EnabledSessions.Remove(s);
             }
 
-            _ = App.WorkspaceManager.Save(CurrentWorkspace);
+            _ = _workspaceService.SaveAsync();
         }
 
         private void EnableForm()
@@ -306,7 +311,10 @@ namespace TitanControl.ViewModels
                 return;
             }
 
+           
+
             FormData = SessionFormModel.FromModel(SelectedSession);
+
             IsEditing = true;
         }
 
@@ -336,7 +344,7 @@ namespace TitanControl.ViewModels
             switch (session.State)
             {
                 case SessionConnectionState.Available:
-                    var apiSession = App.SessionManager.Create(session.Name);
+                    var apiSession = await _sessionService.Create(session.Name);
                     apiSession.IPAddress = session.IPAddress;
                     apiSession.Port = session.Port;
                     apiSession.PortInteractive = session.PortInteractive;
@@ -368,7 +376,7 @@ namespace TitanControl.ViewModels
                     break;
             }
 
-            _ = App.SessionManager.Save();
+            await _sessionService.SaveAsync();
         }
 
         [RelayCommand]
@@ -385,13 +393,13 @@ namespace TitanControl.ViewModels
 
 
         [RelayCommand]
-        public void AddManual()
+        public async Task AddManual()
         {
-            var session = App.SessionManager.Create(GetNextName("Titan Session"));
+            var session = await _sessionService.Create(PathHelper.GetNextFileName("Titan Session", Sessions.Select(s => s.Name)));
 
             if (IsEditing)
                 return;
-           
+
             foreach (var s in Sessions)
             {
                 s.IsSelected = s.ID == session.ID;
@@ -400,15 +408,15 @@ namespace TitanControl.ViewModels
             SelectedSession = session;
             EnableForm();
 
-            _ = App.SessionManager.Save();
+            await _sessionService.SaveAsync();
 
             Log.Information("Added a new session manually", LoggingCategory);
         }
 
         [RelayCommand]
-        public void SaveSession()
+        public async Task SaveSession()
         {
-            ISession? session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == SelectedSession!.ID);
+            ISession? session = _sessionService.Sessions.FirstOrDefault(s => s.ID == SelectedSession!.ID);
 
             if (session == null)
             {
@@ -436,7 +444,7 @@ namespace TitanControl.ViewModels
 
             DisableForm();
 
-            _ = App.SessionManager.Save();
+            await _sessionService.SaveAsync();
 
             Log.Information($"Saved session {session.Name}.", LoggingCategory);
         }
@@ -446,7 +454,7 @@ namespace TitanControl.ViewModels
         {
             if (!FormData!.Equals(SelectedSession))
             {
-                var accepted = await MainWindow.DialogService.ShowConfirmationAsync("Unsaved changes", "Are you sure you wish to cancel, all changes will not be saved?");
+                var accepted = await App.DialogService.ShowConfirmationAsync("Unsaved changes", "Are you sure you wish to cancel, all changes will not be saved?");
 
                 if (!accepted)
                     return;
@@ -467,7 +475,7 @@ namespace TitanControl.ViewModels
                 sessionId = SelectedSession.ID;
             }
 
-            var session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId);
+            var session = _sessionService.Sessions.FirstOrDefault(s => s.ID == sessionId);
 
             if (session is null)
             {
@@ -492,7 +500,7 @@ namespace TitanControl.ViewModels
                 sessionId = SelectedSession.ID;
             }
 
-            var session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId);
+            var session = _sessionService.Sessions.FirstOrDefault(s => s.ID == sessionId);
 
             if (session is null)
             {
@@ -502,7 +510,7 @@ namespace TitanControl.ViewModels
 
             Log.Information($"Attempting to stop session: {session.Name}", LoggingCategory);
 
-            App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId)!.Stop();
+            _sessionService.Sessions.FirstOrDefault(s => s.ID == sessionId)!.Stop();
         }
 
 
@@ -515,7 +523,7 @@ namespace TitanControl.ViewModels
 
 
         [RelayCommand]
-        public void Duplicate(Guid? sessionId = null)
+        public async Task Duplicate(Guid? sessionId = null)
         {
             if (sessionId == null)
             {
@@ -524,12 +532,12 @@ namespace TitanControl.ViewModels
                     Log.Warning($"There is no session to duplicate.", LoggingCategory);
                     return;
                 }
-                    
+
 
                 sessionId = SelectedSession.ID;
             }
 
-            var session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId);
+            var session = _sessionService.Sessions.FirstOrDefault(s => s.ID == sessionId);
 
             if (session is null)
             {
@@ -537,7 +545,7 @@ namespace TitanControl.ViewModels
                 return;
             }
 
-            var newSession = App.SessionManager.Create(GetNextName(session.Name));
+            var newSession = await _sessionService.Create(PathHelper.GetNextFileName(session.Name, Sessions.Select(s => s.Name)));
             newSession.IPAddress = session.IPAddress;
             newSession.Port = session.Port;
             newSession.PortInteractive = session.PortInteractive;
@@ -548,7 +556,7 @@ namespace TitanControl.ViewModels
 
             Log.Information($"Duplicated session: {session.Name}", LoggingCategory);
 
-            _ = App.SessionManager.Save();
+            await _sessionService.SaveAsync();
 
             if (IsEditing)
                 return;
@@ -560,29 +568,6 @@ namespace TitanControl.ViewModels
 
             SelectedSession = newSession;
         }
-
-        public string GetNextName(string baseName)
-        {
-            var names = Sessions.Select(s => s.Name).ToHashSet();
-
-            // Remove an existing trailing number.
-            // "Titan control 1" -> "Titan control"
-            var match = Regex.Match(baseName, @"^(.*?)(?:\s+(\d+))?$");
-
-            var rootName = match.Groups[1].Value.TrimEnd();
-
-            // If the exact name doesn't exist, return it unchanged.
-            if (!names.Contains(baseName))
-                return baseName;
-
-            int i = 1;
-
-            while (names.Contains($"{rootName} {i}"))
-                i++;
-
-            return $"{rootName} {i}";
-        }
-
 
         [RelayCommand]
         public async Task Remove(Guid? sessionId = null)
@@ -599,7 +584,7 @@ namespace TitanControl.ViewModels
                 sessionId = SelectedSession.ID;
             }
 
-            var session = App.SessionManager.Sessions.FirstOrDefault(s => s.ID == sessionId);
+            var session = _sessionService.Sessions.FirstOrDefault(s => s.ID == sessionId);
 
             if (session is null)
             {
@@ -607,7 +592,7 @@ namespace TitanControl.ViewModels
                 return;
             }
 
-            var accepted = await MainWindow.DialogService
+            var accepted = await App.DialogService
                         .ShowConfirmationAsync(
                             "Remove session",
                             $"Are you sure you wish to remove the session: {session.Name}.\nThis action cannot be undone.");
@@ -615,13 +600,17 @@ namespace TitanControl.ViewModels
             if (!accepted)
                 return;
 
-            App.SessionManager.Remove((Guid)sessionId);
+            DisableForm();
+
+            EnabledSessions.Remove(session);
+
+            await _sessionService.Delete((Guid)sessionId);
 
             SelectedSession = Sessions.FirstOrDefault(s => s.ID == CurrentWorkspace.Options.Session);
 
             Log.Information($"Removed session: {session.Name}", LoggingCategory);
 
-            _ = App.SessionManager.Save();
+            await _sessionService.SaveAsync();
         }
     }
 }

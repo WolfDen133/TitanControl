@@ -40,6 +40,7 @@
           "type": {
             "type": "string",
             "enum": [
+              "none",
               "fader",
               "button",
               "colorPicker"
@@ -77,6 +78,7 @@
           "keyProfile": {
             "type": "string",
             "enum": [
+              "none",
               "latch",
               "flash",
               "timedFlash",

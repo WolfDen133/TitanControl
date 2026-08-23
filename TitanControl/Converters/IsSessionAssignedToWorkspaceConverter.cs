@@ -1,14 +1,8 @@
 ﻿using Avalonia.Data;
 using Avalonia.Data.Converters;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using TitanControl.Disk.Model;
-using TitanControl.Disk.Model.Workspace;
+using TitanControl.Models.Workspace;
 using TitanControl.Services.Session;
 
 namespace TitanControl.Converters

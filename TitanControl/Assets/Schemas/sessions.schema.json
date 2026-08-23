@@ -2,8 +2,43 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
-    "lastSession": {
-      "type": "string"
+    "localInterface": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minLength": 4,
+          "maxLength": 4
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "scanDuration": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 120
+    },
+    "scanTimeout": {
+      "type": "integer",
+      "minimum": 50,
+      "maximum": 1000
+    },
+    "scanPhaseDelay": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "scanThreads": {
+      "type": "integer",
+      "maximum": 128,
+      "minimum": 1
+    },
+    "scanHttps": {
+      "type": "boolean"
     },
     "sessions": {
       "type": "array",
@@ -55,5 +90,5 @@
       }
     }
   },
-  "required": ["lastSession", "sessions"]
+  "required": ["sessions", "localInterface", "scanDuration", "scanTimeout", "scanPhaseDelay", "scanThreads", "scanHttps"]
 }

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using TitanControl.Disk.Converter;
 using TitanControl.Logging;
-using TitanControl.Session;
-using TitanControl.WebAPI;
+using TitanControl.Services.Session;
 
 namespace TitanControl.Models.Session
 {
@@ -45,7 +39,7 @@ namespace TitanControl.Models.Session
 
         public ISaveable ToInstance()
         {
-            return new SessionModel(ID, Name)
+            return new TitanSession(ID, Name)
             {
                 IPAddress = IPAddress,
                 Port = Port,
@@ -77,7 +71,7 @@ namespace TitanControl.Models.Session
                 if (value != null && System.Net.IPAddress.TryParse(value, out IPAddress? address))
                     IPAddress = address;
                 else
-                    Log.Warning($"Could not parse old IPAddress string {value}, assuming default instead.", 
+                    Log.Warning($"Could not parse old IPAddress string {value}, assuming default instead.",
                         $"Session model[{ID}]");
             }
         }

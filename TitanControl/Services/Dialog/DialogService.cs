@@ -1,13 +1,5 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Avalonia.Controls;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using TitanControl.Services.Data;
 using TitanControl.Views;
 
 namespace TitanControl.Services.Dialog
@@ -16,7 +8,7 @@ namespace TitanControl.Services.Dialog
     {
         private Window _parent;
 
-        public DialogService(Window parent) 
+        public DialogService(Window parent)
         {
             _parent = parent;
         }

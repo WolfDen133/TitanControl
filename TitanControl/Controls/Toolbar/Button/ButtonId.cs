@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TitanControl.Controls.Toolbar.Buttons
+﻿namespace TitanControl.Controls.Toolbar.Buttons
 {
     public enum ButtonId
     {
@@ -26,13 +20,13 @@ namespace TitanControl.Controls.Toolbar.Buttons
 
         Fullscreen = 71,
         Sessions = 72,
+        
+        CircleBuilder = 81,
 
         Save = 91,
         SaveAs = 92,
-        LoadButton = 93,
+        Load = 93,
         Rename = 94,
         New = 95,
-
-        CircleBuilder = 8
     }
 }

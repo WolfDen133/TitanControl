@@ -1,81 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using TitanControl.Controls.Handle;
+using TitanControl.Controls.Models.Handle;
+using TitanControl.Services.Session;
 using TitanControl.WebAPI.Data;
 
 namespace TitanControl.Models.Control
 {
-    public abstract class ControlModel : INotifyPropertyChanged
+    public abstract class ControlModel : IControlModel
     {
-        private Rectangle _location;
-
-        private int _titanId;
-        private HandleType _handleType;
-        private KeyProfile _keyProfile;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         [JsonPropertyName("type")]
-        public ControlId ControlId { get; init; } = ControlId.None;
+        public virtual ControlId ControlId { get; init; } = ControlId.None;
 
         [JsonPropertyName("location")]
-        public Rectangle Location 
-        { 
-            get => _location; 
-            set
-            {
-                _location = value;
-                OnPropertyChanged(nameof(Location));
-            } 
-        }
+        public Rectangle Location { get; set; }
 
         [JsonPropertyName("titanId")]
-        public int TitanId 
-        {
-            get => _titanId;
-            set
-            {
-                _titanId = value;
-                OnPropertyChanged(nameof(TitanId));
-            }
-        }
+        public int TitanId { get; set; }
 
         [JsonPropertyName("handleType")]
-        public HandleType HandleType 
-        { 
-            get => _handleType; 
-            set
-            {
-                _handleType = value;
-                OnPropertyChanged(nameof(HandleType));
-            }
-        }
+        public HandleType HandleType { get; set; }
 
         [JsonPropertyName("keyProfile")]
-        public KeyProfile KeyProfile 
-        { 
-            get => _keyProfile;
-            set 
-            { 
-                _keyProfile = value;
-                OnPropertyChanged(nameof(KeyProfile));
-            } 
-        }
+        public KeyProfile KeyProfile { get; set; }
 
-        public void OnPropertyChanged(string type)
-        {
-            OnPropertyChanged(new PropertyChangedEventArgs(type));
-        }
+        public abstract ISaveable ToInstance(ISessionService service);
 
-        protected void OnPropertyChanged(PropertyChangedEventArgs e)
+        public T ToInstance<T> (ISessionService service)
         {
-            PropertyChanged?.Invoke(this, e);
+            return (T)ToInstance(service);
         }
     }
 }
