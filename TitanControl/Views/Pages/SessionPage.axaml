@@ -1,16 +1,17 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:common="using:TitanControl.Controls.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:layout="using:TitanControl.Controls.Layout"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:menu="using:TitanControl.Controls.Menu"
+             xmlns:common="using:TitanControl.Views.Controls"
+             xmlns:input="using:TitanControl.Views.Controls.Input"
+             xmlns:layout="using:TitanControl.Views.Controls.Layout"
+             xmlns:menu="using:TitanControl.Views.Controls.Menu"
              xmlns:viewmodels="using:TitanControl.ViewModels.Page"
              mc:Ignorable="d" d:DesignWidth="1900" d:DesignHeight="1000"
              x:DataType="viewmodels:SessionPageModel"
              x:Name="SessionPageRoot"
-             x:Class="TitanControl.Views.Page.Pages.SessionPage">
-    <Border Padding="12" Background="{DynamicResource BackgroundLBrush}">
+             x:Class="TitanControl.Views.Pages.SessionPage">
+    <Border Padding="7" Background="{DynamicResource BackgroundLBrush}">
         <Grid RowDefinitions="Auto, *" RowSpacing="8">
             <Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Top" Height="70">
                 <Border Padding="10">
@@ -21,23 +22,29 @@
                     <TextBlock Classes="h3" FontSize="14" Text="Discover, configure and manage your connections" Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
-                    <TextBlock Classes="h3" Text="Network Interface"/>
-                    <ComboBox ItemsSource="{Binding Interfaces}" SelectedIndex="{Binding SelectedNic}" Classes="app-input"/>
+                    <TextBlock Classes="h3" Text="Network Interface" HorizontalAlignment="Right"/>
+                    <ComboBox Height="25" ItemsSource="{Binding Interfaces}" SelectedIndex="{Binding SelectedNic}" Classes="app-input"/>
                 </StackPanel>
             </Grid>
             <Grid Grid.Row="1" ColumnSpacing="20" ColumnDefinitions="*, 0.9*, *" Margin="10" ClipToBounds="False">
                 <layout:Section Title="Active &amp; Available" Subtitle="Discover available or add new sessions">
                     <layout:Section.HeaderContent>
-                        <Button IsEnabled="{Binding RefreshEnabled}" Click="Button_Click">
-                            <Border Padding="8 4">
-                                <StackPanel Orientation="Horizontal" Spacing="5">
+                        <common:IconButton x:Name="RefreshButton" Text="Refresh" 
+                                           BorderBrush="{DynamicResource BorderBrush}" 
+                                           PointerEntered="IconButton_PointerEntered" 
+                                           PointerExited="IconButton_PointerExited"
+                                           >
+                            <common:IconButton.Icon>
+                                <Panel>
                                     <Border x:Name="RefreshIcon" Classes.running="{Binding !RefreshEnabled}">
-                                        <Svg VerticalAlignment="Center" SvgSource="{StaticResource RefreshSvgSource}" Width="20" Height="20" CurrentColor="{DynamicResource Foreground}"/>
+                                        <Svg Path="/Assets/Icons/refresh.svg" CurrentColor="{DynamicResource Foreground}"/>
                                     </Border>
-                                    <TextBlock VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" Text="Refresh" FontSize="16"/>
-                                </StackPanel>
-                            </Border>
-                        </Button>
+                                    <Border x:Name="StopIcon" IsVisible="False">
+                                        <Svg Path="/Assets/Icons/stop.svg" CurrentColor="{DynamicResource DangerColorL}"/>
+                                    </Border>
+                                </Panel>
+                            </common:IconButton.Icon>
+                        </common:IconButton>
                     </layout:Section.HeaderContent>
                     <layout:Section.Icon>
                         <common:TwoToneSvg SvgSource="{StaticResource SessionListSvgSource}" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
@@ -119,21 +126,21 @@
                     <Border>
                         <Grid RowDefinitions="*, Auto">
                             <StackPanel Spacing="20">
-                                <common:Field Text="Session Name" Required="True">
+                                <layout:Field Text="Session Name" Required="True">
                                     <TextBox Classes="app-input" Text="{Binding FormData.SessionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="e.g. Titan session"/>
 
-                                </common:Field>
-                                <common:Field Text="IP Address / Hostname" Required="True">
+                                </layout:Field>
+                                <layout:Field Text="IP Address / Hostname" Required="True">
                                     <TextBox Classes="app-input" Text="{Binding FormData.IpAddress}" PlaceholderText="e.g. 10.0.0.1"/>
 
-                                </common:Field>
+                                </layout:Field>
                                 <Grid ColumnDefinitions="* *" ColumnSpacing="20">
-                                    <common:Field Text="Regular Port" Required="True">
-                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.Port}" PlaceholderText="4430" Minimum="1" Maximum="65535"/>
-                                    </common:Field>
-                                    <common:Field Grid.Column="1" Text="Interactive Port">
-                                        <common:NumericUpDown Classes="app-input" Value="{Binding FormData.PortInteractive}" PlaceholderText="4431" Minimum="1" Maximum="65535"/>
-                                    </common:Field>
+                                    <layout:Field Text="Regular Port" Required="True">
+                                        <NumericUpDown Classes="app-input" Value="{Binding FormData.Port}" PlaceholderText="4430" Minimum="1" Maximum="65535"/>
+                                    </layout:Field>
+                                    <layout:Field Grid.Column="1" Text="Interactive Port">
+                                        <NumericUpDown Classes="app-input" Value="{Binding FormData.PortInteractive}" PlaceholderText="4431" Minimum="1" Maximum="65535"/>
+                                    </layout:Field>
                                 </Grid>
                             </StackPanel>
                             <StackPanel Grid.Row="1">
@@ -153,20 +160,20 @@
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
                                         <CheckBox Classes="app-input" IsChecked="{Binding FormData.AutoTimeout}"/>
                                         <TextBlock Classes="context" Text="Disconnect after"/>
-                                        <common:NumericUpDown IsEnabled="{Binding FormData.AutoTimeout}" Maximum="240" Minimum="1" Classes="app-input" Value="{Binding FormData.AutoTimeoutMinuates}"/>
+                                        <NumericUpDown IsEnabled="{Binding FormData.AutoTimeout}" Maximum="240" Minimum="1" Classes="app-input" Value="{Binding FormData.AutoTimeoutMinuates}"/>
                                         <TextBlock Classes="context" Text="minuates of activity"/>
                                     </StackPanel>
                                     <TextBlock VerticalAlignment="Center" Grid.Row="1" Classes="header" Text="Keep Alive"/>
                                     <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Spacing="4">
                                         <TextBlock Classes="context" Text="Send keep alive every"/>
-                                        <common:NumericUpDown Classes="app-input" Minimum="1" Maximum="60" Value="{Binding FormData.KeepAliveSeconds}"/>
+                                        <NumericUpDown Classes="app-input" Minimum="1" Maximum="60" Value="{Binding FormData.KeepAliveSeconds}"/>
                                         <TextBlock Classes="context" Text="seconds"/>
                                     </StackPanel>
                                     <TextBlock VerticalAlignment="Center" Grid.Row="2" Classes="header" Text="Reconnect"/>
                                     <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Spacing="4">
                                         <CheckBox Classes="app-input" IsChecked="{Binding FormData.Reconnect}"/>
                                         <TextBlock Classes="context" Text="Attempt to reconnect"/>
-                                        <common:NumericUpDown IsEnabled="{Binding FormData.Reconnect}" Maximum="10" Minimum="1" Classes="app-input" Value="{Binding FormData.ReconnectAttempts}"/>
+                                        <NumericUpDown IsEnabled="{Binding FormData.Reconnect}" Maximum="10" Minimum="1" Classes="app-input" Value="{Binding FormData.ReconnectAttempts}"/>
                                         <TextBlock Classes="context" Text="times"/>
                                     </StackPanel>
                                     <TextBlock VerticalAlignment="Center" Grid.Row="3" Classes="header" Text="Use SSL / TLS (HTTPS)"/>
@@ -200,6 +207,7 @@
                     </layout:Section.Icon>
                     <Grid RowDefinitions="Auto, *, Auto">
                         <Border CornerRadius="10"
+                                Classes="smooth"
                                 Padding="20"
                                 BorderBrush="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.3}" 
                                 BorderThickness="1" 

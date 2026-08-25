@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TitanControl.Controls.Handle;
-using TitanControl.Controls.Models.Handle;
-using TitanControl.Services.Session;
+﻿using TitanControl.Services.Session;
+using TitanControl.ViewModels.Controls.Handle;
+using TitanControl.Views.Controls.Handle;
 
 namespace TitanControl.Models.Control
 {

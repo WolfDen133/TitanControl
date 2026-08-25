@@ -1,0 +1,648 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+      <ControlTheme
+        x:Key="TitanTextBoxTheme"
+        TargetType="TextBox">
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}"/>
+
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDBrush}"/>
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderSubtleBrush}"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="Padding"
+                Value="5,4"/>
+
+        <Setter Property="CornerRadius"
+                Value="5"/>
+
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border
+                    x:Name="PART_Border"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Padding="{TemplateBinding Padding}">
+
+                    <Grid>
+
+                        <ScrollViewer
+                            x:Name="PART_ScrollViewer"
+                            HorizontalScrollBarVisibility="Hidden"
+                            VerticalScrollBarVisibility="Hidden">
+
+                            <TextPresenter
+                                x:Name="PART_TextPresenter"
+                                VerticalAlignment="Center"
+                                Text="{TemplateBinding Text}"
+                                CaretBrush="{DynamicResource AccentBrush}"
+                                SelectionBrush="{DynamicResource SelectionBrush}"/>
+
+                        </ScrollViewer>
+
+                        <TextBlock
+                            x:Name="PART_Placeholder"
+                            Text="{TemplateBinding Watermark}"
+                            FontSize="{Binding FontSize,
+                                               RelativeSource={RelativeSource TemplatedParent}}"
+                            FontFamily="{Binding FontFamily,
+                                                 RelativeSource={RelativeSource TemplatedParent}}"
+                            FontWeight="{Binding FontWeight,
+                                                 RelativeSource={RelativeSource TemplatedParent}}"
+                            FontStyle="{Binding FontStyle,
+                                                RelativeSource={RelativeSource TemplatedParent}}"
+                            Foreground="{DynamicResource ForegroundPlaceholderBrush}"
+                            VerticalAlignment="Center"
+                            IsHitTestVisible="False"/>
+
+                    </Grid>
+
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLBrush}"/>
+        </Style>
+
+        <Style Selector="^:focus">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundDDBrush}"/>
+        </Style>
+
+        <Style Selector="^:disabled">
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLLBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+
+        <Style Selector="^ /template/ TextBlock#PART_Placeholder">
+            <Setter Property="IsVisible"
+                    Value="False"/>
+        </Style>
+
+        <Style Selector="^:empty /template/ TextBlock#PART_Placeholder">
+            <Setter Property="IsVisible"
+                    Value="True"/>
+        </Style>
+
+    </ControlTheme>
+
+    <ControlTheme x:Key="TitanNumericUpDownTheme"
+        TargetType="NumericUpDown">
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}"/>
+
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDBrush}"/>
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderSubtleBrush}"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="Padding"
+                Value="5,4"/>
+
+         <Setter Property="CornerRadius"
+                  Value="5"/>
+
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}">
+
+                    <ButtonSpinner
+                        Name="PART_Spinner"
+                        AllowSpin="{TemplateBinding AllowSpin}"
+                        ShowButtonSpinner="{TemplateBinding ShowButtonSpinner}"
+                        ButtonSpinnerLocation="{TemplateBinding ButtonSpinnerLocation}"
+                        BorderBrush="{TemplateBinding BorderBrush}">
+
+
+                        <!-- NumericUpDown editor -->
+                        <TextBox
+                            Name="PART_TextBox"
+                            Theme="{StaticResource TitanTextBoxTheme}"
+                            Background="Transparent"
+                            Foreground="{TemplateBinding Foreground}"
+                            BorderThickness="0"
+                            Padding="{TemplateBinding Padding}"
+                            VerticalContentAlignment="Center"
+                            FontSize="{TemplateBinding FontSize}"
+                            CornerRadius="4,0,0,4"
+                            PlaceholderText="{TemplateBinding PlaceholderText}" />
+
+                        <ButtonSpinner.Template>
+                            <ControlTemplate>
+
+                                <Grid ColumnDefinitions="*,Auto">
+
+                                    <!-- Content / TextBox -->
+                                    <ContentPresenter
+                                        Grid.Column="0"
+                                        Content="{TemplateBinding Content}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch" />
+
+                                    <!-- Custom spinner -->
+                                    <Border
+                                        Grid.Column="1"
+                                        Name="PART_CustomSpinner"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        Background="{TemplateBinding BorderBrush}"
+                                        CornerRadius="0,4,4,0"
+                                        BorderThickness="1,0,0,0">
+
+                                        <Grid RowDefinitions="*,*">
+
+                                            <RepeatButton
+                                                Name="PART_IncreaseButton"
+                                                Grid.Row="0"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="10,0"
+                                                CornerRadius="0,5,0,0"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                IsEnabled="True">
+
+                                                <Svg
+                                                    Width="10"
+                                                    Height="10"
+                                                    CurrentColor="{DynamicResource Foreground}"
+                                                    Path="/Assets/Icons/arrow-up.svg" />
+
+                                            </RepeatButton>
+
+                                            <RepeatButton
+                                                Name="PART_DecreaseButton"
+                                                Grid.Row="1"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="10,0"
+                                                CornerRadius="0,0,5,0"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                IsEnabled="True">
+
+                                                <Svg
+                                                    Width="10"
+                                                    Height="10"
+                                                    CurrentColor="{DynamicResource Foreground}"
+                                                    Path="/Assets/Icons/arrow-down.svg" />
+
+                                            </RepeatButton>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </ControlTemplate>
+                        </ButtonSpinner.Template>
+                    </ButtonSpinner>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+        </Style>
+
+        <!-- Keyboard / input focus -->
+        <Style Selector="^:focus-within">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundDDBrush}"/>
+        </Style>
+
+        <!-- Disabled -->
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLBrush}"/>
+        </Style>
+
+        <Style Selector="^:focus">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundDDBrush}"/>
+        </Style>
+
+        <Style Selector="^:disabled">
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLLBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme
+        x:Key="TitanComboBoxTheme"
+        TargetType="ComboBox">
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}"/>
+
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDBrush}"/>
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderSubtleBrush}"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="Padding"
+                Value="5,4"/>
+
+        <Setter Property="CornerRadius"
+                Value="5"/>
+
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+
+        <Setter Property="Template">
+            <ControlTemplate>
+
+                <Grid>
+
+                    <!-- Main closed control -->
+                    <Border
+                        x:Name="PART_Border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+
+                        <Grid ColumnDefinitions="*,31">
+
+                            <Border Padding="{TemplateBinding Padding}">
+                                <ContentPresenter
+                                    Grid.Column="0"
+                                    Content="{TemplateBinding SelectionBoxItem}"
+                                    VerticalContentAlignment="Center"
+                                    HorizontalContentAlignment="Left"/>
+                            </Border>
+                            
+
+                            <Border
+                                Grid.Column="1"
+                                Background="{TemplateBinding BorderBrush}"
+                                CornerRadius="0,4,4,0">
+                                <Panel>
+                                    <Svg
+                                        Width="10"
+                                        Height="10"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        CurrentColor="{DynamicResource ForegroundSecondary}"
+                                        Path="/Assets/Icons/arrow-down.svg">
+                                                <Svg.RenderTransform>
+                                                    <RotateTransform
+                                                        Angle="{TemplateBinding IsDropDownOpen,
+                                                                        Converter={StaticResource BoolToAngleConverter}}"
+                                                        CenterX="5"
+                                                        CenterY="5"/>
+                                                </Svg.RenderTransform>
+                                        </Svg>
+                                </Panel>
+                                
+
+                            </Border>
+
+                        </Grid>
+
+                    </Border>
+
+                    <!-- Dropdown -->
+                    <Popup
+                        x:Name="PART_Popup"
+                        IsOpen="{TemplateBinding IsDropDownOpen}"
+                        Placement="Bottom"
+                        HorizontalOffset="0">
+
+                        <Border
+                            Margin="0,4,0,0"
+                            MinWidth="{Binding Bounds.Width,
+                                RelativeSource={RelativeSource TemplatedParent}}"
+                            MaxHeight="320"
+                            Background="{DynamicResource BackgroundLBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4">
+
+                            <ScrollViewer>
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+
+                        </Border>
+
+                    </Popup>
+
+                </Grid>
+
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+        </Style>
+
+        <!-- Keyboard / input focus -->
+        <Style Selector="^:focus-within">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundDDBrush}"/>
+        </Style>
+
+        <!-- Disabled -->
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLBrush}"/>
+        </Style>
+
+        <Style Selector="^:focus">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundDDBrush}"/>
+        </Style>
+
+        <Style Selector="^:disabled">
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLLBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+
+    </ControlTheme>
+
+    <ControlTheme
+        x:Key="TitanCheckBoxTheme"
+        TargetType="CheckBox">
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}"/>
+
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundDBrush}"/>
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderSubtleBrush}"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="CornerRadius"
+                Value="3"/>
+
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+
+        <Setter Property="Template">
+            <ControlTemplate>
+
+                <Grid
+                    ColumnDefinitions="20,Auto"
+                    ColumnSpacing="8">
+
+                    <!-- Checkbox square -->
+                    <Border
+                        x:Name="PART_CheckBox"
+                        Width="18"
+                        Height="18"
+                        VerticalAlignment="Center"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+
+                        <Svg
+                            x:Name="PART_CheckMark"
+                            IsVisible="False"
+                            Width="10"
+                            Height="10"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            CurrentColor="{DynamicResource Foreground}"
+                            Path="/Assets/Icons/tick.svg" />
+
+                    </Border>
+
+                    <!-- Label -->
+                    <ContentPresenter
+                        Grid.Column="1"
+                        FontSize="{TemplateBinding FontSize}"
+                        Content="{TemplateBinding Content}"
+                        VerticalAlignment="Center"
+                        Foreground="{TemplateBinding Foreground}"/>
+
+                </Grid>
+
+            </ControlTemplate>
+        </Setter>
+
+                    <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+        </Style>
+
+        <!-- Disabled -->
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLBrush}"/>
+        </Style>
+
+        <Style Selector="^:disabled">
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLLBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+
+        <!-- Checked box -->
+        <Style Selector="^:checked">
+            <Setter Property="Background"
+                    Value="{DynamicResource AccentBrush}"/>
+
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource AccentBrush}"/>
+        </Style>
+
+        <!-- Show tick -->
+        <Style Selector="^:checked /template/ Svg#PART_CheckMark">
+            <Setter Property="IsVisible"
+                    Value="True"/>
+        </Style>
+
+        <!-- Press -->
+        <Style Selector="^:pressed">
+            <Setter Property="Background"
+                    Value="{DynamicResource AccentLLBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource AccentLLBrush}"/>
+        </Style>
+
+    </ControlTheme>
+
+    <ControlTheme
+        x:Key="TitanButtonTheme"
+        TargetType="Button">
+
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center"/>
+
+        <Setter Property="VerticalContentAlignment"
+                Value="Center"/>
+
+         <Setter Property="Foreground"
+                 Value="{DynamicResource ForegroundBrush}"/>
+
+         <Setter Property="Background"
+                 Value="{DynamicResource BackgroundLBrush}"/>
+
+         <Setter Property="BorderBrush"
+                 Value="{DynamicResource BorderSubtleBrush}"/>
+
+         <Setter Property="BorderThickness"
+                 Value="1"/>
+
+         <Setter Property="Padding"
+                 Value="5,4"/>
+
+         <Setter Property="CornerRadius"
+                 Value="5"/>
+
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+
+        <Setter Property="Template">
+            <ControlTemplate>
+
+                <Border
+                    x:Name="PART_Border"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Padding="{TemplateBinding Padding}">
+
+                    <ContentPresenter
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                </Border>
+
+            </ControlTemplate>
+        </Setter>
+
+                <!-- Disabled -->
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundBrush}"/>
+        </Style>
+
+        <Style Selector="^:disabled">
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLLBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource ForegroundDisabledBrush}"/>
+        </Style>
+
+        <!-- Pressed -->
+        <Style Selector="^:pressed">
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLLBrush}"/>
+
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource AccentBrush}"/>
+        </Style>
+
+    </ControlTheme>
+
+    <Design.PreviewWith>
+        <Border Padding="10" Background="{DynamicResource BackgroundBrush}" Width="200"> 
+            <UniformGrid Columns="2" RowSpacing="10" ColumnSpacing="10">
+                <TextBox Theme="{StaticResource TitanTextBoxTheme}" Text="Hello world"/>
+                <TextBox IsEnabled="False" Theme="{StaticResource TitanTextBoxTheme}" PlaceholderText="Hello world"/>
+                <NumericUpDown Increment="1" Theme="{StaticResource TitanNumericUpDownTheme}"/>
+                <NumericUpDown IsEnabled="False" Theme="{StaticResource TitanNumericUpDownTheme}"/>
+                <ComboBox Theme="{StaticResource TitanComboBoxTheme}">
+                    <TextBlock Text="Hello"/>
+                    <TextBlock Text="World"/>
+                </ComboBox>
+                <ComboBox IsEnabled="False" Theme="{StaticResource TitanComboBoxTheme}">
+                    <ComboBoxItem>
+                        Hello
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        World
+                    </ComboBoxItem>
+                </ComboBox>
+                <CheckBox Theme="{StaticResource TitanCheckBoxTheme}"/>
+                <CheckBox IsEnabled="False" Theme="{StaticResource TitanCheckBoxTheme}"/>
+                <Button Content="Hello World" Theme="{StaticResource TitanButtonTheme}"/>
+                <Button IsEnabled="False" Content="Hello World" Theme="{StaticResource TitanButtonTheme}"/>
+            </UniformGrid>
+        </Border>
+    </Design.PreviewWith>
+
+</ResourceDictionary>

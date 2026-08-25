@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using TitanControl.Events.Session;
 using TitanControl.Logging;
 using TitanControl.Models;
@@ -179,7 +180,7 @@ namespace TitanControl.Services.Session
 
         private bool wasConnected;
 
-        public void Start(IPAddress selectedInterface)
+        public async Task Start(IPAddress selectedInterface)
         {
             if (State != SessionConnectionState.Unreachable && State != SessionConnectionState.Enabled)
                 return;
@@ -209,7 +210,7 @@ namespace TitanControl.Services.Session
             }
         }
 
-        public void Stop()
+        public async Task Stop()
         {
             if (State != SessionConnectionState.Connected && State != SessionConnectionState.Connecting)
                 return;
@@ -363,14 +364,14 @@ namespace TitanControl.Services.Session
             ObjectDisposedException.ThrowIf(_disposed, this);
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
             if (_disposed)
             {
                 return;
             }
 
-            Stop();
+            await Stop();
 
             if (Api is IDisposable disposableApi)
             {

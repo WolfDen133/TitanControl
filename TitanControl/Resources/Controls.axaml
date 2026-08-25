@@ -1,12 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <ResourceDictionary.MergedDictionaries>
-      <ResourceInclude Source="avares://TitanControl/Controls/Layout/Section.axaml"/>
-      <ResourceInclude Source="avares://TitanControl/Controls/Common/IconButton.axaml"/>
-      <ResourceInclude Source="avares://TitanControl/Controls/Common/Field.axaml"/>
-      <ResourceInclude Source="avares://TitanControl/Controls/Common/Input/NumericUpDown.axaml"/>
-      <ResourceInclude Source="avares://TitanControl/Controls/Common/Input/NumericUpDown.axaml"/>
-      <ResourceInclude Source="avares://TitanControl/Controls/Handle/HandleButtonControl.axaml"/>
-      <ResourceInclude Source="avares://TitanControl/Controls/Handle/HandleFaderControl.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Views/Controls/Layout/Section.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Views/Controls/Layout/Field.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Views/Controls/Handle/HandleButtonControl.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Views/Controls/Handle/HandleFaderControl.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

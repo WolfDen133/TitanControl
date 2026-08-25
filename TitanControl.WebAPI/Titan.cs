@@ -138,7 +138,7 @@ namespace TitanControl.WebAPI
                     }
 
                     return false;
-                } catch (HttpRequestException e) 
+                } catch (HttpRequestException) 
                 {
                     Log.Debug($"Failed to locate endpoint after timing out.");
                     return false;

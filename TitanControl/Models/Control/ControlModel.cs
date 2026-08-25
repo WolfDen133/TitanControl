@@ -1,10 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Text.Json.Serialization;
-using TitanControl.Controls.Handle;
-using TitanControl.Controls.Models.Handle;
 using TitanControl.Services.Session;
+using TitanControl.Views.Controls.Handle;
 using TitanControl.WebAPI.Data;
 
 namespace TitanControl.Models.Control
@@ -28,7 +25,7 @@ namespace TitanControl.Models.Control
 
         public abstract ISaveable ToInstance(ISessionService service);
 
-        public T ToInstance<T> (ISessionService service)
+        public T ToInstance<T>(ISessionService service)
         {
             return (T)ToInstance(service);
         }

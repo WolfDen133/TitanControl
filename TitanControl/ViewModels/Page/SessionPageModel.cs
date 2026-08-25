@@ -1,12 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using ShimSkiaSharp.Editing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TitanControl.Events.Control;
 using TitanControl.Helper;
@@ -14,7 +12,7 @@ using TitanControl.Logging;
 using TitanControl.Models.Workspace;
 using TitanControl.Services.Session;
 using TitanControl.Services.Workspace;
-using TitanControl.ViewModels.Page;
+using TitanControl.ViewModel;
 
 namespace TitanControl.ViewModels.Page
 {
@@ -51,8 +49,6 @@ namespace TitanControl.ViewModels.Page
             set
             {
                 refreshEnabled = value;
-
-                OnPropertyChanged();
                 OnPropertyChanged(nameof(RefreshEnabled));
             }
         }
@@ -65,7 +61,6 @@ namespace TitanControl.ViewModels.Page
                 selectedNic = value;
                 _ = RegisterScanner(true);
 
-                OnPropertyChanged();
                 OnPropertyChanged(nameof(SelectedNic));
             }
         }
@@ -114,11 +109,10 @@ namespace TitanControl.ViewModels.Page
             _sessionService = sessionService;
             _workspaceService = workspaceService;
 
-            sessionService.ScannerRunningChanged +=
-                (_, isRunning) =>
-                {
-                    RefreshEnabled = !isRunning;
-                };
+            sessionService.ScannerRunningChanged += (_, isRunning) =>
+            {
+                RefreshEnabled = !isRunning;
+            };
 
             Sessions.CollectionChanged += (_, _) =>
             {
@@ -139,21 +133,21 @@ namespace TitanControl.ViewModels.Page
                 64,
                 false);
 
-            UpdateSessions();
+            await UpdateSessions();
 
             if (start)
                 StartScanner();
         }
 
-        private void UpdateSessions()
+        private async Task UpdateSessions()
         {
             foreach (var session in Sessions)
             {
                 if (session.State != SessionConnectionState.Connected)
                     return;
 
-                session.Stop();
-                session.Start(_nics[selectedNic].Value);
+                await session.Stop();
+                await session.Start(_nics[selectedNic].Value);
             }
         }
 
@@ -206,7 +200,7 @@ namespace TitanControl.ViewModels.Page
         public async void HandleSessionSelect(
             object? sender,
             SessionOverviewSelectedEventArgs e)
-        { 
+        {
             if (_selectingSession)
                 return;
 
@@ -273,7 +267,7 @@ namespace TitanControl.ViewModels.Page
             SelectedSession = null;
         }
 
-        public void EnableSession(Guid sessionId)
+        public async Task EnableSession(Guid sessionId)
         {
             if (sessionId == Guid.Empty)
             {
@@ -294,7 +288,7 @@ namespace TitanControl.ViewModels.Page
                     continue;
                 }
 
-                s.Stop();
+                await s.Stop();
                 s.Enable(false);
                 EnabledSessions.Remove(s);
             }
@@ -311,7 +305,6 @@ namespace TitanControl.ViewModels.Page
                 return;
             }
 
-           
 
             FormData = SessionFormModel.FromModel(SelectedSession);
 
@@ -357,22 +350,22 @@ namespace TitanControl.ViewModels.Page
 
                 case SessionConnectionState.Unreachable:
 
-                    Connect(sessionId);
+                    await Connect(sessionId);
                     break;
 
                 case SessionConnectionState.Connected:
 
-                    Disconnect(sessionId);
+                    await Disconnect(sessionId);
                     break;
 
                 case SessionConnectionState.Disabled:
 
-                    EnableSession(sessionId);
+                    await EnableSession(sessionId);
                     break;
 
                 case SessionConnectionState.Enabled:
 
-                    Connect(sessionId);
+                    await Connect(sessionId);
                     break;
             }
 
@@ -382,13 +375,13 @@ namespace TitanControl.ViewModels.Page
         [RelayCommand]
         public async Task Enable()
         {
-            EnableSession(SelectedSession!.ID);
+            await EnableSession(SelectedSession!.ID);
         }
 
         [RelayCommand]
         public async Task Disable()
         {
-            EnableSession(Guid.Empty);
+            await EnableSession(Guid.Empty);
         }
 
 
@@ -465,7 +458,7 @@ namespace TitanControl.ViewModels.Page
 
 
         [RelayCommand]
-        public void Connect(Guid? sessionId = null)
+        public async Task Connect(Guid? sessionId = null)
         {
             if (sessionId == null)
             {
@@ -485,12 +478,12 @@ namespace TitanControl.ViewModels.Page
 
             Log.Information($"Attempting to start session: {session.Name}", LoggingCategory);
 
-            session.Start(_nics[selectedNic].Value);
+            _ = session.Start(_nics[selectedNic].Value);
         }
 
 
         [RelayCommand]
-        public void Disconnect(Guid? sessionId = null)
+        public async Task Disconnect(Guid? sessionId = null)
         {
             if (sessionId == null)
             {
@@ -510,12 +503,12 @@ namespace TitanControl.ViewModels.Page
 
             Log.Information($"Attempting to stop session: {session.Name}", LoggingCategory);
 
-            _sessionService.Sessions.FirstOrDefault(s => s.ID == sessionId)!.Stop();
+            _ = session.Stop();
         }
 
 
         [RelayCommand]
-        public void Edit()
+        public async Task Edit()
         {
             Log.Debug($"Hit edit command");
             EnableForm();

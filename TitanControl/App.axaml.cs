@@ -5,15 +5,15 @@ using Avalonia.Markup.Xaml;
 using System;
 using System.Threading.Tasks;
 using TitanControl.Disk;
-using TitanControl.Disk.Resporitory.Workspace;
 using TitanControl.Disk.Resporitory.Session;
+using TitanControl.Disk.Resporitory.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
+using TitanControl.Services.Dialog;
 using TitanControl.Services.Session;
 using TitanControl.Services.Workspace;
-using TitanControl.ViewModels;
-using TitanControl.Services.Dialog;
-using TitanControl.Services;
+using TitanControl.ViewModel;
+using TitanControl.Views;
 
 namespace TitanControl;
 
@@ -94,7 +94,7 @@ public partial class App : Application
         {
             Log.Error(ex, "A critical error has occured during application initialization, terminating...", "Application");
             desktop.Shutdown(1);
-        } 
+        }
     }
 
 }

@@ -8,7 +8,7 @@ using TitanControl.Models.Workspace;
 
 namespace TitanControl.Services.Workspace
 {
-    public class WorkspaceService : IWorkspaceService
+    public class WorkspaceService : IWorkspaceService, IAsyncDisposable
     {
         private const string LoggingCategory = "Workspace Service";
 
@@ -20,8 +20,6 @@ namespace TitanControl.Services.Workspace
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public event EventHandler<WorkspaceEventArgs>? WorkspaceCreated;
-        public event EventHandler<WorkspaceEventArgs>? WorkspaceDeleted;
-        public event EventHandler<WorkspaceEventArgs>? WorkspaceModified;
         public event EventHandler<WorkspaceEventArgs>? WorkspaceSaved;
         public event EventHandler<WorkspaceEventArgs>? WorkspacedLoaded;
 
@@ -54,11 +52,15 @@ namespace TitanControl.Services.Workspace
 
         public async Task InitializeAsync()
         {
+            ThrowIfDisposed();
+
             await _workspaceRepo.LoadRecord();
         }
 
         public async Task LoadAsync()
         {
+            ThrowIfDisposed();
+
             if (!HasLastWorkspace)
             {
                 var ex = new InvalidOperationException("Last workspace not specified");
@@ -71,27 +73,39 @@ namespace TitanControl.Services.Workspace
 
         public async Task LoadAsync(Guid workspaceId)
         {
+            ThrowIfDisposed();
+
             var workspace = await _workspaceRepo.LoadAsync(workspaceId);
 
             CurrentWorkspace = workspace;
+
+            WorkspacedLoaded?.Invoke(this, new WorkspaceEventArgs(workspace));
 
             Log.Information($"Successfully opened {workspace.Name} workspace.", LoggingCategory);
         }
 
         public async Task SaveAsync()
         {
+            ThrowIfDisposed();
+
             await SaveAsync(CurrentWorkspace);
         }
 
         public async Task SaveAsync(WorkspaceModel workspace)
         {
+            ThrowIfDisposed();
+
             await _workspaceRepo.SaveAsync(workspace);
+
+            WorkspaceSaved?.Invoke(this, new WorkspaceEventArgs(workspace));
 
             Log.Information($"Sucessfully saved {workspace.Name} workspace.", LoggingCategory);
         }
 
         public async Task<WorkspaceModel> Create(string name)
         {
+            ThrowIfDisposed();
+
             var workspace = new WorkspaceModel
             {
                 Id = Guid.NewGuid(),
@@ -127,11 +141,18 @@ namespace TitanControl.Services.Workspace
 
         public Task Delete(Guid id)
         {
+            ThrowIfDisposed();
+
             throw new NotImplementedException();
         }
 
         public async Task<WorkspaceModel> Get(Guid id)
         {
+            ThrowIfDisposed();
+
+            if (CurrentWorkspace.Id == id)
+                return CurrentWorkspace;
+
             return await _workspaceRepo.LoadAsync(id);
         }
 
@@ -151,6 +172,21 @@ namespace TitanControl.Services.Workspace
 
             CurrentWorkspace = null!;
             _disposed = true;
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            _workspaceRepo.Dispose();
+
+            CurrentWorkspace = null!;
+            _disposed = true;
+
+            return ValueTask.CompletedTask;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
         }
     }
 }

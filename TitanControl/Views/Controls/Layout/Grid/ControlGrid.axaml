@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:handle="using:TitanControl.ViewModels.Controls.Handle"
+             xmlns:handleControls="using:TitanControl.Views.Controls.Handle"
+             xmlns:grid="using:TitanControl.Views.Controls.Layout.Grid"
+             xmlns:state="using:TitanControl.Views.State"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TitanControl.Views.Controls.Layout.Grid.ControlGrid"
+             x:Name="root"
+             Background="{DynamicResource BackgroundDDBrush}">
+        <UserControl.DataTemplates>
+            <DataTemplate DataType="handle:HandleFaderModel">
+                <handleControls:HandleFaderControl/>
+            </DataTemplate>
+            <DataTemplate DataType="handle:HandleButtonModel">
+                <handleControls:HandleButtonControl
+                    Halo="{Binding Color}"
+                    Legend="{Binding Legend}"/>
+            </DataTemplate>
+        </UserControl.DataTemplates>
+  <Grid>
+       <grid:GridLines IsHitTestVisible="False"
+                        ZIndex="0"
+                       Opacity="{Binding 
+                           Path=(state:EditMode.IsEnabled), 
+                           RelativeSource={RelativeSource Self}}"
+                       Brush="{DynamicResource BorderSubtleBrush}" 
+                       Columns="{Binding Columns, ElementName=root}" 
+                       Rows="{Binding Rows, ElementName=root}"/>
+
+      <ItemsControl ItemsSource="{Binding #root.Controls}" ZIndex="10">
+        <ItemsControl.ItemContainerTheme>
+            <ControlTheme
+                TargetType="ContentPresenter"
+                x:CompileBindings="False">
+
+                <Setter
+                    Property="grid:GridLayout.GridX"
+                    Value="{Binding Location.X}" />
+
+                <Setter
+                    Property="grid:GridLayout.GridY"
+                    Value="{Binding Location.Y}" />
+
+                <Setter
+                    Property="grid:GridLayout.GridXSpan"
+                    Value="{Binding Location.Width}" />
+
+                <Setter
+                    Property="grid:GridLayout.GridYSpan"
+                    Value="{Binding Location.Height}" />
+
+            </ControlTheme>
+
+
+        </ItemsControl.ItemContainerTheme>
+          <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                  <grid:GridLayout 
+                      IsHitTestVisible="True"
+                      x:Name="GridLayout" 
+                      Background="Transparent" 
+                      Columns="{Binding Columns, ElementName=root}" 
+                      Rows="{Binding Rows, ElementName=root}"/>
+              </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+      </ItemsControl>
+     
+
+      <Canvas x:Name="SelectionCanvas" IsHitTestVisible="False" ZIndex="20">
+           <Border x:Name="Selection" 
+                   Opacity="0" 
+                   IsHitTestVisible="False" 
+                   BorderBrush="{DynamicResource SelectionFocusBrush}" 
+                   BorderThickness="1" 
+                   Background="{DynamicResource SelectionTranslucentBrush}"/>
+      </Canvas>
+  </Grid>
+</UserControl>

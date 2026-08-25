@@ -1,5 +1,257 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <UniformGrid Columns="2">
+                        <UniformGrid.Styles>
+                <Style Selector="TextBlock">
+                    <Setter Property="Padding" Value="10,5"/>
+                    <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                </Style>
+            </UniformGrid.Styles>
+
+            <!-- Header -->
+            <TextBlock Text="Color"
+                       FontWeight="Bold"
+                       FontSize="12"
+                       Background="{DynamicResource BackgroundDDBrush}"/>
+
+            <TextBlock Text="Brush"
+                       FontWeight="Bold"
+                       FontSize="12"
+                       Background="{DynamicResource BackgroundDDBrush}"/>
+
+            <!-- Background -->
+            <TextBlock Text="BackgroundDD"
+                       Background="{DynamicResource BackgroundDDBrush}"/>
+
+            <TextBlock Text="BackgroundDDBrush"
+                       Background="{DynamicResource BackgroundDDBrush}"/>
+
+            <TextBlock Text="BackgroundD"
+                       Background="{DynamicResource BackgroundDBrush}"/>
+
+            <TextBlock Text="BackgroundDBrush"
+                       Background="{DynamicResource BackgroundDBrush}"/>
+
+            <TextBlock Text="Background"
+                       Background="{DynamicResource BackgroundBrush}"/>
+
+            <TextBlock Text="BackgroundBrush"
+                       Background="{DynamicResource BackgroundBrush}"/>
+
+            <TextBlock Text="BackgroundL"
+                       Background="{DynamicResource BackgroundLBrush}"/>
+
+            <TextBlock Text="BackgroundLBrush"
+                       Background="{DynamicResource BackgroundLBrush}"/>
+
+            <TextBlock Text="BackgroundLL"
+                       Background="{DynamicResource BackgroundLLBrush}"/>
+
+            <TextBlock Text="BackgroundLLBrush"
+                       Background="{DynamicResource BackgroundLLBrush}"/>
+
+            <!-- Buttons -->
+            <TextBlock Text="ButtonBackground"
+                       Background="{DynamicResource ButtonBackgroundBrush}"/>
+
+            <TextBlock Text="ButtonBackgroundBrush"
+                       Background="{DynamicResource ButtonBackgroundBrush}"/>
+
+            <TextBlock Text="ButtonBackgroundHover"
+                       Background="{DynamicResource ButtonBackgroundHoverBrush}"/>
+
+            <TextBlock Text="ButtonBackgroundHoverBrush"
+                       Background="{DynamicResource ButtonBackgroundHoverBrush}"/>
+
+            <TextBlock Text="ButtonBackgroundPressed"
+                       Background="{DynamicResource ButtonBackgroundPressedBrush}"/>
+
+            <TextBlock Text="ButtonBackgroundPressedBrush"
+                       Background="{DynamicResource ButtonBackgroundPressedBrush}"/>
+
+            <!-- Foreground -->
+            <TextBlock Text="Foreground"
+                       Background="{DynamicResource ForegroundBrush}"
+                       Foreground="{DynamicResource BackgroundDDBrush}"/>
+
+            <TextBlock Text="ForegroundBrush"
+                       Background="{DynamicResource ForegroundBrush}"
+                       Foreground="{DynamicResource BackgroundDDBrush}"/>
+
+            <TextBlock Text="ForegroundSecondary"
+                       Background="{DynamicResource ForegroundSecondaryBrush}"
+                       Foreground="{DynamicResource BackgroundDDBrush}"/>
+
+            <TextBlock Text="ForegroundSecondaryBrush"
+                       Background="{DynamicResource ForegroundSecondaryBrush}"
+                       Foreground="{DynamicResource BackgroundDDBrush}"/>
+
+            <TextBlock Text="ForegroundDisabled"
+                       Background="{DynamicResource ForegroundDisabledBrush}"/>
+
+            <TextBlock Text="ForegroundDisabledBrush"
+                       Background="{DynamicResource ForegroundDisabledBrush}"/>
+
+            <TextBlock Text="ForegroundPlaceholder"
+                       Background="{DynamicResource ForegroundPlaceholderBrush}"/>
+
+            <TextBlock Text="ForegroundPlaceholderBrush"
+                       Background="{DynamicResource ForegroundPlaceholderBrush}"/>
+
+            <!-- Accent -->
+            <TextBlock Text="AccentColorD"
+                       Background="{DynamicResource AccentDBrush}"/>
+
+            <TextBlock Text="AccentDBrush"
+                       Background="{DynamicResource AccentDBrush}"/>
+
+            <TextBlock Text="AccentColor"
+                       Background="{DynamicResource AccentBrush}"/>
+
+            <TextBlock Text="AccentBrush"
+                       Background="{DynamicResource AccentBrush}"/>
+
+            <TextBlock Text="AccentColorL"
+                       Background="{DynamicResource AccentLBrush}"/>
+
+            <TextBlock Text="AccentLBrush"
+                       Background="{DynamicResource AccentLBrush}"/>
+
+            <TextBlock Text="AccentColorLL"
+                       Background="{DynamicResource AccentLLBrush}"/>
+
+            <TextBlock Text="AccentLLBrush"
+                       Background="{DynamicResource AccentLLBrush}"
+                       />
+
+            <!-- Borders -->
+            <TextBlock Text="BorderSubtle"
+                       Background="{DynamicResource BorderSubtleBrush}"/>
+
+            <TextBlock Text="BorderSubtleBrush"
+                       Background="{DynamicResource BorderSubtleBrush}"/>
+
+            <TextBlock Text="Border"
+                       Background="{DynamicResource BorderBrush}"/>
+
+            <TextBlock Text="BorderBrush"
+                       Background="{DynamicResource BorderBrush}"/>
+
+            <TextBlock Text="BorderFocus"
+                       Background="{DynamicResource BorderFocusBrush}"/>
+
+            <TextBlock Text="BorderFocusBrush"
+                       Background="{DynamicResource BorderFocusBrush}"/>
+
+            <TextBlock Text="Divider"
+                       Background="{DynamicResource DividerBrush}"/>
+
+            <TextBlock Text="DividerBrush"
+                       Background="{DynamicResource DividerBrush}"/>
+
+            <!-- Success -->
+            <TextBlock Text="SuccessColorD"
+                       Background="{DynamicResource SuccessDBrush}"/>
+
+            <TextBlock Text="SuccessDBrush"
+                       Background="{DynamicResource SuccessDBrush}"/>
+
+            <TextBlock Text="SuccessColor"
+                       Background="{DynamicResource SuccessBrush}"/>
+
+            <TextBlock Text="SuccessBrush"
+                       Background="{DynamicResource SuccessBrush}"/>
+
+            <TextBlock Text="SuccessColorL"
+                       Background="{DynamicResource SuccessLBrush}"/>
+
+            <TextBlock Text="SuccessLBrush"
+                       Background="{DynamicResource SuccessLBrush}"/>
+
+            <!-- Warning -->
+            <TextBlock Text="WarningColorD"
+                       Background="{DynamicResource WarningDBrush}"/>
+
+            <TextBlock Text="WarningDBrush"
+                       Background="{DynamicResource WarningDBrush}"/>
+
+            <TextBlock Text="WarningColor"
+                       Background="{DynamicResource WarningBrush}"/>
+
+            <TextBlock Text="WarningBrush"
+                       Background="{DynamicResource WarningBrush}"/>
+
+            <TextBlock Text="WarningColorL"
+                       Background="{DynamicResource WarningLBrush}"/>
+
+            <TextBlock Text="WarningLBrush"
+                       Background="{DynamicResource WarningLBrush}"/>
+
+            <!-- Danger -->
+            <TextBlock Text="DangerColorD"
+                       Background="{DynamicResource DangerDBrush}"/>
+
+            <TextBlock Text="DangerDBrush"
+                       Background="{DynamicResource DangerDBrush}"/>
+
+            <TextBlock Text="DangerColor"
+                       Background="{DynamicResource DangerBrush}"/>
+
+            <TextBlock Text="DangerBrush"
+                       Background="{DynamicResource DangerBrush}"/>
+
+            <TextBlock Text="DangerColorL"
+                       Background="{DynamicResource DangerLBrush}"/>
+
+            <TextBlock Text="DangerLBrush"
+                       Background="{DynamicResource DangerLBrush}"/>
+
+            <!-- Selection -->
+            <TextBlock Text="SelectionColor"
+                       Background="{DynamicResource SelectionBrush}"/>
+
+            <TextBlock Text="SelectionBrush"
+                       Background="{DynamicResource SelectionBrush}"/>
+
+            <TextBlock Text="SelectionColorL"
+                       Background="{DynamicResource SelectionLBrush}"/>
+
+            <TextBlock Text="SelectionLBrush"
+                       Background="{DynamicResource SelectionLBrush}"/>
+
+            <TextBlock Text="SelectionFocus"
+                       Background="{DynamicResource SelectionFocusBrush}"/>
+
+            <TextBlock Text="SelectionFocusBrush"
+                       Background="{DynamicResource SelectionFocusBrush}"/>
+
+            <TextBlock Text="SelectionTranslucent"
+                       Background="{DynamicResource SelectionTranslucentBrush}"/>
+
+            <TextBlock Text="SelectionTranslucentBrush"
+                       Background="{DynamicResource SelectionTranslucentBrush}"/>
+
+            <!-- Shadows -->
+            <TextBlock Text="ShadowSoft"
+                       Background="{DynamicResource ShadowSoftBrush}"/>
+
+            <TextBlock Text="ShadowSoftBrush"
+                       Background="{DynamicResource ShadowSoftBrush}"/>
+
+            <TextBlock Text="ShadowMedium"
+                       Background="{DynamicResource ShadowMediumBrush}"/>
+
+            <TextBlock Text="ShadowMediumBrush"
+                       Background="{DynamicResource ShadowMediumBrush}"/>
+
+            <TextBlock Text="ShadowHeavy"
+                       Background="{DynamicResource ShadowHeavyBrush}"/>
+
+            <TextBlock Text="ShadowHeavyBrush"
+                       Background="{DynamicResource ShadowHeavyBrush}"/>
+        </UniformGrid>
+    </Design.PreviewWith>
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
             <!-- ========================= -->

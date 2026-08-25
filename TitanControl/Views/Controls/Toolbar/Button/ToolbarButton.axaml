@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:TitanControl.Views.Controls.Toolbar.Buttons"
+             xmlns:controls="using:TitanControl.Views.Controls"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="200" Margin="2"
+             Width="{Binding Bounds.Height, RelativeSource={RelativeSource Self}}"
+             x:DataType="local:ToolbarButton"
+             x:Name="ButtonRoot"
+             x:Class="TitanControl.Views.Controls.Toolbar.Buttons.ToolbarButton" ClipToBounds="False" Classes="drop-m"> 
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border IsVisible="{Binding #ButtonRoot.IsSvg}"> 
+                <controls:TwoToneSvg x:Name="Buttoncontrols" 
+                            PrimaryColor="{DynamicResource Foreground}" 
+                            SecondaryColor="{DynamicResource AccentColorD}" 
+                            Margin="5"
+                            Path="{Binding #ButtonRoot.Path}"/>
+            </Border>
+            
+            <Border IsVisible="{Binding !#ButtonRoot.IsSvg}">
+                <Image x:Name="ButtonImage" Grid.Row="0" Margin="8"/>
+            </Border>
+            
+            <Viewbox Height="27" VerticalAlignment="Bottom" Grid.Row="1" Margin="3">
+                <Border>
+                    <Label x:Name="TextLabel" HorizontalContentAlignment="Center" Foreground="{Binding #ButtonRoot.Foreground}" Content="Test" VerticalContentAlignment="Center" FontSize="16"/>
+                </Border>
+            </Viewbox>
+        </Grid>
+</UserControl>

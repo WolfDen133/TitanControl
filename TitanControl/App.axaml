@@ -5,6 +5,19 @@
              RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://TitanControl/Resources/Converters.axaml"/>
+                <ResourceInclude Source="avares://TitanControl/Themes/Input.axaml"/>
+                <ResourceInclude Source="avares://TitanControl/Resources/Colors.axaml"/>
+                <ResourceInclude Source="avares://TitanControl/Resources/Fonts.axaml"/>
+                <ResourceInclude Source="avares://TitanControl/Resources/Icons.axaml"/>
+                <ResourceInclude Source="avares://TitanControl/Resources/Controls.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme DensityStyle="Compact"/>
         <StyleInclude Source="avares://TitanControl/Styles/Application.axaml"/>
@@ -13,18 +26,6 @@
         <StyleInclude Source="avares://TitanControl/Styles/Navigation.axaml"/>
         <StyleInclude Source="avares://TitanControl/Styles/Controls.axaml"/>
     </Application.Styles>
-
-    <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceInclude Source="avares://TitanControl/Resources/Fonts.axaml"/>
-                <ResourceInclude Source="avares://TitanControl/Resources/Colors.axaml"/>
-                <ResourceInclude Source="avares://TitanControl/Resources/Converters.axaml"/>
-                <ResourceInclude Source="avares://TitanControl/Resources/Controls.axaml"/>
-                <ResourceInclude Source="avares://TitanControl/Resources/Icons.axaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Application.Resources>
 
     <Application.DataTemplates>
         <views:ViewLocator/>

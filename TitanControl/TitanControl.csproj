@@ -9,12 +9,6 @@
 	<LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <AvaloniaXaml Remove="ViewModels\Control\**" />
-    <Compile Remove="ViewModels\Control\**" />
-    <EmbeddedResource Remove="ViewModels\Control\**" />
-    <None Remove="ViewModels\Control\**" />
-  </ItemGroup>
-  <ItemGroup>
     <AvaloniaResource Include="Assets\Icons\*.svg" />
 	<AvaloniaResource Include="Assets\Images\*.png" />
 	<AvaloniaResource Include="Assets\Schemas\*.schema.json" />
@@ -41,11 +35,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Controls\Handle\HandleButtonControl.axaml.cs">
+    <Compile Update="Views\Controls\Handle\HandleButtonControl.axaml.cs">
       <DependentUpon>HandleButtonControl.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Controls\Handle\HandleFaderControl.axaml.cs">
+    <Compile Update="Views\Controls\Handle\HandleFaderControl.axaml.cs">
       <DependentUpon>HandleFaderControl.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Controls\IconButton.axaml.cs">
+      <DependentUpon>IconButton.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Controls\Layout\Field.axaml.cs">
+      <DependentUpon>Field.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\Pages\SessionPage.axaml.cs">
       <DependentUpon>SessionPage.axaml</DependentUpon>

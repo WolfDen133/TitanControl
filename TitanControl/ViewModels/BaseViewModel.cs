@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace TitanControl.ViewModels
+namespace TitanControl.ViewModel
 {
     public class BaseViewModel : ObservableObject
     { }

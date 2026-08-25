@@ -34,5 +34,10 @@ namespace TitanControl.Services.Session
         void StopScanner();
 
         Task ClearScanResultsAsync();
+
+        void IDisposable.Dispose()
+        {
+            return;
+        }
     }
 }

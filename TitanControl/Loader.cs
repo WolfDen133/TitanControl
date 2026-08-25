@@ -17,7 +17,7 @@ class Loader
     {
         Log.Initialize(new LoggerOptions
         {
-            MinimumLevel = AppConstants.Debug ? LogLevel.Debug : LogLevel.Warning,
+            MinimumLevel = LogLevel.Debug,
 
             FlushInterval = TimeSpan.FromSeconds(5),
             LogDirectory = Path.Combine(PathHelper.AppDataPath, "logs"),

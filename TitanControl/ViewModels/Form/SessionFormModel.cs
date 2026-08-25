@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using TitanControl.Services.Session;
-using TitanControl.Validation;
+using TitanControl.ViewModels.Form.Validation;
 
 namespace TitanControl.ViewModels.Page
 {

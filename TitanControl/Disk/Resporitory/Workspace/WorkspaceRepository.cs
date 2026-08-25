@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using TitanControl.Helper;
 using TitanControl.Logging;
@@ -29,7 +28,7 @@ namespace TitanControl.Disk.Resporitory.Workspace
         {
             _record = await _fileHandler.LoadWorkspaceRecord();
 
-            foreach(var entry in _record.Workspaces)
+            foreach (var entry in _record.Workspaces)
             {
                 if (!File.Exists(entry.Value.Path))
                     _record.Workspaces.Remove(entry.Key);

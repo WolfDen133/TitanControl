@@ -8,14 +8,12 @@ namespace TitanControl.Services.Workspace
     public interface IWorkspaceService : IItemService<WorkspaceModel, Guid>
     {
         WorkspaceModel CurrentWorkspace { get; }
-        bool HasWorkspace { get; } 
+        bool HasWorkspace { get; }
         bool HasLastWorkspace { get; }
 
         string[] WorkspaceNames { get; }
 
         event EventHandler<WorkspaceEventArgs>? WorkspaceCreated;
-        event EventHandler<WorkspaceEventArgs>? WorkspaceDeleted;
-        event EventHandler<WorkspaceEventArgs>? WorkspaceModified;
         event EventHandler<WorkspaceEventArgs>? WorkspaceSaved;
         event EventHandler<WorkspaceEventArgs>? WorkspacedLoaded;
 

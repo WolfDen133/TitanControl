@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Net;
+using System.Threading.Tasks;
 using TitanControl.Events.Session;
 using TitanControl.WebAPI;
 
 namespace TitanControl.Services.Session
 {
-    public interface ISession : IDisposable, INotifyPropertyChanged
+    public interface ISession : IAsyncDisposable, INotifyPropertyChanged
     {
         Guid ID { get; }
         string Name { get; set; }
@@ -25,8 +26,8 @@ namespace TitanControl.Services.Session
         DateTime? ConnectedAt { get; }
         bool IsSelected { get; set; }
 
-        void Start(IPAddress selectedInterface);
-        void Stop();
+        Task Start(IPAddress selectedInterface);
+        Task Stop();
         void Enable(bool enabled = true);
 
         event EventHandler<SessionStateChangedEventArgs>? StateChanged;

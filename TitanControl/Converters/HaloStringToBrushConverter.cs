@@ -1,10 +1,8 @@
-using Avalonia;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using System;
 using System.Globalization;
-using TitanControl.Services.Session;
 
 namespace TitanControl.Converters
 {
@@ -23,7 +21,8 @@ namespace TitanControl.Converters
                     BindingErrorType.Error);
             }
 
-            var color = Color.Parse(hex);
+            if (!Color.TryParse(hex, out Color color))
+                return BindingOperations.DoNothing;
 
             // No opacity parameter — preserve alpha from the hex value.
             if (parameter is null ||

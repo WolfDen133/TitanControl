@@ -89,6 +89,8 @@ namespace TitanControl.Services.Session
 
         public async Task InitializeAsync()
         {
+            ThrowIfDisposed();
+
             await LoadAsync();
         }
 
@@ -123,7 +125,7 @@ namespace TitanControl.Services.Session
                 throw ex;
             }
 
-            session.Dispose();
+            await session.DisposeAsync();
             Sessions.Remove(session);
 
             Log.Information(
@@ -438,33 +440,7 @@ namespace TitanControl.Services.Session
             }
 
             foreach (ISession session in Sessions.ToArray())
-                session.Dispose();
-
-            Sessions.Clear();
-            _scanResults.Clear();
-
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Kept for IDisposable/ISessionManager compatibility. Prefer
-        /// DisposeAsync at application shutdown so the scanner is fully awaited.
-        /// </summary>
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-
-            _disposed = true;
-
-            if (_scanner is not null)
-            {
-                DetachScanner(_scanner);
-                _scanner.Stop();
-            }
-
-            foreach (ISession session in Sessions.ToArray())
-                session.Dispose();
+                await session.DisposeAsync();
 
             Sessions.Clear();
             _scanResults.Clear();

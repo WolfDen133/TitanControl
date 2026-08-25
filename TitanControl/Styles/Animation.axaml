@@ -1,9 +1,36 @@
 <Styles xmlns="https://github.com/avaloniaui"
+        xmlns:buttons="using:TitanControl.Views.Controls.Toolbar.Buttons"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:common="using:TitanControl.Controls.Common">
+        xmlns:common="using:TitanControl.Views.Controls.Common"
+        xmlns:handle="using:TitanControl.Views.Controls.Handle"
+        xmlns:input="using:TitanControl.Views.Controls.Input"
+        xmlns:layout="using:TitanControl.Views.Controls.Layout"
+        xmlns:menu="using:TitanControl.Views.Controls.Menu"
+        xmlns:titancontrol="using:TitanControl"
+        xmlns:grid="using:TitanControl.Views.Controls.Layout.Grid">
   <Design.PreviewWith>
-    <Border Padding="20">
-      <!-- Add Controls for Previewer Here -->
+    <Border Padding="20" Background="{DynamicResource BackgroundBrush}">
+        <StackPanel Width="200" Spacing="5">
+            <TextBox PlaceholderText="TextInput" Classes="app-input"/>
+            <NumericUpDown PlaceholderText="20" Classes="app-input"/>
+            <ComboBox Classes="app-input" SelectedIndex="0">
+                <ComboBox.Items>
+                    <ComboBoxItem>
+                        Hello
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        World
+                    </ComboBoxItem>
+                </ComboBox.Items>
+            </ComboBox>
+            <Button Content="Button" Classes="app-input" BorderBrush="{DynamicResource BorderBrush}"/>
+            <CheckBox/>
+            <handle:HandleButtonControl/>
+            <handle:HandleFaderControl/>
+            <buttons:ToolbarButton Height="100" Text="Button" Path="/Assets/Icons/add-control.svg"/>
+            <buttons:ToolbarButton Height="100" Text="Toggle" Toggle="True" Path="/Assets/Icons/save.svg"/>
+        </StackPanel>
+      
     </Border>
   </Design.PreviewWith>
 
@@ -54,7 +81,7 @@
         </Animation>
         </Style.Animations>
     </Style>
-    <Style Selector="Border">
+        <Style Selector="Border">
         <Setter Property="Transitions">
             <Transitions>
                 <BrushTransition Property="Background"
@@ -73,18 +100,18 @@
             </Transitions>
         </Setter>
     </Style>
-    <Style Selector="ContentPresenter">
+    <Style Selector="buttons|ToolbarButton">
         <Setter Property="Transitions">
             <Transitions>
                 <BrushTransition Property="Background"
-                                    Duration="0:0:0.25">
+                                    Duration="0:0:0.20">
                     <BrushTransition.Easing>
                         <CubicEaseOut/>
                     </BrushTransition.Easing>
                 </BrushTransition>
 
                 <BrushTransition Property="BorderBrush"
-                                    Duration="0:0:0.25">
+                                    Duration="0:0:0.20">
                     <BrushTransition.Easing>
                         <CubicEaseOut/>
                     </BrushTransition.Easing>
@@ -92,22 +119,121 @@
             </Transitions>
         </Setter>
     </Style>
-    <Style Selector="UserControl">
+
+     <Style Selector="buttons|ToolbarButton, Button, ComboBox, CheckBox, TextBox, NumericUpDown">
         <Setter Property="Transitions">
             <Transitions>
                 <BrushTransition Property="Background"
-                                    Duration="0:0:0.25">
+                                    Duration="0:0:0.20">
                     <BrushTransition.Easing>
                         <CubicEaseOut/>
                     </BrushTransition.Easing>
                 </BrushTransition>
 
                 <BrushTransition Property="BorderBrush"
-                                    Duration="0:0:0.25">
+                                    Duration="0:0:0.20">
                     <BrushTransition.Easing>
                         <CubicEaseOut/>
                     </BrushTransition.Easing>
                 </BrushTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+     <Style Selector="menu|SessionOverview">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background"
+                                    Duration="0:0:0.20">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+
+                <BrushTransition Property="BorderBrush"
+                                    Duration="0:0:0.20">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+     <Style Selector="menu|SessionOverview Border">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background"
+                                    Duration="0:0:0.20">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+
+                <BrushTransition Property="BorderBrush"
+                                    Duration="0:0:0.20">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Border.smooth">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background"
+                                    Duration="0:0:0.20">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+
+                <BrushTransition Property="BorderBrush"
+                                    Duration="0:0:0.20">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="TextBlock">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground"
+                                    Duration="0:0:0.20">
+                    <BrushTransition.Easing>
+                        <CubicEaseOut/>
+                    </BrushTransition.Easing>
+                </BrushTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Rectangle, grid|GridLines, Border">
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity"
+                                    Duration="0:0:0.20">
+                    <DoubleTransition.Easing>
+                        <CubicEaseInOut/>
+                    </DoubleTransition.Easing>
+                </DoubleTransition>
+
+                <DoubleTransition Property="Opacity"
+                                    Duration="0:0:0.20">
+                    <DoubleTransition.Easing>
+                        <CubicEaseInOut/>
+                    </DoubleTransition.Easing>
+                </DoubleTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Panel.sliding, titancontrol|Toolbar">
+        <Setter Property="Transitions">
+                <Transitions>
+                <DoubleTransition
+                    Property="Opacity"
+                    Easing="CubicEaseInOut"
+                    Duration="0:0:0.3"/>
             </Transitions>
         </Setter>
     </Style>

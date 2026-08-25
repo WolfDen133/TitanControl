@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using TitanControl.Controls.Handle;
+﻿using System.Drawing;
 using TitanControl.Services.Session;
+using TitanControl.Views.Controls.Handle;
 using TitanControl.WebAPI.Data;
 
 namespace TitanControl.Models.Control

@@ -1,9 +1,6 @@
 ﻿using Json.Schema;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -53,7 +50,7 @@ namespace TitanControl.Disk.Json
                 Log.Error(ex, $"JSON could not be validated.", LoggingCategory);
                 throw ex;
             }
-            
+
             object? modelObject = JsonSerializer.Deserialize(json, type, Options);
 
             if (modelObject is not ISaveModel saveModel)

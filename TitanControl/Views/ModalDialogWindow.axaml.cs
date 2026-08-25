@@ -32,13 +32,13 @@ public partial class ModalDialogWindow : Window
     }
 
     [RelayCommand]
-    public void AcceptCommand()
+    public void Accept()
     {
         Close(true);
     }
 
     [RelayCommand]
-    public void DeclineCommand()
+    public void Decline()
     {
         Close(false);
     }

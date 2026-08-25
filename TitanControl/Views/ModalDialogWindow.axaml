@@ -1,5 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:common="using:TitanControl.Controls.Common"
+        xmlns:control="using:TitanControl.Views.Controls"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="using:TitanControl.Views"
@@ -24,16 +24,16 @@
                 </Border>
                 <ContentControl Grid.Row="2" IsVisible="{Binding Content, Converter={StaticResource ObjectIsNullConverter}}" Content="{Binding Content}" IsEnabled="True"/>
                 <Grid ColumnDefinitions="*, *" Grid.Row="2" ColumnSpacing="10">
-                    <common:IconButton Text="Accept" Command="{Binding AcceptCommand}" BorderBrush="{DynamicResource SuccessBrush}">
-                        <common:IconButton.Icon>
+                    <control:IconButton x:Name="Yes" Text="Accept" Command="{Binding AcceptCommand}" BorderBrush="{DynamicResource SuccessBrush}">
+                        <control:IconButton.Icon>
                             <Svg SvgSource="{StaticResource TickSource}" CurrentColor="{DynamicResource SuccessColorL}"/>
-                        </common:IconButton.Icon>
-                    </common:IconButton>
-                    <common:IconButton Text="Decline" Grid.Column="1" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1" Command="{Binding DeclineCommand}" IsEnabled="True">
-                        <common:IconButton.Icon>
+                        </control:IconButton.Icon>
+                    </control:IconButton>
+                    <control:IconButton x:Name="No" Text="Decline" Grid.Column="1" BorderBrush="{DynamicResource DangerBrush}" Command="{Binding DeclineCommand}" IsEnabled="True">
+                        <control:IconButton.Icon>
                             <Svg SvgSource="{StaticResource CrossSource}" CurrentColor="{DynamicResource DangerColorL}"/>
-                        </common:IconButton.Icon>
-                    </common:IconButton>
+                        </control:IconButton.Icon>
+                    </control:IconButton>
                 </Grid>
             </Grid>
         </Border>
