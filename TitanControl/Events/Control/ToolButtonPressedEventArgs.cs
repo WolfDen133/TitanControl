@@ -6,7 +6,7 @@ namespace TitanControl.Events.Control
 {
     public class ToolButtonPressedEventArgs : EventArgs
     {
-        public required ToolbarButton.ButtonAction ButtonAction { get; init; }
+        public required ButtonAction ButtonAction { get; init; }
         public required ButtonId ButtonId { get; init; }
     }
 }

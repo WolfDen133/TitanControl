@@ -8,7 +8,7 @@ namespace TitanControl.ViewModels.Controls
         private string _session = "Titan Session";
         private string _workspace = "Default";
         private string _status = "Ready";
-        private SessionConnectionState _state = SessionConnectionState.Unreachable;
+        private SessionConnectionState _state = SessionConnectionState.Disabled;
 
         public string Version => AppConstants.AppVersion.ToString();
         public string Author => AppConstants.Author;

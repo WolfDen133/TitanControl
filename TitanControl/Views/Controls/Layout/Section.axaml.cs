@@ -5,9 +5,6 @@ namespace TitanControl.Views.Controls.Layout;
 
 public class Section : ContentControl
 {
-    private bool _isDisabled = false;
-    private double _disabledOpacity = 1.0;
-
     public static readonly StyledProperty<object?> HeaderContentProperty =
         AvaloniaProperty.Register<Section, object?>(nameof(HeaderContent));
 

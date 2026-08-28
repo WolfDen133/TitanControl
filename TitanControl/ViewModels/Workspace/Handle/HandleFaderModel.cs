@@ -1,7 +1,7 @@
 ﻿using TitanControl.Models.Control;
 using TitanControl.Services.Session;
 
-namespace TitanControl.ViewModels.Controls.Handle
+namespace TitanControl.ViewModels.Workspace.Handle
 {
     public class HandleFaderModel : HandleControlModel<ControlModel>
     {

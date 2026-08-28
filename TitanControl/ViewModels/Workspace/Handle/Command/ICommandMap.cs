@@ -2,7 +2,7 @@
 using TitanControl.Views.Controls.Handle;
 using TitanControl.WebAPI.Data;
 
-namespace TitanControl.ViewModels.Controls.Handle.Command
+namespace TitanControl.ViewModels.Workspace.Handle.Command
 {
     public interface ICommandMap<TitanControlModel>
     {

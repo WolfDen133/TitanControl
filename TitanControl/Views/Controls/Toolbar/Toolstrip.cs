@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using TitanControl.Logging;
+using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.Views.Controls.Toolbar.Buttons;
 using Control = Avalonia.Controls.Control;
 
@@ -108,7 +109,7 @@ namespace TitanControl.Views.Controls.Toolbar
 
         private async void OnButtonClick(
             object? sender,
-            ToolbarButton.ButtonAction action)
+            ButtonAction action)
         {
             if (sender is not ToolbarButton selectedButton)
                 return;

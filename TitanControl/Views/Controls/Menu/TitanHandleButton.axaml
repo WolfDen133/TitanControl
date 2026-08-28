@@ -1,0 +1,189 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:TitanControl"
+        xmlns:data="using:TitanControl.WebAPI.Data">
+
+  <!--
+    Additional resources 
+    Using Control Themes:
+         https://docs.avaloniaui.net/docs/basics/user-interface/styling/control-themes
+    Using Theme Variants:
+         https://docs.avaloniaui.net/docs/guides/styles-and-resources/how-to-use-theme-variants
+  -->
+  
+  <Design.PreviewWith>
+    <Border Background="{DynamicResource BackgroundLBrush}" Padding="10">      
+        <UniformGrid RowSpacing="10" ColumnSpacing="10">
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.None}"
+                Legend="None"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Fixture}"
+                Legend="Fixture"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Group}"
+                Legend="Group"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Cue}"
+                Legend="Cue"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.CueList}"
+                Legend="Cue List"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Chase}"
+                Legend="Chase"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Track}"
+                Legend="Track"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Palette}"
+                Legend="Palette"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Macro}"
+                Legend="Macro"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Master}"
+                Legend="Master"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Scene}"
+                Legend="Scene"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.Rate}"
+                Legend="Rate"/>
+
+            <controls:TitanHandleButton
+                HandleType="{x:Static data:HandleType.PlaybackGroup}"
+                Legend="Playback Group"/>
+        </UniformGrid>
+    </Border>
+  </Design.PreviewWith>
+ 
+    <ControlTheme 
+        x:Key="{x:Type controls:TitanHandleButton}" 
+        TargetType="controls:TitanHandleButton"
+        x:DataType="controls:TitanHandleButton">
+        <Setter Property="CornerRadius" Value="15"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Background" Value="{StaticResource TitanGroupBrush}"/>
+        <Setter Property="Width" Value="200"/>
+        <Setter Property="Height" Value="110"/>
+        <Setter Property="BorderBrush" Value="{Binding Halo, RelativeSource={RelativeSource Self},
+                            Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.5}"/>
+
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <Border x:Name="PART_Border"
+                            ZIndex="10"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            ClipToBounds="True">
+                            <Border x:Name="PART_Overlay"
+                                       ZIndex="20"
+                                       CornerRadius="{TemplateBinding CornerRadius}"
+                                       Background="{DynamicResource TitanSelectionMaskBrush}"
+                                       Opacity="0"
+                                       IsHitTestVisible="False"/>
+                    </Border>
+                    
+                    <Panel 
+                        Margin="8" 
+                        ZIndex="30">
+                        <TextBlock
+                            FontWeight="Regular"
+                            FontSize="16"
+                            Text="{TemplateBinding UserNumber}"
+                            Foreground="{TemplateBinding Foreground}"/>
+                        <TextBlock 
+                            TextWrapping="Wrap" 
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center" 
+                            FontWeight="Normal" 
+                            FontSize="20" 
+                            Text="{TemplateBinding Legend}"
+                            Foreground="{TemplateBinding Foreground}"/>
+                    </Panel>
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+
+
+        <Style Selector="^:hover">
+            <Setter Property="BorderBrush" Value="{Binding Halo, RelativeSource={RelativeSource Self},
+                            Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.7}"/>
+            <Style Selector="^ Border#PART_Overlay">
+                <Setter Property="Opacity" Value="0.4"/>
+            </Style>
+        </Style>
+
+        <Style Selector="^:click">
+            <Setter Property="BorderBrush" Value="{Binding Halo, RelativeSource={RelativeSource Self},
+                            Converter={StaticResource HaloStringToBrushConverter}}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BackgroundDDBrush}"/>
+            <Style Selector="^ Border#PART_Overlay">
+                <Setter Property="Opacity" Value="0.8"/>
+            </Style>
+        </Style>
+
+        <Style Selector="^.fixture">
+            <Setter Property="Background" Value="{StaticResource TitanFixtureBrush}"/>
+        </Style>
+
+        <Style Selector="^.group">
+            <Setter Property="Background" Value="{StaticResource TitanGroupBrush}"/>
+        </Style>
+
+        <Style Selector="^.cue">
+            <Setter Property="Background" Value="{StaticResource TitanCueBrush}"/>
+        </Style>
+
+        <Style Selector="^.cuelist">
+            <Setter Property="Background" Value="{StaticResource TitanCueBrush}"/>
+        </Style>
+
+        <Style Selector="^.chase">
+            <Setter Property="Background" Value="{StaticResource TitanCueBrush}"/>
+        </Style>
+
+        <Style Selector="^.track">
+            <Setter Property="Background" Value="{StaticResource TitanCueBrush}"/>
+        </Style>
+
+        <Style Selector="^.palette">
+            <Setter Property="Background" Value="{StaticResource TitanPaletteBrush}"/>
+        </Style>
+
+        <Style Selector="^.macro">
+            <Setter Property="Background" Value="{StaticResource TitanMacroBrush}"/>
+        </Style>
+
+        <Style Selector="^.master">
+            <Setter Property="Background" Value="{StaticResource TitanMasterBrush}"/>
+        </Style>
+
+        <Style Selector="^.scene">
+            <Setter Property="Background" Value="{StaticResource TitanSceneBrush}"/>
+        </Style>
+
+        <Style Selector="^.rate">
+            <Setter Property="Background" Value="{StaticResource TitanMasterBrush}"/>
+        </Style>
+
+        <Style Selector="^.playbackgroup">
+            <Setter Property="Background" Value="{StaticResource TitanGroupBrush}"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

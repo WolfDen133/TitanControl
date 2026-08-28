@@ -1,5 +1,5 @@
 ﻿using TitanControl.Services.Session;
-using TitanControl.ViewModels.Controls.Handle;
+using TitanControl.ViewModels.Workspace.Handle;
 using TitanControl.Views.Controls.Handle;
 
 namespace TitanControl.Models.Control

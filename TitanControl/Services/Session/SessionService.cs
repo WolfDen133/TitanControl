@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -6,7 +7,9 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using TitanControl.Disk.Resporitory.Session;
+using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.Models.Session;
 using TitanControl.Services.Workspace;
@@ -30,6 +33,7 @@ namespace TitanControl.Services.Session
         private TimeSpan _scannerDelay;
         private int _scannerConcurrency;
         private bool _scannerUseHttps;
+        private Dictionary<string, IPAddress> _nics = null!;
 
         private ISession? _currentSession;
 
@@ -46,18 +50,24 @@ namespace TitanControl.Services.Session
             get => _currentSession;
             private set
             {
+                _currentSession = value;
+                OnPropertyChanged(nameof(CurrentSession));
+            }
+        }
+
+        public Dictionary<string, IPAddress> Nics
+        {
+            get => _nics;
+            private set
+            {
                 if (value != null)
                 {
-                    _currentSession = value;
-                    OnPropertyChanged(nameof(CurrentSession));
+                    _nics = value;
+                    OnPropertyChanged(nameof(Nics));
                 }
             }
         }
 
-        /// <summary>
-        /// Newly discovered sessions. This collection object is also stable for
-        /// the lifetime of SessionManager, even if the scanner/NIC is replaced.
-        /// </summary>
         public ReadOnlyObservableCollection<ISession> ScanResults =>
             _readOnlyScanResults;
 
@@ -70,9 +80,7 @@ namespace TitanControl.Services.Session
         public IPAddress? ScannerInterfaceAddress =>
             _scanner?.LocalInterfaceAddress;
 
-        /// <summary>
-        /// Forwarded from the manager-owned SessionScanner.
-        /// </summary>
+
         public event EventHandler<bool>? ScannerRunningChanged;
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -91,6 +99,7 @@ namespace TitanControl.Services.Session
         {
             ThrowIfDisposed();
 
+            Nics = NicHelper.GetNics();
             await LoadAsync();
         }
 
@@ -150,6 +159,55 @@ namespace TitanControl.Services.Session
             return session;
         }
 
+        public async Task Select(Guid id)
+        {
+            ThrowIfDisposed();
+
+            if (id == Guid.Empty)
+            {
+                if (CurrentSession == null)
+                    return;
+
+                var disablingSession = CurrentSession;
+
+                await disablingSession.Stop();
+                disablingSession?.Disable();
+
+                CurrentSession = null;
+                _workspaceService.CurrentWorkspace.Options.Session = Guid.Empty;
+
+                Log.Information($"Disabled session: {disablingSession!.Name}", LoggingCategory);
+
+                return;
+            }
+
+            var session = Sessions.FirstOrDefault(s => s.ID == id);
+
+            if (session is null)
+            {
+                var ex = new InvalidOperationException("Session could not be found.");
+                Log.Error(ex, $"The session with ID {id} does not exist in the collection.", LoggingCategory);
+                throw ex;
+            }
+
+            foreach(var other in Sessions.Where(s => s.ID != id))
+            {
+                if (other.State == SessionConnectionState.Disabled)
+                    continue;
+
+                await other.Stop();
+                other.Disable();
+                Log.Information($"Disabled session: {other.Name}", LoggingCategory);
+            }
+
+            session.Enable();
+
+            _workspaceService.CurrentWorkspace.Options.Session = session.ID;
+            CurrentSession = session;
+           
+            Log.Information($"Enabled session: {session.Name}", LoggingCategory);
+        }
+
         public async Task SaveAsync()
         {
             ThrowIfDisposed();
@@ -162,7 +220,9 @@ namespace TitanControl.Services.Session
                 ScannerTimeout = _scannerConnectionTimeout.Milliseconds,
                 ScannerDelay = _scannerDelay.Seconds,
                 ScannerUseHttps = _scannerUseHttps,
-                Sessions = Sessions.Select(s => (SessionSaveModel)s.ToModel()).ToList()
+                Sessions = Sessions
+                    .Select(s => (SessionSaveModel)s.ToModel())
+                    .ToList()
             };
 
             await _sessionRepository.SaveAsync(record);
@@ -178,6 +238,9 @@ namespace TitanControl.Services.Session
 
             var sessionRecord = await _sessionRepository.LoadAsync();
 
+            if (sessionRecord.LocalInterface != null && !Nics.ContainsValue(sessionRecord.LocalInterface))
+                sessionRecord.LocalInterface = new IPAddress([127, 0, 0, 1]);
+            
             await ConfigureScannerAsync(
                 sessionRecord.LocalInterface ?? IPAddress.Loopback,
                 TimeSpan.FromSeconds(sessionRecord.ScannerDuration),
@@ -277,7 +340,7 @@ namespace TitanControl.Services.Session
                 Sessions,
                 cancellationToken);
         }
-
+  
         public void StopScanner()
         {
             ThrowIfDisposed();

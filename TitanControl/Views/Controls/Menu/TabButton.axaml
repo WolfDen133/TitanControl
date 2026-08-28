@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:TitanControl.Views.Controls.Menu"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="150" d:DesignHeight="40"
+             x:Class="TitanControl.Views.Controls.Menu.TabButton"
+             x:Name="ButtonRoot"
+             x:DataType="local:TabButton">
+  <Button
+      Background="{DynamicResource BackgroundLBrush}"
+      Command="{Binding #ButtonRoot.Command}"
+      CommandParameter="{Binding #ButtonRoot.CommandParameter}"
+      BorderBrush="{DynamicResource BorderSubtleBrush}">
+      <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
+            <ContentControl 
+                Height="30" 
+                Width="30" 
+                IsVisible="{Binding #ButtonRoot.Icon, 
+                    Converter={StaticResource InvertedObjectIsNullConverter}}" 
+                Content="{Binding #ButtonRoot.Icon}"/>
+            <TextBlock 
+                Grid.Column="1" 
+                Text="{Binding #ButtonRoot.Text}"/>
+            <ContentControl 
+                Grid.Column="2" 
+                IsVisible="{Binding #ButtonRoot.RightContent, 
+                    Converter={StaticResource InvertedObjectIsNullConverter}}" 
+                Content="{Binding #ButtonRoot.RightContent}"/>
+      </Grid>
+  </Button>
+</UserControl>

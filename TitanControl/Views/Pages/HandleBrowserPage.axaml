@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:controls="using:TitanControl.Views.Controls"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="1000"
+             x:Class="TitanControl.Views.Pages.HandleBrowserPage">
+  <Border Background="{DynamicResource BackgroundBrush}">
+      <Grid RowDefinitions="Auto, *, Auto">
+          <Border Background="{DynamicResource BackgroundLLBrush}" Padding="10"
+                  BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="0,0,0,1">
+              <Panel>
+                  <StackPanel Margin="5" Spacing="8">
+                      <TextBlock Classes="h1" Text="Handle Browser"/>
+                      <TextBlock Classes="h3" Text="Select an item to import" Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
+                  </StackPanel>
+                  <controls:IconButton 
+                      HorizontalAlignment="Right" 
+                      VerticalAlignment="Top"
+                      BorderBrush="{DynamicResource BorderBrush}">
+                    <controls:IconButton.Icon>
+                        <Border Padding="5">
+                            <Svg Width="28" Height="28" CurrentColor="{DynamicResource Foreground}" Path="/Assets/Icons/cross.svg"/>
+                        </Border>
+                    </controls:IconButton.Icon>
+                  </controls:IconButton>
+              </Panel>
+          </Border>
+          <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
+              <Border Background="{DynamicResource BackgroundBrush}" Padding="10"
+                  BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="0,0,1,0">
+                  <Grid RowDefinitions="Auto, *" RowSpacing="10">
+                      <TextBox PlaceholderText="Search handles..." Padding="12, 10">
+                          <TextBox.InnerRightContent>
+                              
+                                <Svg 
+                                    HorizontalAlignment="Right" 
+                                    VerticalAlignment="Center"
+                                    Height="20" 
+                                    Width="20" 
+                                    CurrentColor="{DynamicResource Foreground}" 
+                                    Path="/Assets/Icons/magnifer.svg"/>
+                              
+                          </TextBox.InnerRightContent>
+                      </TextBox>
+                      <StackPanel Grid.Row="1">
+                          
+                      </StackPanel>
+                  </Grid>
+              </Border>
+          </Grid>
+          <Border Grid.Row="2" Background="{DynamicResource BackgroundLLBrush}" Padding="10"
+                  BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="0,1,0,0">
+              
+          </Border>
+      </Grid>
+  </Border>
+</UserControl>

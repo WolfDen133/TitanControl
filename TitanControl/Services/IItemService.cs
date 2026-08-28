@@ -17,5 +17,10 @@ namespace TitanControl.Services
         {
             return null!;
         }
+
+        Task Select(TKey id)
+        {
+            return null!;
+        }
     }
 }

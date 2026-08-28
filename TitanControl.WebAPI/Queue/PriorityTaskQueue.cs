@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using TitanControl.WebAPI.Queue.Interface;
 using TitanControl.Logging;
+using TitanControl.WebAPI.Queue.Interface;
 
 namespace TitanControl.WebAPI.Queue
 {
@@ -247,13 +248,14 @@ namespace TitanControl.WebAPI.Queue
             if (Interlocked.Exchange(ref _started, 0) == 0)
                 return;
 
+            var sw = Stopwatch.StartNew();
+
             Log.Information(
                 "Stopping priority task queue.",
-                category: "TaskQueue");
+                "TaskQueue");
 
             _shutdownCts.Cancel();
 
-            // Wake the worker if it is waiting for an item.
             try
             {
                 _signal.Release();
@@ -267,6 +269,7 @@ namespace TitanControl.WebAPI.Queue
 
             if (worker is not null)
             {
+
                 try
                 {
                     await worker.ConfigureAwait(false);
@@ -274,26 +277,13 @@ namespace TitanControl.WebAPI.Queue
                 catch (OperationCanceledException)
                     when (_shutdownCts.IsCancellationRequested)
                 {
-                    // Expected during shutdown.
-                }
-                catch (Exception exception)
-                {
-                    Log.Critical(
-                        exception,
-                        "An error occurred while stopping the priority task queue.",
-                        category: "TaskQueue");
                 }
             }
 
+
             CancelPendingItems();
 
-            /*
-             * Ensure errors produced during shutdown are written immediately.
-             *
-             * Replace this with the exact flush method from your logger if it
-             * has a different name.
-             */
-            await Log.FlushAsync().ConfigureAwait(false);
+            await Log.FlushAsync().ConfigureAwait(false);;
         }
 
         public void Stop()

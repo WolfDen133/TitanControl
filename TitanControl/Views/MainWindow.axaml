@@ -2,7 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:layout="using:TitanControl.Views.Controls.Layout"
-        xmlns:local="using:TitanControl"
+        xmlns:local="using:TitanControl.Views"
+        xmlns:toolbar="using:TitanControl.Views.Controls.Toolbar"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:pages="using:TitanControl.Views.Pages"
         xmlns:viewmodels="using:TitanControl.ViewModel"
@@ -32,16 +33,16 @@
                         Duration="0:0:0.3"/>
                 </Transitions>
             </Panel.Transitions>
-            <local:Toolbar x:Name="PART_Toolbar" DataContext="{Binding ToolbarModel}" VerticalAlignment="Bottom"/>
+            <toolbar:Toolbar x:Name="PART_Toolbar" DataContext="{Binding ToolbarModel}" VerticalAlignment="Bottom"/>
         </Panel>
         <Grid x:Name="PageAnchor"
               Grid.Row="1"
               ClipToBounds="True">
 
             <!-- Base / root page -->
-            <pages:WorkspacePage
+            <local:WorkspaceView
                 ZIndex="10"
-                DataContext="{Binding WorkspacePage}"
+                DataContext="{Binding WorkspaceModel}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"/>
 
@@ -77,17 +78,30 @@
                 </Panel.RenderTransform>
 
                 
-
-                <Border ClipToBounds="True" 
-                        Margin="5 0 5 5" 
-                        BorderBrush="{DynamicResource AccentBrush}" 
-                        BorderThickness="2 0 2 2" 
-                        CornerRadius="0 10">
-                    <pages:SessionPage
-                        DataContext="{Binding SessionPage}"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        CornerRadius="10"/>
+                <Border 
+                    x:Name="PageBorder"
+                    Margin="5 0 5 5" 
+                    BorderBrush="{DynamicResource AccentBrush}" 
+                    BorderThickness="2 0 2 2" 
+                    CornerRadius="0 10">
+                        <Border
+                            x:Name="PageClip"
+                            CornerRadius="0 8"
+                            ClipToBounds="True">
+                        <Panel>
+                            <pages:SessionPage
+                                DataContext="{x:Null}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                CornerRadius="10"/>
+                        
+                            <pages:HandleBrowserPage
+                                DataContext="{x:Null}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                CornerRadius="10"/>
+                        </Panel>
+                    </Border>
                 </Border>
             </Panel>
 

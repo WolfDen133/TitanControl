@@ -115,7 +115,12 @@ namespace TitanControl.WebAPI
         public void Stop()
         {
             _queue.Stop();
-        }   
+        }
+
+        public Task StopAsync()
+        {
+            return _queue.StopAsync();
+        }
 
         public Device? ConnectedDevice { get; set; }
 
@@ -128,7 +133,7 @@ namespace TitanControl.WebAPI
                 try
                 {
 
-                    var response = await _http.GetAsync("titan/get/2/Titan/DeviceInfo");
+                    var response = await _http.GetAsync("titan/get/2/Titan/DeviceInfo", token);
 
                     if (response.IsSuccessStatusCode)
                     {

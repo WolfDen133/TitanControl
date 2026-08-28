@@ -7,6 +7,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using System;
 using System.Collections.ObjectModel;
+using TitanControl.Views.Controls.Toolbar.Button;
 
 namespace TitanControl.Views.Controls.Toolbar.Buttons
 {
@@ -212,13 +213,6 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
             }
 
             return Brushes.Black;
-        }
-
-        public enum ButtonAction
-        {
-            Click,
-            ToggleDown,
-            ToggleUp,
         }
     }
 }

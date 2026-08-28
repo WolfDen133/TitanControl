@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using TitanControl.Models;
 using TitanControl.Models.Control;
 using TitanControl.Services.Session;
-using TitanControl.ViewModels.Controls.Handle.Command;
+using TitanControl.ViewModels.Workspace.Handle.Command;
 using TitanControl.Views.Controls.Handle;
 using TitanControl.WebAPI.Data;
 using HandleInformation = TitanControl.WebAPI.Data.Model.Handle;
 
-namespace TitanControl.ViewModels.Controls.Handle
+namespace TitanControl.ViewModels.Workspace.Handle
 {
     public abstract class HandleControlModel<TModel>
         : ObservableObject, IHandleControl<TModel>, ISaveable

@@ -3,10 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:grid="using:TitanControl.Views.Controls.Layout.Grid"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:page="using:TitanControl.ViewModels.Page"
+             xmlns:page="using:TitanControl.ViewModels.Workspace"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="TitanControl.Views.Pages.WorkspacePage"
-             x:DataType="page:WorkspacePageModel">
+             x:Class="TitanControl.Views.WorkspaceView"
+             x:DataType="page:WorkspaceViewModel">
   <grid:ControlGrid x:Name="PART_ControlGrid" Controls="{Binding Controls}"
                     Rows="{Binding CurrentWorkspace.Options.GridSize.Height}"
                     Columns="{Binding CurrentWorkspace.Options.GridSize.Width}"/>

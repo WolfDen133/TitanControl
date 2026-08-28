@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
@@ -14,11 +15,9 @@ namespace TitanControl.Converters
             object? parameter,
             CultureInfo culture)
         {
-            if (value is not string hex)
+            if (value is not string hex || string.IsNullOrWhiteSpace(hex))
             {
-                return new BindingNotification(
-                    new ArgumentException($"Expected {nameof(String)}."),
-                    BindingErrorType.Error);
+                return AvaloniaProperty.UnsetValue;
             }
 
             if (!Color.TryParse(hex, out Color color))

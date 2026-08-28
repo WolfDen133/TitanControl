@@ -28,7 +28,8 @@ namespace TitanControl.Services.Session
 
         Task Start(IPAddress selectedInterface);
         Task Stop();
-        void Enable(bool enabled = true);
+        void Enable();
+        void Disable();
 
         event EventHandler<SessionStateChangedEventArgs>? StateChanged;
     }

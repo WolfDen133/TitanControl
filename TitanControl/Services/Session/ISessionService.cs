@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading;
@@ -13,6 +14,7 @@ namespace TitanControl.Services.Session
         ISession? CurrentSession { get; }
 
         ReadOnlyObservableCollection<ISession> ScanResults { get; }
+        Dictionary<string, IPAddress> Nics { get; }
 
         bool IsScannerRunning { get; }
 

@@ -36,16 +36,16 @@ namespace TitanControl.WebAPI
                 {
                     if (pageIndex > 0)
                     {
-                        return await http.GetFromJsonAsync<Handle[]>($"titan/handles/{handleGroupId}{(verbose ? "?verbose=true" : "")}");
+                        return await http.GetFromJsonAsync<Handle[]>($"titan/handles/{handleGroupId}{(verbose ? "?verbose=true" : "")}", token);
                     }
                     else
                     {
-                        return await http.GetFromJsonAsync<Handle[]>($"titan/handles/{handleGroupId}/{pageIndex}{(verbose ? "?verbose=true" : "")}");
+                        return await http.GetFromJsonAsync<Handle[]>($"titan/handles/{handleGroupId}/{pageIndex}{(verbose ? "?verbose=true" : "")}",  token);
                     }
                 }
                 else
                 {
-                    return await http.GetFromJsonAsync<Handle[]>($"titan/handles{(verbose ? "?verbose=true" : "")}");
+                    return await http.GetFromJsonAsync<Handle[]>($"titan/handles{(verbose ? "?verbose=true" : "")}", token);
                 }
             }, priority: TaskPriority.Normal);
         }

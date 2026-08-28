@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using TitanControl.Events.Control;
 using TitanControl.Logging;
 using TitanControl.Services.Session;
@@ -19,30 +20,40 @@ namespace TitanControl.ViewModels.Controls
         {
             InfoModel = new InfoModel();
 
-            sessionService.PropertyChanged += (sender, args) =>
-            {
-                Log.Debug($"A property changed on sessions service {args.PropertyName}");
-                if (args.PropertyName == nameof(sessionService.CurrentSession))
-                {
-                    Log.Debug($"Current session changed {sessionService.CurrentSession?.Name}");
-                    sessionService.CurrentSession?.StateChanged += (_, stateEventArgs) =>
-                    {
-                        Log.Debug($"Current session state changed {stateEventArgs.CurrentState}");
-                        InfoModel.SessionState = stateEventArgs.CurrentState;
-                    };
-
-                    InfoModel.Session = sessionService.CurrentSession?.Name!;
-                }
-            };
+            sessionService.PropertyChanged += SessionService_PropertyChanged;
 
             workspaceService.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName == nameof(workspaceService.CurrentWorkspace))
-                    InfoModel.Workspace = workspaceService.CurrentWorkspace?.Name!;
+                if (args.PropertyName != nameof(workspaceService.CurrentWorkspace))
+                    return;
+
+                InfoModel.Workspace = workspaceService.CurrentWorkspace?.Name!;
             };
         }
 
-        public void OnButtonClicked(ButtonId button, ToolbarButton.ButtonAction action)
+        private void SessionService_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (sender is not ISessionService service || e.PropertyName != nameof(service.CurrentSession))
+                return;
+
+            if (service.CurrentSession == null)
+                Log.Debug("Current session is null");
+            else
+            {
+                InfoModel.SessionState = service.CurrentSession.State;
+                Log.Debug($"Session {service.CurrentSession} is now {service.CurrentSession.State}");
+            }
+
+            service.CurrentSession?.StateChanged += (_, stateEventArgs) =>
+            {
+                InfoModel.SessionState = stateEventArgs.CurrentState;
+                Log.Debug($"Session {service.CurrentSession} is now {stateEventArgs.CurrentState}");
+            };
+
+            InfoModel.Session = service.CurrentSession?.Name!;
+        }
+
+        public void OnButtonClicked(ButtonId button, ButtonAction action)
         {
             ButtonClicked?.Invoke(this, new ToolButtonPressedEventArgs
             {
@@ -50,5 +61,5 @@ namespace TitanControl.ViewModels.Controls
                 ButtonAction = action
             });
         }
-    }
+    } 
 }

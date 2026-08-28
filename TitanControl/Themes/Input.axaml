@@ -24,6 +24,9 @@
         <Setter Property="CornerRadius"
                 Value="5"/>
 
+        <Setter Property="MinWidth"
+                Value="32"/>
+
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="Normal"/>
 
@@ -37,7 +40,7 @@
                     CornerRadius="{TemplateBinding CornerRadius}"
                     Padding="{TemplateBinding Padding}">
 
-                    <Grid>
+                    <Grid ColumnDefinitions="*, Auto">
 
                         <ScrollViewer
                             x:Name="PART_ScrollViewer"
@@ -67,6 +70,9 @@
                             Foreground="{DynamicResource ForegroundPlaceholderBrush}"
                             VerticalAlignment="Center"
                             IsHitTestVisible="False"/>
+
+                        <ContentPresenter Grid.Column="1"
+                                          Content="{TemplateBinding InnerRightContent}"/>
 
                     </Grid>
 
@@ -176,7 +182,7 @@
                                         Grid.Column="1"
                                         Name="PART_CustomSpinner"
                                         BorderBrush="{TemplateBinding BorderBrush}"
-                                        Background="{TemplateBinding BorderBrush}"
+                                        Background="{DynamicResource BackgroundLBrush}"
                                         CornerRadius="0,4,4,0"
                                         BorderThickness="1,0,0,0">
 
@@ -231,6 +237,24 @@
         <Style Selector="^:pointerover">
             <Setter Property="BorderBrush"
                     Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundLBrush}"/>
+        </Style>
+
+        <Style Selector="^ /template/ TextBox:pointerover">
+            <Setter Property="Background"
+                    Value="Transparent"/>
+        </Style>
+
+
+         <Style Selector="^ /template/ TextBox:focus">
+            <Setter Property="Background"
+                    Value="Transparent"/>
+        </Style>
+
+        <Style Selector="^:focus">
+            <Setter Property="Background"
+                    Value="Transparent"/>
         </Style>
 
         <!-- Keyboard / input focus -->
@@ -239,19 +263,23 @@
                     Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Background"
                     Value="{DynamicResource BackgroundDDBrush}"/>
+
+            <Style Selector="^ /template/ TextBox">
+                <Setter Property="Background"
+                    Value="Transparent"/>
+            </Style>
         </Style>
 
         <!-- Disabled -->
         <Style Selector="^:disabled">
             <Setter Property="Foreground"
                     Value="{DynamicResource ForegroundDisabledBrush}"/>
+
+            <Style Selector="^ /template/ TextBox:focus">
+            <Setter Property="Background"
+                    Value="Transparent"/>
         </Style>
 
-        <Style Selector="^:pointerover">
-            <Setter Property="BorderBrush"
-                    Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="Background"
-                    Value="{DynamicResource BackgroundLBrush}"/>
         </Style>
 
         <Style Selector="^:focus">
@@ -438,6 +466,10 @@
         <Setter Property="CornerRadius"
                 Value="3"/>
 
+        <Setter Property="Margin"
+                Value="2 0"/>
+
+        <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="Normal"/>
 
@@ -445,36 +477,48 @@
             <ControlTemplate>
 
                 <Grid
-                    ColumnDefinitions="20,Auto"
-                    ColumnSpacing="8">
+                    ColumnDefinitions="22,Auto,Auto">
 
                     <!-- Checkbox square -->
                     <Border
                         x:Name="PART_CheckBox"
-                        Width="18"
-                        Height="18"
+                        Width="22"
+                        Height="22"
                         VerticalAlignment="Center"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="{TemplateBinding CornerRadius}">
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Padding="3">
 
-                        <Svg
+                        <Path
                             x:Name="PART_CheckMark"
                             IsVisible="False"
-                            Width="10"
-                            Height="10"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            CurrentColor="{DynamicResource Foreground}"
-                            Path="/Assets/Icons/tick.svg" />
+                            Stretch="Uniform"
+                            Stroke="{DynamicResource ForegroundBrush}"
+                            StrokeThickness="2.5"
+                            StrokeLineCap="Round"
+                            StrokeJoin="Round"
+                            Data="M2,8 L6,12 L14,3"/>
 
                     </Border>
+
+                    <Border
+                        Grid.Column="1"
+                        Width="8"
+                        IsVisible="{Binding Content,
+                            RelativeSource={RelativeSource TemplatedParent},
+                            Converter={StaticResource InvertedObjectIsNullConverter}}"/>
 
                     <!-- Label -->
                     <ContentPresenter
                         Grid.Column="1"
                         FontSize="{TemplateBinding FontSize}"
+                            IsVisible="{Binding Content,
+                            RelativeSource={RelativeSource TemplatedParent},
+                            Converter={StaticResource InvertedObjectIsNullConverter}}"
                         Content="{TemplateBinding Content}"
                         VerticalAlignment="Center"
                         Foreground="{TemplateBinding Foreground}"/>
@@ -519,7 +563,7 @@
         </Style>
 
         <!-- Show tick -->
-        <Style Selector="^:checked /template/ Svg#PART_CheckMark">
+        <Style Selector="^:checked /template/ Path#PART_CheckMark">
             <Setter Property="IsVisible"
                     Value="True"/>
         </Style>

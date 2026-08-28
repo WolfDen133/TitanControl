@@ -26,8 +26,4 @@
         <StyleInclude Source="avares://TitanControl/Styles/Navigation.axaml"/>
         <StyleInclude Source="avares://TitanControl/Styles/Controls.axaml"/>
     </Application.Styles>
-
-    <Application.DataTemplates>
-        <views:ViewLocator/>
-    </Application.DataTemplates>
 </Application>

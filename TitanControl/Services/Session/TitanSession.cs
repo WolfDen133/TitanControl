@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using TitanControl.Events.Session;
 using TitanControl.Logging;
 using TitanControl.Models;
@@ -17,7 +18,7 @@ namespace TitanControl.Services.Session
 
         private readonly object _sync = new();
 
-        private Timer? _keepAliveTimer;
+        private System.Threading.Timer? _keepAliveTimer;
         private SessionConnectionState _state =
             SessionConnectionState.Disabled;
 
@@ -37,6 +38,7 @@ namespace TitanControl.Services.Session
         private string computerName = string.Empty;
         private DateTime? connectedAt;
         private bool isSelected = false;
+        private System.Timers.Timer _unreachableReset = new();
 
         public TitanSession(
             Guid Id,
@@ -47,7 +49,11 @@ namespace TitanControl.Services.Session
 
             ID = Id;
             Name = name;
+
             SetState(SessionConnectionState.Disabled);
+
+            _unreachableReset.Interval = 3000;
+            _unreachableReset.Elapsed += UnnreachableReset_Elapsed;
         }
 
         public Guid ID { get; }
@@ -172,6 +178,19 @@ namespace TitanControl.Services.Session
             }
         }
 
+        private void UnnreachableReset_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            _unreachableReset.Stop();
+
+            if (State != SessionConnectionState.Unreachable)
+                return;
+
+            if (_isEnabled)
+                SetState(SessionConnectionState.Enabled);
+            else
+                SetState(SessionConnectionState.Disabled);
+        }
+
         public bool IsConnected =>
             State == SessionConnectionState.Connected;
 
@@ -182,7 +201,7 @@ namespace TitanControl.Services.Session
 
         public async Task Start(IPAddress selectedInterface)
         {
-            if (State != SessionConnectionState.Unreachable && State != SessionConnectionState.Enabled)
+            if (State != SessionConnectionState.Enabled)
                 return;
 
             Log.Debug($"Starting session {Name}({ID}).", LoggingCategory);
@@ -202,7 +221,7 @@ namespace TitanControl.Services.Session
                     return;
                 }
 
-                _keepAliveTimer = new Timer(
+                _keepAliveTimer = new System.Threading.Timer(
                     KeepAliveCallback,
                     state: null,
                     dueTime: TimeSpan.Zero,
@@ -217,7 +236,7 @@ namespace TitanControl.Services.Session
 
             StopKeepAliveChecks();
 
-            Api!.Stop();
+            await Api!.StopAsync().ConfigureAwait(false);
 
             Interlocked.Exchange(ref _consecutiveFailures, 0);
 
@@ -250,7 +269,7 @@ namespace TitanControl.Services.Session
                     Interlocked.Exchange(ref _consecutiveFailures, 0);
 
                     LastSuccessfulKeepAlive = DateTimeOffset.UtcNow;
-                    ComputerName = Api.ConnectedDevice!.ComputerName;
+                    ComputerName = Api.ConnectedDevice!.ComputerName!;
 
                     if (!wasConnected)
                         ConnectedAt = DateTime.Now;
@@ -309,6 +328,8 @@ namespace TitanControl.Services.Session
                 SessionConnectionState.Unreachable,
                 exception);
 
+            _unreachableReset.Start();
+
             Log.Warning(
                 $"Session {Name}({ID}) was marked disconnected after " +
                 $"{failures} consecutive keep-alive failures. " +
@@ -318,7 +339,7 @@ namespace TitanControl.Services.Session
 
         private void StopKeepAliveChecks()
         {
-            Timer? timer;
+            System.Threading.Timer? timer;
 
             lock (_sync)
             {
@@ -327,6 +348,7 @@ namespace TitanControl.Services.Session
             }
 
             ConnectedAt = null;
+            wasConnected = false;
 
             timer?.Dispose();
             Interlocked.Exchange(ref _consecutiveFailures, 0);
@@ -382,19 +404,23 @@ namespace TitanControl.Services.Session
             GC.SuppressFinalize(this);
         }
 
-        public void Enable(bool enabled = true)
+        public void Enable()
         {
-            if (State == SessionConnectionState.Disabled && enabled)
-            {
-                SetState(SessionConnectionState.Enabled);
-                _isEnabled = true;
-            }
+            if (State != SessionConnectionState.Disabled)
+                return;
 
-            if ((State == SessionConnectionState.Enabled || State == SessionConnectionState.Unreachable) && !enabled)
-            {
-                SetState(SessionConnectionState.Disabled);
-                _isEnabled = false;
-            }
+            SetState(SessionConnectionState.Enabled);
+            _isEnabled = true;
+        }
+
+        public void Disable()
+        {
+            if (State != SessionConnectionState.Enabled 
+             && State != SessionConnectionState.Unreachable)
+                return;
+
+            SetState(SessionConnectionState.Disabled);
+            _isEnabled = false;
         }
 
         public void OnPropertyChanged(string propertyName)

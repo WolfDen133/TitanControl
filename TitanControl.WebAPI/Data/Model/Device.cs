@@ -11,19 +11,19 @@ namespace TitanControl.WebAPI.Data.Model
 {
     public class Device
     {
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
-        public int Serial { get; set; }
+        public int? Serial { get; set; }
 
-        public string ComputerName { get; set; }
+        public string? ComputerName { get; set; }
 
-        public string ConnectedTo { get; set; }
+        public string? ConnectedTo { get; set; }
 
-        public string Legend { get; set; }
+        public string? Legend { get; set; }
 
         [JsonConverter(typeof(SoftwareVersionConverter))]
-        public Version SoftwareVersion { get; set; }
+        public Version? SoftwareVersion { get; set; }
 
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
     }
 }

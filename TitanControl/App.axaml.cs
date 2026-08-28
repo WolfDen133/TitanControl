@@ -75,7 +75,7 @@ public partial class App : Application
 
             Log.Debug("Initialising MainWindowModel", "Application");
             var mainWindowModel = new MainWindowModel(workspaceService, sessionService);
-            await mainWindowModel.Initialize();
+            await mainWindowModel.InitializeAsync();
 
             Log.Debug("Initialising MainWindow", "Application");
             var mainWindow = new MainWindow

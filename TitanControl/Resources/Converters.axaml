@@ -16,7 +16,6 @@
     <converters:BoolToStateConverter x:Key="BoolToStateConverter"/>
     <converters:BoolToAngleConverter x:Key="BoolToAngleConverter"/>
 
-
     <converters:ObservableCollectionIsEmptyToBoolConverter x:Key="ObservableCollectionIsEmptyToBoolConverter"/>
     <converters:ObservableCollectionIsEmptyToBoolConverter Inverted="True" x:Key="InvertedObservableCollectionIsEmptyToBoolConverter"/>
     
@@ -26,4 +25,7 @@
     <converters:HaloStringToBrushConverter x:Key="HaloStringToBrushConverter"/>
     
     <converters:SessionStateToVisibilityConverter x:Key="SessionStateToVisibilityConverter"/>
+    <converters:SessionsMatchConverter x:Key="SessionsMatchConverter"/>
+     <converters:SessionsMatchConverter Inverted="True" x:Key="InvertedSessionsMatchConverter"/>
+
 </ResourceDictionary>

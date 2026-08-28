@@ -6,7 +6,7 @@ using TitanControl.Views.Controls.Toolbar;
 using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.Views.Controls.Toolbar.Buttons;
 
-namespace TitanControl;
+namespace TitanControl.Views.Controls.Toolbar;
 
 public partial class Toolbar : UserControl
 {
@@ -48,7 +48,7 @@ public partial class Toolbar : UserControl
         return (int)height;
     }
 
-    private void ToolbarButton_OnClick(object? sender, ToolbarButton.ButtonAction e)
+    private void ToolbarButton_OnClick(object? sender, ButtonAction e)
     {
         if (sender is ToolbarButton button && !Design.IsDesignMode)
             Model.OnButtonClicked((ButtonId)button.ID, e);

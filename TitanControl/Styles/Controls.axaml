@@ -86,6 +86,12 @@
     <Style Selector="Button">
         <Setter Property="Theme" Value="{StaticResource TitanButtonTheme}"/>
         <Setter Property="FontSize" Value="16"/>
+        <Style Selector="^ ContentPresenter">
+            <Setter Property="FontSize" Value="16"/>
+            <Style Selector="^ TextBlock">
+                <Setter Property="FontSize" Value="16"/>
+            </Style>
+        </Style>
     </Style>
     <Style Selector="TextBox">
        <Setter Property="Theme" Value="{StaticResource TitanTextBoxTheme}"/>
@@ -94,10 +100,18 @@
     <Style Selector="NumericUpDown">
        <Setter Property="Theme" Value="{StaticResource TitanNumericUpDownTheme}"/>
         <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Increment" Value="1"/>
     </Style>
     <Style Selector="ComboBox">
        <Setter Property="Theme" Value="{StaticResource TitanComboBoxTheme}"/>
-        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Style Selector="^ ContentPresenter">
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+        <Style Selector="^ TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
     </Style>
      <Style Selector="CheckBox">
        <Setter Property="Theme" Value="{StaticResource TitanCheckBoxTheme}"/>

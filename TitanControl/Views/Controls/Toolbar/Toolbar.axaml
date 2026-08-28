@@ -10,7 +10,7 @@
              x:DataType="models:ToolbarModel"
              ClipToBounds="False"
              Classes="drop-l"
-             x:Class="TitanControl.Toolbar">
+             x:Class="TitanControl.Views.Controls.Toolbar.Toolbar">
     <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="0, 0, 0, 2" Padding="2" CornerRadius="6">
         <Grid x:Name="PART_Grid">
             <Grid.RowDefinitions>

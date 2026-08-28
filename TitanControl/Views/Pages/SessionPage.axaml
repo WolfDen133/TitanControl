@@ -11,6 +11,7 @@
              x:DataType="viewmodels:SessionPageModel"
              x:Name="SessionPageRoot"
              x:Class="TitanControl.Views.Pages.SessionPage">
+    
     <Border Padding="7" Background="{DynamicResource BackgroundLBrush}">
         <Grid RowDefinitions="Auto, *" RowSpacing="8">
             <Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Top" Height="70">
@@ -23,7 +24,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
                     <TextBlock Classes="h3" Text="Network Interface" HorizontalAlignment="Right"/>
-                    <ComboBox Height="25" ItemsSource="{Binding Interfaces}" SelectedIndex="{Binding SelectedNic}" Classes="app-input"/>
+                    <ComboBox ItemsSource="{Binding Interfaces}" SelectedIndex="{Binding SelectedNic}" Classes="app-input"/>
                 </StackPanel>
             </Grid>
             <Grid Grid.Row="1" ColumnSpacing="20" ColumnDefinitions="*, 0.9*, *" Margin="10" ClipToBounds="False">
@@ -119,13 +120,14 @@
                         </common:IconButton>
                     </layout:Section.FooterContent>
                 </layout:Section>
-                <layout:Section Grid.Column="1" Title="Edit session" Subtitle="Configure the selected session" IsDisabled="{Binding !IsEditing}">
+                <layout:Section Grid.Column="2" Title="Edit session" Subtitle="Configure the selected session" IsDisabled="{Binding !IsEditing}" IsEnabled="{Binding IsEditing}">
                     <layout:Section.Icon>
                         <common:TwoToneSvg SvgSource="{StaticResource EditSvgSource}" PrimaryColor="{DynamicResource AccentColor}" SecondaryColor="{DynamicResource Foreground}"/>
                     </layout:Section.Icon>
                     <Border>
                         <Grid RowDefinitions="*, Auto">
-                            <StackPanel Spacing="20">
+                           
+                            <StackPanel Spacing="20" Margin="10, 0">
                                 <layout:Field Text="Session Name" Required="True">
                                     <TextBox Classes="app-input" Text="{Binding FormData.SessionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="e.g. Titan session"/>
 
@@ -155,32 +157,34 @@
                                         <Rectangle Grid.Column="1" Height="1" Fill="{DynamicResource DividerBrush}"/>
                                     </Grid>
                                 </Border>
-                                <Grid ColumnDefinitions="Auto, *" RowDefinitions="*, *, *, *, *" ColumnSpacing="10" RowSpacing="10">
+                                <Grid Margin="10, 0" ColumnDefinitions="Auto, Auto, *, Auto, Auto" RowDefinitions="*, *, *, *" ColumnSpacing="10" RowSpacing="10">
                                     <TextBlock VerticalAlignment="Center" Classes="header" Text="Auto Timeout"/>
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.AutoTimeout}"/>
+                                    <CheckBox Classes="app-input" Grid.Column="1" IsChecked="{Binding FormData.AutoTimeout}"/>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
                                         <TextBlock Classes="context" Text="Disconnect after"/>
                                         <NumericUpDown IsEnabled="{Binding FormData.AutoTimeout}" Maximum="240" Minimum="1" Classes="app-input" Value="{Binding FormData.AutoTimeoutMinuates}"/>
                                         <TextBlock Classes="context" Text="minuates of activity"/>
                                     </StackPanel>
+
                                     <TextBlock VerticalAlignment="Center" Grid.Row="1" Classes="header" Text="Keep Alive"/>
-                                    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Spacing="4">
+                                    <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" Spacing="6">
                                         <TextBlock Classes="context" Text="Send keep alive every"/>
                                         <NumericUpDown Classes="app-input" Minimum="1" Maximum="60" Value="{Binding FormData.KeepAliveSeconds}"/>
                                         <TextBlock Classes="context" Text="seconds"/>
                                     </StackPanel>
+
                                     <TextBlock VerticalAlignment="Center" Grid.Row="2" Classes="header" Text="Reconnect"/>
-                                    <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Spacing="4">
-                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.Reconnect}"/>
+                                    <CheckBox Grid.Column="1" Grid.Row="2" Classes="app-input" IsChecked="{Binding FormData.Reconnect}"/>
+                                    <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal" Spacing="6">
                                         <TextBlock Classes="context" Text="Attempt to reconnect"/>
                                         <NumericUpDown IsEnabled="{Binding FormData.Reconnect}" Maximum="10" Minimum="1" Classes="app-input" Value="{Binding FormData.ReconnectAttempts}"/>
                                         <TextBlock Classes="context" Text="times"/>
                                     </StackPanel>
+
                                     <TextBlock VerticalAlignment="Center" Grid.Row="3" Classes="header" Text="Use SSL / TLS (HTTPS)"/>
-                                    <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal" Spacing="4">
-                                        <CheckBox Classes="app-input" IsChecked="{Binding FormData.UseHttps}"/>
-                                        <TextBlock Classes="context" Text="Encrypt connection"/>
-                                    </StackPanel>
+                                    <CheckBox Grid.Column="1" Grid.Row="3" Classes="app-input" IsChecked="{Binding FormData.UseHttps}"/>
+                                    <TextBlock Grid.Column="2" Grid.Row="3" Classes="context" Text="Encrypt connection"/>
+ 
                                 </Grid>
                             </StackPanel>
                         </Grid>
@@ -200,108 +204,258 @@
                         </StackPanel>
                     </layout:Section.FooterContent>
                 </layout:Section>
-                <layout:Section Grid.Column="2" Title="Current session" Subtitle="Currently selected or connected session"
-                                IsDisabled="{Binding !DetailsEnabled}">
+                <layout:Section Grid.Column="1" Title="Current session" Subtitle="Currently selected or connected session"
+                                IsDisabled="{Binding !DetailsEnabled}" IsEnabled="{Binding DetailsEnabled}">
                     <layout:Section.Icon>
                         <common:TwoToneSvg SvgSource="{StaticResource StatisticSvgSource}" PrimaryColor="{DynamicResource Foreground}" SecondaryColor="{DynamicResource AccentColor}"/>
                     </layout:Section.Icon>
-                    <Grid RowDefinitions="Auto, *, Auto">
-                        <Border CornerRadius="10"
+                    <Grid RowDefinitions="Auto, *, Auto" IsVisible="{Binding DetailsEnabled}">
+                        <Border
+                                CornerRadius="10"
                                 Classes="smooth"
-                                Padding="20"
-                                BorderBrush="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.3}" 
+                                Padding="15"
+                                BorderBrush="{Binding DisplaySession.State, 
+                                    Converter={StaticResource SessionStatusToBrushConverter}, 
+                                    ConverterParameter=0.3, 
+                                    FallbackValue={DynamicResource BorderSubtleBrush}}" 
                                 BorderThickness="1" 
-                                Background="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.1}">
-                            <StackPanel Spacing="10">
-                                <Grid RowDefinitions="Auto, *" RowSpacing="8">
-                                    <StackPanel Spacing="10" Orientation="Horizontal">
-                                        <Ellipse Width="15" Height="15" Fill="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}}" VerticalAlignment="Center"/>
-                                        <TextBlock Classes="value" Foreground="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}}" Text="{Binding SelectedSession?.State}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                    <TextBlock IsVisible="{Binding SelectedSession?.ConnectedAt, Converter={StaticResource InvertedObjectIsNullConverter}}" HorizontalAlignment="Right" VerticalAlignment="Center" Classes="context" Foreground="{DynamicResource ForegroundSecondaryBrush}">
-                                        <Run>Since</Run>
-                                        <Run Text="{Binding SelectedSession?.ConnectedAt, StringFormat={}{0:dd/MM HH:mm}}"/>
-                                    </TextBlock>
-                                    <StackPanel Grid.Row="1" Spacing="2">
-                                        <TextBlock Classes="h1" Text="{Binding SelectedSession?.Name}" Padding="0 2"/>
-                                        <TextBlock Classes="h3" Text="{Binding Endpoint}" Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
+                                Background="{Binding DisplaySession.State, 
+                                    Converter={StaticResource SessionStatusToBrushConverter}, 
+                                    ConverterParameter=0.1, 
+                                    FallbackValue={DynamicResource BackgroundLLBrush}}">
+                                <StackPanel Spacing="10">
+                                    <Grid RowDefinitions="Auto, *" RowSpacing="8">
+                                        <StackPanel Spacing="10" Orientation="Horizontal">
+                                            <Ellipse Width="15" Height="15" Fill="{Binding DisplaySession.State, Converter={StaticResource SessionStatusToBrushConverter}, FallbackValue={DynamicResource BackgroundLLBrush}}" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="value" Foreground="{Binding DisplaySession.State, Converter={StaticResource SessionStatusToBrushConverter}}" Text="{Binding DisplaySession?.State, FallbackValue=''}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Row="1" Classes="h1" Text="{Binding DisplaySession.Name, FallbackValue=''}" Padding="0 2"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
                         <Border Grid.Row="1" Padding="10 15">
-                            <StackPanel Spacing="15">
-                                <UniformGrid Rows="9" Columns="2" RowSpacing="10">
-                                    <UniformGrid.Styles>
-                                        <Style Selector="TextBlock">
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                        </Style>
-                                    </UniformGrid.Styles>
-                                    <TextBlock Text="Status" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.State}" Foreground="{Binding SelectedSession?.State, Converter={StaticResource SessionStatusToBrushConverter}}" Classes="value"/>
-                                    <TextBlock Text="IP Address" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.IPAddress, TargetNullValue='0.0.0.0'}" Classes="value"/>
-                                    <TextBlock Text="Connection Port" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.Port, TargetNullValue='-'}" Classes="value"/>
-                                    <TextBlock Text="Interactive Port" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.PortInteractive, TargetNullValue='Unavailable'}" Classes="value"/>
-                                    <TextBlock Text="Auto Timeout Duration" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.AutoTimeout, TargetNullValue='Disabled', StringFormat={}{0:0 minuate(s)}}" Classes="value"/>
-                                    <TextBlock Text="Keep Alive Interval" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.KeepAlive, TargetNullValue='-', StringFormat={}{0:0 second(s)}}" Classes="value"/>
-                                    <TextBlock Text="Reconnect Attempts" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.ReconnectIterations, TargetNullValue='Disabled', StringFormat={}{0:0 attempt(s)}}" Classes="value"/>
-                                    <TextBlock Text="SSL / TLS (HTTPS)" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.UseHttps, Converter={StaticResource BoolToStateConverter}, ConverterParameter=Encrypted}" Classes="value"/>
-                                    <TextBlock Text="Computer Name" Classes="meta"/>
-                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedSession?.ComputerName, TargetNullValue='-'}" Classes="value"/>
-                                </UniformGrid>                        
-                                <Grid HorizontalAlignment="Stretch" ColumnDefinitions="*, *" ColumnSpacing="10" IsVisible="{Binding SelectedSession, Converter={StaticResource InvertedObjectIsNullConverter}}">
-                                    <common:IconButton 
-                                        Text="Connect" 
-                                        Foreground="{DynamicResource SuccessLBrush}" 
-                                        BorderBrush="{DynamicResource SuccessDBrush}" 
-                                        IsVisible="{Binding SelectedSession.State, Converter={StaticResource SessionStateToVisibilityConverter}, ConverterParameter=connect}"
-                                        Command="{Binding ConnectCommand}">
-                                        <common:IconButton.Icon>
-                                            <Svg SvgSource="{StaticResource ConnectSvgSource}" CurrentColor="{DynamicResource SuccessColorL}"/>
-                                        </common:IconButton.Icon>
-                                    </common:IconButton>
-                                    <common:IconButton 
-                                        Text="Enable" 
-                                        Grid.ColumnSpan="2"
-                                        Foreground="{DynamicResource AccentLBrush}" 
-                                        BorderBrush="{DynamicResource AccentBrush}" 
-                                        IsVisible="{Binding SelectedSession.State, Converter={StaticResource SessionStateToVisibilityConverter}, ConverterParameter=enable}"
-                                        Command="{Binding EnableCommand}">
-                                        <common:IconButton.Icon>
-                                            <Svg SvgSource="{StaticResource EnableSvgSource}" CurrentColor="{DynamicResource AccentColorL}"/>
-                                        </common:IconButton.Icon>
-                                    </common:IconButton>
-                                    <common:IconButton 
-                                        Text="Disconnect" 
-                                        Grid.ColumnSpan="2"
-                                        IsVisible="{Binding SelectedSession.State, Converter={StaticResource SessionStateToVisibilityConverter}, ConverterParameter=disconnect}"
-                                        Foreground="{DynamicResource DangerLBrush}" 
-                                        BorderBrush="{DynamicResource DangerDBrush}" 
-                                        Command="{Binding DisconnectCommand}">
-                                        <common:IconButton.Icon>
-                                            <Svg SvgSource="{StaticResource DisconnectSvgSource}" CurrentColor="{DynamicResource DangerColorL}"/>
-                                        </common:IconButton.Icon>
-                                    </common:IconButton>
-                                    <common:IconButton 
-                                        Grid.Column="1" 
-                                        Text="Disable" 
-                                        IsVisible="{Binding SelectedSession.State, Converter={StaticResource SessionStateToVisibilityConverter}, ConverterParameter=disable}"
-                                        Foreground="{DynamicResource ForegroundSecondaryBrush}" 
-                                        BorderBrush="{DynamicResource ForegroundDisabledBrush}" 
-                                        Command="{Binding DisableCommand}">
-                                        <common:IconButton.Icon>
-                                            <Svg SvgSource="{StaticResource DisableSvgSource}" CurrentColor="{DynamicResource ForegroundSecondary}"/>
-                                        </common:IconButton.Icon>
-                                    </common:IconButton>
+                            <Grid RowDefinitions="*, Auto" RowSpacing="10">
+                                <StackPanel>
+                                    <UniformGrid Rows="6" Columns="2" RowSpacing="14">
+                                        <UniformGrid.Styles>
+                                            <Style Selector="TextBlock">
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                            </Style>
+                                        </UniformGrid.Styles>
+                                        <TextBlock Text="IP Address" Classes="meta"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="{Binding DisplaySession.IPAddress, TargetNullValue={Binding EnabledSession.IPAddress}, TargetNullValue='0.0.0.0'}" Classes="value"/>
+                                        <TextBlock Text="Connection Port" Classes="meta"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="{Binding DisplaySession.Port, TargetNullValue={Binding EnabledSession.Port}, TargetNullValue='-'}" Classes="value"/>
+                                        <TextBlock Text="Interactive Port" Classes="meta"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="{Binding DisplaySession.PortInteractive, TargetNullValue={Binding EnabledSession.PortInteractive}, TargetNullValue='Unavailable'}" Classes="value"/>
+                                        <TextBlock Text="Auto Timeout Duration" Classes="meta"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="{Binding DisplaySession.AutoTimeout, TargetNullValue={Binding EnabledSession.AutoTimeout}, TargetNullValue='Disabled', StringFormat={}{0:0 minuate(s)}}" Classes="value"/>
+                                        <TextBlock Text="Keep Alive Interval" Classes="meta"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="{Binding DisplaySession.KeepAlive, TargetNullValue={Binding EnabledSession.KeepAlive}, TargetNullValue='-', StringFormat={}{0:0 second(s)}}" Classes="value"/>
+                                        <TextBlock Text="Reconnect Attempts" Classes="meta"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="{Binding DisplaySession.ReconnectIterations, TargetNullValue={Binding EnabledSession.ReconnectIterations}, TargetNullValue='Disabled', StringFormat={}{0:0 attempt(s)}}" Classes="value"/>
+                                        <TextBlock Text="SSL / TLS (HTTPS)" Classes="meta"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="{Binding DisplaySession.UseHttps, TargetNullValue={Binding EnabledSession.UseHttps}, FallbackValue='-', Converter={StaticResource BoolToStateConverter}, ConverterParameter=Encrypted}" Classes="value"/>
+                                    </UniformGrid>    
+                                </StackPanel>
+                                 <common:IconButton 
+                                            Text="Enable"
+                                            Grid.Row="1"
+                                            Foreground="{DynamicResource AccentLBrush}" 
+                                            BorderBrush="{DynamicResource AccentBrush}" 
+                                            Background="{Binding EnabledSession.State, 
+                                                Converter={StaticResource SessionStatusToBrushConverter}, 
+                                                ConverterParameter=0.3}"
+                                            IsVisible="{Binding EnabledSession.State, 
+                                                Converter={StaticResource SessionStateToVisibilityConverter}, 
+                                                ConverterParameter=enable}"
+                                            Command="{Binding EnableCommand}">
+                                            <common:IconButton.Icon>
+                                                <Svg SvgSource="{StaticResource EnableSvgSource}" CurrentColor="{DynamicResource AccentColorL}"/>
+                                            </common:IconButton.Icon>
+                                        </common:IconButton>
+                                <Grid Grid.Row="1" RowDefinitions="Auto, Auto" 
+                                      IsVisible="{Binding EnabledSession, 
+                                        Converter={StaticResource InvertedObjectIsNullConverter}}">
+                                    <Border Padding="0 10">
+                                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                                            <TextBlock Text="Enabled session" Classes="header"/>
+                                            <Rectangle Grid.Column="1" Height="1" Fill="{DynamicResource DividerBrush}"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border 
+                                        x:Name="ConnectedSession"
+                                        Grid.Row="1"
+                                        CornerRadius="8"
+                                        Classes="smooth"
+                                        Padding="15"
+                                        BorderBrush="{Binding EnabledSession?.State, 
+                                            Converter={StaticResource SessionStatusToBrushConverter}, 
+                                            ConverterParameter=0.3, 
+                                            FallbackValue={DynamicResource BorderSubtleBrush}}" 
+                                        BorderThickness="1" 
+                                        Background="{Binding EnabledSession?.State, 
+                                            Converter={StaticResource SessionStatusToBrushConverter}, 
+                                            ConverterParameter=0.1, 
+                                            FallbackValue={DynamicResource BackgroundLLBrush}}">
+                                        <StackPanel Spacing="10">
+                                            <Grid RowDefinitions="*, Auto" RowSpacing="8">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Classes="h1" Text="{Binding EnabledSession?.Name, FallbackValue='-'}" Padding="0 2"/>
+                                                    <TextBlock Classes="h3" Text="{Binding Endpoint, FallbackValue='-'}" Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
+                                                </StackPanel>
+                                                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                    <TextBlock 
+                                                        HorizontalAlignment="Right" 
+                                                        Classes="h3" 
+                                                        Foreground="{DynamicResource ForegroundSecondaryBrush}" 
+                                                        Text="{Binding Device.ComputerName, TargetNullValue='-'}"/>
+                                                    <TextBlock 
+                                                        Grid.Row="1" 
+                                                        HorizontalAlignment="Right" 
+                                                        VerticalAlignment="Center" 
+                                                        Classes="context" 
+                                                        Foreground="{DynamicResource ForegroundSecondaryBrush}" 
+                                                        IsVisible="{
+                                                            Binding EnabledSession.ConnectedAt, Converter={StaticResource InvertedObjectIsNullConverter}}"
+                                                        Text="{
+                                                            Binding EnabledSession.ConnectedAt, 
+                                                            StringFormat={}{0:dd/MM HH:mm}}"/>
+                                                </StackPanel>
+                                                <Grid 
+                                                    Grid.Row="1" 
+                                                    HorizontalAlignment="Stretch" 
+                                                    ColumnDefinitions="*, *" 
+                                                    ColumnSpacing="10">
+                                                    <common:IconButton 
+                                                        Text="Connect"
+                                                        Foreground="{DynamicResource SuccessLBrush}" 
+                                                        BorderBrush="{DynamicResource SuccessDBrush}" 
+                                                        Background="{Binding EnabledSession.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.3}"
+                                                        IsVisible="{Binding EnabledSession.State, Converter={StaticResource SessionStateToVisibilityConverter}, ConverterParameter=connect}"
+                                                        Command="{Binding ConnectCommand}">
+                                                        <common:IconButton.Icon>
+                                                            <Svg SvgSource="{StaticResource ConnectSvgSource}" CurrentColor="{DynamicResource SuccessColorL}"/>
+                                                        </common:IconButton.Icon>
+                                                    </common:IconButton>
+                                                    <common:IconButton 
+                                                        Text="Disconnect" 
+                                                        Grid.ColumnSpan="2"
+                                                        IsVisible="{Binding EnabledSession.State, Converter={StaticResource SessionStateToVisibilityConverter}, ConverterParameter=disconnect}"
+                                                        Foreground="{DynamicResource DangerLBrush}" 
+                                                        BorderBrush="{DynamicResource DangerDBrush}" 
+                                                        Background="{Binding EnabledSession.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.3}"
+                                                        Command="{Binding DisconnectCommand}">
+                                                        <common:IconButton.Icon>
+                                                            <Svg SvgSource="{StaticResource DisconnectSvgSource}" CurrentColor="{DynamicResource DangerColorL}"/>
+                                                        </common:IconButton.Icon>
+                                                    </common:IconButton>
+                                                    <common:IconButton
+                                                        Grid.Column="1" 
+                                                        Text="Disable" 
+                                                        Foreground="{DynamicResource ForegroundSecondaryBrush}" 
+                                                        BorderBrush="{DynamicResource ForegroundDisabledBrush}" 
+                                                        Background="{Binding EnabledSession?.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.3}"
+                                                        Command="{Binding DisableCommand}"
+                                                        IsVisible="{Binding ShowDisable}">
+                                                        
+                                                        <common:IconButton.Icon>
+                                                            <Svg SvgSource="{StaticResource DisableSvgSource}" CurrentColor="{DynamicResource ForegroundSecondary}"/>
+                                                        </common:IconButton.Icon>
+                                                    </common:IconButton>
+                                                    <common:IconButton 
+                                                        Grid.Column="1" 
+                                                        Text="Swap" 
+                                                        IsVisible="{Binding ShowSwap}"
+                                                        Foreground="{DynamicResource ForegroundSecondaryBrush}" 
+                                                        BorderBrush="{DynamicResource ForegroundDisabledBrush}" 
+                                                        Background="{Binding EnabledSession?.State, Converter={StaticResource SessionStatusToBrushConverter}, ConverterParameter=0.3}"
+                                                        Command="{Binding EnableCommand}">
+                                                        <common:IconButton.Icon>
+                                                            <Svg Path="/Assets/Icons/swap.svg" CurrentColor="{DynamicResource ForegroundSecondary}"/>
+                                                        </common:IconButton.Icon>
+                                                    </common:IconButton>
+                                                </Grid>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    <Popup x:Name="ConsoleDetails"     
+                                           PlacementTarget="{Binding #ConnectedSession}"
+                                           Placement="Top"
+                                           PlacementConstraintAdjustment="None"
+                                           IsLightDismissEnabled="False">
+                                        <Border x:Name="ConsoleDetailsClip" ClipToBounds="True"
+                                                Padding="8 0">
+                                            <Border 
+                                                x:Name="ConsoleDetailsContent"
+                                                Padding="15" 
+                                                Background="{DynamicResource BackgroundBrush}"
+                                                CornerRadius="8,8,0,0"
+                                                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                                BorderThickness="1,1,1,0">
+                                                <Border.RenderTransform>
+                                                    <TranslateTransform>
+                                                        <TranslateTransform.Transitions>
+                                                            <Transitions>
+                                                                <DoubleTransition
+                                                                    Property="Y"
+                                                                    Duration="0:0:0.25">
+                                                                    <DoubleTransition.Easing>
+                                                                        <CubicEaseOut/>
+                                                                    </DoubleTransition.Easing>
+                                                                </DoubleTransition>
+                                                            </Transitions>
+                                                        </TranslateTransform.Transitions>
+                                                    </TranslateTransform>
+                                                </Border.RenderTransform>
+                                                <Border.Transitions>
+                                                    <Transitions>
+                                                        <DoubleTransition
+                                                            Property="Opacity"
+                                                            Duration="0:0:0.20"/>
+                                                    </Transitions>
+                                                </Border.Transitions>
+                                            
+                                                
+                                                    
+                                                <Grid RowDefinitions="*, *, *, *, *, Auto" ColumnDefinitions="*, *" RowSpacing="8">
+                                                    <Grid.Styles>
+                                                        <Style Selector="TextBlock">
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </Grid.Styles>
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Console Name" Classes="meta"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding Device.ComputerName, TargetNullValue='-'}" Classes="value"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Console Legend" Classes="meta"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding Device.Legend, TargetNullValue='-'}" Classes="value"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Version" Classes="meta"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding Device.SoftwareVersion, TargetNullValue='-'}" Classes="value"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="ID/Serial" Classes="meta"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding  Device.Id, TargetNullValue='-'}" Classes="value"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="In TitanNET with" Classes="meta"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding Device.ConnectedTo, TargetNullValue='-'}" Classes="value"/>
+                                                    <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Spacing="5" Margin="4 0">
+                                                        <TextBlock Text="Notes" Classes="meta"/>
+                                                        <Border
+                                                            Background="{DynamicResource BackgroundLLBrush}" MinHeight="40"
+                                                            CornerRadius="3"
+                                                            Padding="8">
+                                                            <TextBlock 
+                                                                VerticalAlignment="Top"
+                                                                FontSize="12"
+                                                                Text="{Binding Device.Notes}" 
+                                                                Classes="value"/>
+                                            
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Grid>    
+                                                
+                                            </Border>
+                                        </Border>
+                                    </Popup>
                                 </Grid>
-                                <Rectangle Height="1" Fill="{DynamicResource DividerBrush}"/>
+                                
+                                <!--Rectangle Height="1" Fill="{DynamicResource DividerBrush}"/>
                                 <Border BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" CornerRadius="10"> 
                                     <Border CornerRadius="10" ClipToBounds="True">
                                         <Grid RowDefinitions="Auto, *">
@@ -346,12 +500,12 @@
                                             </ScrollViewer>
                                         </Grid>
                                     </Border>
-                                </Border>
-                            </StackPanel>
+                                </Border-->
+                            </Grid>
                         </Border>
                     </Grid>
                     <layout:Section.FooterContent>
-                        <Grid HorizontalAlignment="Stretch" ColumnDefinitions="*, *, *" ColumnSpacing="10" >
+                        <Grid HorizontalAlignment="Stretch" ColumnDefinitions="*, *, *" ColumnSpacing="10" IsEnabled="{Binding SelectedSession, Converter={StaticResource InvertedObjectIsNullConverter}}">
                                     <common:IconButton Text="Edit" Command="{Binding EditCommand}" BorderBrush="{DynamicResource BorderBrush}">
                                         <common:IconButton.Icon>
                                             <Svg SvgSource="{StaticResource PenSvgSource}" CurrentColor="{DynamicResource AccentColorL}"/>

@@ -7,6 +7,7 @@
         xmlns:layout="using:TitanControl.Views.Controls.Layout"
         xmlns:menu="using:TitanControl.Views.Controls.Menu"
         xmlns:titancontrol="using:TitanControl"
+        xmlns:toolbar="using:TitanControl.Views.Controls.Toolbar"
         xmlns:grid="using:TitanControl.Views.Controls.Layout.Grid">
   <Design.PreviewWith>
     <Border Padding="20" Background="{DynamicResource BackgroundBrush}">
@@ -227,7 +228,7 @@
             </Transitions>
         </Setter>
     </Style>
-    <Style Selector="Panel.sliding, titancontrol|Toolbar">
+    <Style Selector="Panel.sliding, toolbar|Toolbar">
         <Setter Property="Transitions">
                 <Transitions>
                 <DoubleTransition

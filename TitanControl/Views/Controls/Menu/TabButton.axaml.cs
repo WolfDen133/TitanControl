@@ -1,30 +1,30 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using TitanControl.Views.Controls;
 
-namespace TitanControl.Views.Controls;
+namespace TitanControl.Views.Controls.Menu;
 
-public partial class IconButton : UserControl
+public partial class TabButton : UserControl
 {
     public static readonly StyledProperty<object?> IconProperty =
-       AvaloniaProperty.Register<IconButton, object?>(nameof(Icon), null);
+       AvaloniaProperty.Register<TabButton, object?>(nameof(Icon), null);
 
     public static readonly StyledProperty<string?> TextProperty =
-        AvaloniaProperty.Register<IconButton, string?>(nameof(Text), null);
+        AvaloniaProperty.Register<TabButton, string?>(nameof(Text), "Button");
 
     public static readonly StyledProperty<bool> TextVisibleProperty =
-        AvaloniaProperty.Register<IconButton, bool>(nameof(TextVisible), true);
+        AvaloniaProperty.Register<TabButton, bool>(nameof(TextVisible), true);
 
     public static readonly StyledProperty<object?> CommandParameterProperty =
-        AvaloniaProperty.Register<IconButton, object?>(nameof(CommandParameter), null);
+        AvaloniaProperty.Register<TabButton, object?>(nameof(CommandParameter), null);
 
     public static readonly StyledProperty<IRelayCommand?> CommandProperty =
-      AvaloniaProperty.Register<IconButton, IRelayCommand?>(nameof(Command), null);
+      AvaloniaProperty.Register<TabButton, IRelayCommand?>(nameof(Command), null);
+
+    public static readonly StyledProperty<object?> RightContentProperty =
+        AvaloniaProperty.Register<TabButton, object?>(nameof(Content), null);
+
 
     public object? Icon
     {
@@ -56,7 +56,13 @@ public partial class IconButton : UserControl
         set => SetValue(CommandProperty, value);
     }
 
-    public IconButton()
+    public object? RightContent
+    {
+        get => GetValue(RightContentProperty);
+        set => SetValue(RightContentProperty, value);
+    }
+
+    public TabButton()
     {
         InitializeComponent();
     }

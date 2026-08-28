@@ -3,18 +3,34 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              x:Class="TitanControl.Views.Controls.IconButton"
+             Background="Transparent"
              x:Name="ButtonRoot">
-    
     <Button ZIndex="4" VerticalAlignment="Stretch" 
             HorizontalAlignment="Stretch" 
             BorderBrush="{Binding #ButtonRoot.BorderBrush}" 
             Command="{Binding #ButtonRoot.Command}" 
             CommandParameter="{Binding #ButtonRoot.CommandParameter}" 
             Classes="app-input"
-            Padding="8, 6">
+            Padding="8, 8">
         <Grid ColumnDefinitions="Auto, Auto" VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="Container">
-            <ContentControl Height="24" Width="24" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{Binding #ButtonRoot.Icon}"/>
-            <TextBlock IsVisible="{Binding #ButtonRoot.TextVisible}" Grid.Column="1" VerticalAlignment="Center" x:Name="Label" Padding="4 4" Text="{Binding #ButtonRoot.Text}" Foreground="{Binding #ButtonRoot.Foreground}" Classes="value"/>
+            <ContentControl 
+                IsVisible="{Binding #ButtonRoot.Icon,
+                    Converter={StaticResource InvertedObjectIsNullConverter}}" 
+                Height="24" 
+                Width="24" 
+                VerticalAlignment="Stretch" 
+                HorizontalAlignment="Stretch" 
+                Content="{Binding #ButtonRoot.Icon}"/>
+            <TextBlock 
+                IsVisible="{Binding #ButtonRoot.Text,
+                    Converter={StaticResource InvertedObjectIsNullConverter}}" 
+                Grid.Column="1" 
+                VerticalAlignment="Center" 
+                x:Name="Label" 
+                Padding="4 4" 
+                Text="{Binding #ButtonRoot.Text}" 
+                Foreground="{Binding #ButtonRoot.Foreground}" 
+                Classes="value"/>
         </Grid>
     </Button>
 
