@@ -91,9 +91,6 @@ namespace TitanControl.ViewModel
 
             await WorkspaceModel.InitializeAsync();
 
-            foreach (var page in PageModels.Values)
-                await page.InitializeAsync();
-
             var session = _workspaceService.CurrentWorkspace.Options.Session;
 
             if (session != Guid.Empty)

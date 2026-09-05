@@ -2,9 +2,14 @@
              xmlns:controls="using:TitanControl.Views.Controls"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:handlebrowser="using:TitanControl.ViewModels.Page.HandleBrowser"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:menu="using:TitanControl.Views.Controls.Menu"
+             xmlns:titancontrol="using:TitanControl"
              mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="1000"
-             x:Class="TitanControl.Views.Pages.HandleBrowserPage">
+             x:Class="TitanControl.Views.Pages.HandleBrowserPage"
+             x:Name="HandleBrowserPageRoot"
+             x:DataType="handlebrowser:HandleBrowserModel">
   <Border Background="{DynamicResource BackgroundBrush}">
       <Grid RowDefinitions="Auto, *, Auto">
           <Border Background="{DynamicResource BackgroundLLBrush}" Padding="10"
@@ -45,16 +50,115 @@
                               
                           </TextBox.InnerRightContent>
                       </TextBox>
-                      <StackPanel Grid.Row="1">
+                      <ItemsControl Grid.Row="2" ItemsSource="{Binding HandleCount}">
+                          <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                  <StackPanel Spacing="10"/>
+                              </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                  <controls:TabButton 
+                                      Text="{Binding Type, Converter={StaticResource HandleTypeToStringConverter}}" 
+                                      Icon="{Binding Type, 
+                                        Converter={StaticResource HandleTypeToIconConverter}}"
+                                      RightContent="{Binding Count}"
+                                      Command="{Binding #HandleBrowserPageRoot.DataContext.ShowHandlesCommand}"
+                                      CommandParameter="{Binding Type}"/>
+                                      
+                              </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                  </Grid>
+              </Border>
+              <Border Grid.Column="1" 
+                Background="{DynamicResource BackgroundLBrush}" 
+                Margin="10" Padding="5"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                BorderThickness="1"
+                CornerRadius="5">
+                  <Grid RowDefinitions="Auto, *" RowSpacing="5">
+                      <Border Padding="4">
+                          <Grid ColumnDefinitions="*, Auto, 220" ColumnSpacing="10">
+                              <TextBlock VerticalAlignment="Center" Classes="h3" Foreground="{DynamicResource ForegroundDisabledBrush}">
+                                  <Run Text="{Binding CurrentTab, Converter={StaticResource HandleTypeToStringConverter}, FallbackValue='Titan'}"/>
+                                  <Run Text="handles ("/>
+                                  <Run Text="{Binding Count}"/>
+                                  <Run Text=")"/>
+                              </TextBlock>
+                              <menu:ViewModeSelector Grid.Column="1"/>
+                              <ComboBox Grid.Column="2" Padding="10, 5" SelectedIndex="0">
+                                  <ComboBoxItem Content="Sort by Name"/>
+                                  <ComboBoxItem Content="Sort by User Number"/>
+                                </ComboBox>
+                          </Grid>
+                      </Border>
+                      <Border 
+                        Grid.Row="1" 
+                        Padding="10" 
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        Background="{DynamicResource BackgroundLLBrush}">
+                          <ScrollViewer>
+                              <ItemsControl ItemsSource="{Binding Handles}">
+                                  <ItemsControl.ItemsPanel>
+                                      <ItemsPanelTemplate>
+                                          <WrapPanel Orientation="Horizontal" ItemSpacing="5" LineSpacing="5"/>
+                                      </ItemsPanelTemplate>
+                                  </ItemsControl.ItemsPanel>
+                                  <ItemsControl.ItemTemplate>
+                                      <DataTemplate>
+                                          <titancontrol:TitanHandleButton 
+                                              UserNumber="{Binding UserNumber.Number}"
+                                              Legend="{Binding Legend}"/>
+                                      </DataTemplate>
+                                  </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                          </ScrollViewer>
+                      </Border>
+                      <!--Border Grid.Row="1" Padding="10">
                           
-                      </StackPanel>
+                          <WrapPanel Grid.Row="1" Orientation="Horizontal" ItemSpacing="5" LineSpacing="5">
+                              <titancontrol:TitanHandleButton Legend="Hello world" UserNumber="11"/>
+                              <titancontrol:TitanHandleButton Legend="Hello world 1" UserNumber="12"/>
+                              <titancontrol:TitanHandleButton Legend="Hello world 2" UserNumber="13" Icon="/Assets/Images/icon.png"/>
+                              <titancontrol:TitanHandleButton Legend="Hello world 3" UserNumber="14"/>
+
+                          </WrapPanel>
+                      </Border-->
                   </Grid>
               </Border>
           </Grid>
           <Border Grid.Row="2" Background="{DynamicResource BackgroundLLBrush}" Padding="10"
                   BorderBrush="{DynamicResource BorderBrush}"
                   BorderThickness="0,1,0,0">
-              
+                  <Panel>
+                      <StackPanel Margin="5" Spacing="8" Orientation="Horizontal" VerticalAlignment="Center">
+                          <Svg Width="20" Height="20" CurrentColor="{DynamicResource ForegroundSecondary}" Path="/Assets/Icons/trigger.svg"/>
+                          <TextBlock Classes="h4" 
+                            Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                            Text="{Binding CountDisplay, FallbackValue='Showing handles'}"
+                            VerticalAlignment="Center"/>
+                      </StackPanel>
+                      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                          <controls:IconButton 
+                              Text="Cancel" 
+                              BorderBrush="{DynamicResource BorderBrush}">
+                              <controls:IconButton.Icon>
+                                  
+                                      <Svg Width="20" Height="20" CurrentColor="{DynamicResource Foreground}" Path="/Assets/Icons/cross.svg"/>
+                                  
+                              </controls:IconButton.Icon>
+                          </controls:IconButton>
+                          <controls:IconButton 
+                              Text="{Binding ButtonText}"
+                              BorderBrush="{DynamicResource BorderBrush}">
+                              <controls:IconButton.Icon>
+                                    <Svg Width="20" Height="20" CurrentColor="{DynamicResource Foreground}" Path="{Binding ButtonIcon}"/>
+                              </controls:IconButton.Icon>
+                          </controls:IconButton>
+                      </StackPanel>
+                  </Panel>
           </Border>
       </Grid>
   </Border>

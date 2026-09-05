@@ -48,7 +48,7 @@
     <Compile Update="Views\Controls\Layout\Field.axaml.cs">
       <DependentUpon>Field.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\Controls\Menu\TabButton.axaml.cs">
+    <Compile Update="Views\Controls\TabButton.axaml.cs">
       <DependentUpon>TabButton.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\Pages\SessionPage.axaml.cs">

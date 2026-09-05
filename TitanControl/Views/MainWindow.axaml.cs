@@ -264,7 +264,6 @@ public partial class MainWindow : Window
 
         if (page.IsActive)
             page.State = PageState.Open;
-        
     }
 
     private async Task ClosePage(BasePage page) 
@@ -278,7 +277,6 @@ public partial class MainWindow : Window
         PageTransform.Y = dockPosition.Y;
 
         HandlePanelVisibility(PageContainer, false);
-        PageContainer.IsHitTestVisible = false;
 
         await Task.Delay(PageTransitonDuration);
 
@@ -312,6 +310,7 @@ public partial class MainWindow : Window
             panel.IsVisible = true;
 
         panel.Opacity = visible ? 1 : 0;
+        panel.IsHitTestVisible = visible;
     }
 
     private void SetPagePositionImmediately(bool visible, Dock dock = Dock.Top)

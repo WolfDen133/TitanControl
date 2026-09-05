@@ -3,12 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
 
-namespace TitanControl.Views.Controls.Menu;
+namespace TitanControl.Views.Controls;
 
 public partial class TabButton : UserControl
 {
-    public static readonly StyledProperty<object?> IconProperty =
-       AvaloniaProperty.Register<TabButton, object?>(nameof(Icon), null);
+    public static readonly StyledProperty<string?> IconProperty =
+       AvaloniaProperty.Register<TabButton, string?>(nameof(Icon), null);
 
     public static readonly StyledProperty<string?> TextProperty =
         AvaloniaProperty.Register<TabButton, string?>(nameof(Text), "Button");
@@ -22,11 +22,11 @@ public partial class TabButton : UserControl
     public static readonly StyledProperty<IRelayCommand?> CommandProperty =
       AvaloniaProperty.Register<TabButton, IRelayCommand?>(nameof(Command), null);
 
-    public static readonly StyledProperty<object?> RightContentProperty =
-        AvaloniaProperty.Register<TabButton, object?>(nameof(Content), null);
+    public static readonly StyledProperty<string?> RightContentProperty =
+        AvaloniaProperty.Register<TabButton, string?>(nameof(RightContent), null);
 
 
-    public object? Icon
+    public string? Icon
     {
         get => GetValue(IconProperty);
         set => SetValue(IconProperty, value);
@@ -56,7 +56,7 @@ public partial class TabButton : UserControl
         set => SetValue(CommandProperty, value);
     }
 
-    public object? RightContent
+    public string? RightContent
     {
         get => GetValue(RightContentProperty);
         set => SetValue(RightContentProperty, value);

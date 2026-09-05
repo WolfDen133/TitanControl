@@ -73,13 +73,14 @@
         x:Key="{x:Type controls:TitanHandleButton}" 
         TargetType="controls:TitanHandleButton"
         x:DataType="controls:TitanHandleButton">
-        <Setter Property="CornerRadius" Value="15"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="Background" Value="{StaticResource TitanGroupBrush}"/>
-        <Setter Property="Width" Value="200"/>
-        <Setter Property="Height" Value="110"/>
+        <Setter Property="Width" Value="95"/>
+        <Setter Property="Height" Value="55"/>
         <Setter Property="BorderBrush" Value="{Binding Halo, RelativeSource={RelativeSource Self},
                             Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.5}"/>
+        <Setter Property="Focusable" Value="False"/>
 
         <Setter Property="Template">
             <ControlTemplate>
@@ -104,15 +105,16 @@
                         ZIndex="30">
                         <TextBlock
                             FontWeight="Regular"
-                            FontSize="16"
+                            FontSize="10"
                             Text="{TemplateBinding UserNumber}"
                             Foreground="{TemplateBinding Foreground}"/>
                         <TextBlock 
                             TextWrapping="Wrap" 
                             HorizontalAlignment="Center" 
                             VerticalAlignment="Center" 
+                            TextAlignment="Center"
                             FontWeight="Normal" 
-                            FontSize="20" 
+                            FontSize="12" 
                             Text="{TemplateBinding Legend}"
                             Foreground="{TemplateBinding Foreground}"/>
                     </Panel>
@@ -120,20 +122,29 @@
             </ControlTemplate>
         </Setter>
 
+        <Style Selector="^:pointerover">
+            <Setter Property="BorderBrush"
+                    Value="{Binding Halo,
+                    RelativeSource={RelativeSource Self},
+                    Converter={StaticResource HaloStringToBrushConverter},
+                    ConverterParameter=0.7}"/>
 
-        <Style Selector="^:hover">
-            <Setter Property="BorderBrush" Value="{Binding Halo, RelativeSource={RelativeSource Self},
-                            Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.7}"/>
-            <Style Selector="^ Border#PART_Overlay">
+            <Style Selector="^ /template/ Border#PART_Overlay">
                 <Setter Property="Opacity" Value="0.4"/>
             </Style>
-        </Style>
+        </Style>    
 
         <Style Selector="^:click">
-            <Setter Property="BorderBrush" Value="{Binding Halo, RelativeSource={RelativeSource Self},
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush"
+                    Value="{Binding Halo,
+                            RelativeSource={RelativeSource Self},
                             Converter={StaticResource HaloStringToBrushConverter}}"/>
-            <Setter Property="Foreground" Value="{DynamicResource BackgroundDDBrush}"/>
-            <Style Selector="^ Border#PART_Overlay">
+
+            <Setter Property="Foreground"
+                    Value="{DynamicResource BackgroundDDBrush}"/>
+
+            <Style Selector="^ /template/ Border#PART_Overlay">
                 <Setter Property="Opacity" Value="0.8"/>
             </Style>
         </Style>

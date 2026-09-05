@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace TitanControl.WebAPI.Data.Conversion
 {
-    internal class HandleTypeConverter : JsonConverter<HandleType>
+    public class HandleTypeConverter : JsonConverter<HandleType>
     {
         public const string Fixture =       "fixtureHandle";
         public const string Group =         "groupHandle";
@@ -27,7 +27,6 @@ namespace TitanControl.WebAPI.Data.Conversion
         public override HandleType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             string? rawType = reader.GetString();
-            reader.Read();
 
             if (rawType == null) return HandleType.None;
 

@@ -1,0 +1,178 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:TitanControl.Views.Controls.Menu">
+
+    <!--
+        Additional resources
+        Using Control Themes:
+            https://docs.avaloniaui.net/docs/basics/user-interface/styling/control-themes
+        Using Theme Variants:
+            https://docs.avaloniaui.net/docs/guides/styles-and-resources/how-to-use-theme-variants
+    -->
+
+    <Design.PreviewWith>
+        <StackPanel Spacing="10">
+            <StackPanel Background="{DynamicResource SystemRegionBrush}">
+                <controls:ViewModeSelector />
+            </StackPanel>
+        </StackPanel>
+    </Design.PreviewWith>
+
+    <ControlTheme
+    x:Key="{x:Type controls:ViewModeSelector}"
+    TargetType="controls:ViewModeSelector">
+
+    <Setter Property="Height" Value="34"/>
+
+    <Setter Property="Template">
+        <ControlTemplate>
+
+            <Border
+                Background="{DynamicResource BackgroundLBrush}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="2">
+
+                <Grid ColumnDefinitions="Auto,Auto">
+
+                    <!-- GRID -->
+                    <ToggleButton
+                        x:Name="PART_GridButton"
+                        Grid.Column="0"
+                        Classes="viewMode"
+                        ToolTip.Tip="Grid view">
+
+                        <PathIcon
+                            Width="16"
+                            Height="16"
+                            Foreground="{Binding Foreground,
+                                RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                            Data="M2,2 H7 V7 H2 Z
+                                  M9,2 H14 V7 H9 Z
+                                  M2,9 H7 V14 H2 Z
+                                  M9,9 H14 V14 H9 Z"/>
+
+                    </ToggleButton>
+
+                    <!-- LIST -->
+                    <ToggleButton
+                        x:Name="PART_ListButton"
+                        Grid.Column="1"
+                        Classes="viewMode"
+                        ToolTip.Tip="List view">
+
+                        <PathIcon
+                            Width="16"
+                            Height="16"
+                            Foreground="{Binding Foreground,
+                                RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                            Data="M2,3 H5 V6 H2 Z
+                                  M7,3 H14 V6 H7 Z
+                                  M2,7.5 H5 V10.5 H2 Z
+                                  M7,7.5 H14 V10.5 H7 Z
+                                  M2,12 H5 V15 H2 Z
+                                  M7,12 H14 V15 H7 Z"/>
+
+                    </ToggleButton>
+
+                </Grid>
+            </Border>
+
+        </ControlTemplate>
+    </Setter>
+
+    <!-- Base button -->
+    <Style Selector="^ /template/ ToggleButton.viewMode">
+
+        <Setter Property="Width" Value="34"/>
+        <Setter Property="Height" Value="28"/>
+
+        <Setter Property="Padding" Value="6"/>
+
+        <Setter Property="Background"
+                Value="Transparent"/>
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundSecondaryBrush}"/>
+
+        <Setter Property="BorderBrush"
+                Value="Transparent"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="CornerRadius"
+                Value="4"/>
+
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center"/>
+
+        <Setter Property="VerticalContentAlignment"
+                Value="Center"/>
+
+        <Setter Property="Template">
+            <ControlTemplate>
+
+                <Border
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Padding="{TemplateBinding Padding}">
+
+                    <ContentPresenter
+                        Content="{TemplateBinding Content}"
+                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                </Border>
+
+            </ControlTemplate>
+        </Setter>
+
+    </Style>
+
+    <!-- Hover -->
+    <Style Selector="^ /template/ ToggleButton.viewMode:pointerover">
+
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLLBrush}"/>
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}"/>
+
+    </Style>
+
+    <!-- Selected -->
+    <Style Selector="^ /template/ ToggleButton.viewMode:checked">
+
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundLLBrush}"/>
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource AccentColorLBrush}"/>
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource ForegroundBrush}"/>
+
+    </Style>
+
+    <!-- Selected + hover -->
+    <Style Selector="^ /template/ ToggleButton.viewMode:checked:pointerover">
+
+        <Setter Property="Background"
+                Value="{DynamicResource AccentColorLBrush}"/>
+
+    </Style>
+
+    <!-- Press -->
+    <Style Selector="^ /template/ ToggleButton.viewMode:pressed">
+
+        <Setter Property="Background"
+                Value="{DynamicResource AccentColorDBrush}"/>
+
+    </Style>
+
+</ControlTheme>
+</ResourceDictionary>

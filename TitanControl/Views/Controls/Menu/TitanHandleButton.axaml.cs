@@ -80,41 +80,6 @@ public class TitanHandleButton : TemplatedControl
         }
     }
 
-    protected override void OnPointerEntered(PointerEventArgs e)
-    {
-        PseudoClasses.Set(":hover", true);
-
-        base.OnPointerEntered(e);
-    }
-
-    protected override void OnPointerExited(PointerEventArgs e)
-    {
-        PseudoClasses.Set(":hover", false);
-
-        base.OnPointerExited(e);
-    }
-
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
-        e.Pointer.Capture(this);
-        _mouseDown = true;
-
-        PseudoClasses.Set(":click", true);
-
-        base.OnPointerPressed(e);
-    }
-
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
-    {
-        if (_mouseDown)
-            _mouseDown = false;
-
-        e.Pointer.Capture(null);
-        PseudoClasses.Set(":click", false);
-
-        base.OnPointerReleased(e);
-    }
-
     private void OnHandleTypeChanged(HandleType type)
     {
         Classes.Clear();

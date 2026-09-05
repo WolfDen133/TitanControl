@@ -5,5 +5,8 @@
       <ResourceInclude Source="avares://TitanControl/Views/Controls/Layout/Field.axaml"/>
       <ResourceInclude Source="avares://TitanControl/Views/Controls/Handle/HandleButtonControl.axaml"/>
       <ResourceInclude Source="avares://TitanControl/Views/Controls/Handle/HandleFaderControl.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Views/Controls/Menu/TitanHandleButton.axaml"/>
+      <ResourceInclude Source="avares://TitanControl/Views/Controls/Menu/ViewModeSelector.axaml"/>
+
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

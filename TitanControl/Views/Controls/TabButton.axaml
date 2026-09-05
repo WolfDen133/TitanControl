@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:TitanControl.Views.Controls"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="40"
+             x:Class="TitanControl.Views.Controls.TabButton"
+             x:Name="ButtonRoot"
+             x:DataType="local:TabButton">
+  <Button
+      Command="{Binding #ButtonRoot.Command}"
+      CommandParameter="{Binding #ButtonRoot.CommandParameter}"
+      BorderBrush="{DynamicResource BorderSubtleBrush}"
+      VerticalAlignment="Stretch"
+      HorizontalAlignment="Stretch"
+      HorizontalContentAlignment="Stretch">
+      <Button.Styles>
+        <Style Selector="Button:hover">
+            
+        </Style>
+          <Style Selector="TextBlock">
+              <Setter Property="FontSize" Value="16"/>
+          </Style>
+      </Button.Styles>
+      <Grid 
+        ColumnDefinitions="Auto, *, Auto"
+        ColumnSpacing="10" 
+        IsHitTestVisible="False" Margin="5">
+            <Svg 
+                Path="{Binding #ButtonRoot.Icon}"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Left"
+                Height="24"
+                Width="24"
+                IsVisible="{Binding #ButtonRoot.Icon, Converter={StaticResource InvertedObjectIsNullConverter}}"
+                CurrentColor="{DynamicResource Foreground}"/>
+            <TextBlock
+                VerticalAlignment="Center"
+                Grid.Column="1" 
+                Text="{Binding #ButtonRoot.Text}"/>
+            <Border 
+                Grid.Column="3"
+                Background="{DynamicResource BackgroundLLBrush}" 
+                BorderBrush="{DynamicResource BorderBrush}" 
+                BorderThickness="1" 
+                CornerRadius="15"
+                MinWidth="25"
+                IsVisible="{Binding #ButtonRoot.RightContent, Converter={StaticResource InvertedObjectIsNullConverter}}"
+                Padding="6, 2">
+                    <TextBlock 
+                        Text="{Binding #ButtonRoot.RightContent}" 
+                        Classes="meta" 
+                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                        VerticalAlignment="Center"/>
+                </Border>
+      </Grid>
+  </Button>
+</UserControl>

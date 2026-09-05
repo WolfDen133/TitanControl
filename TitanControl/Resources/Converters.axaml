@@ -26,6 +26,10 @@
     
     <converters:SessionStateToVisibilityConverter x:Key="SessionStateToVisibilityConverter"/>
     <converters:SessionsMatchConverter x:Key="SessionsMatchConverter"/>
-     <converters:SessionsMatchConverter Inverted="True" x:Key="InvertedSessionsMatchConverter"/>
+    <converters:SessionsMatchConverter Inverted="True" x:Key="InvertedSessionsMatchConverter"/>
+    
+    <converters:HandleTypeToIconConverter x:Key="HandleTypeToIconConverter"/>
+    <converters:HandleTypeToStringConverter x:Key="HandleTypeToStringConverter"/>
+
 
 </ResourceDictionary>
