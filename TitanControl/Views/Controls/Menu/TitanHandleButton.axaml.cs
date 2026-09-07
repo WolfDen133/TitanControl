@@ -9,11 +9,9 @@ using TitanControl.WebAPI.Data;
 
 namespace TitanControl;
 
-[PseudoClasses(":click", ":hover")]
+[PseudoClasses()]
 public class TitanHandleButton : TemplatedControl
 {
-    private bool _mouseDown = false;
-
     public static readonly StyledProperty<int> UserNumberProperty =
      AvaloniaProperty.Register<TitanHandleButton, int>(nameof(UserNumber), -1);
 

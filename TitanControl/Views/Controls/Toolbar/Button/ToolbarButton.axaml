@@ -29,7 +29,12 @@
             
             <Viewbox Height="27" VerticalAlignment="Bottom" Grid.Row="1" Margin="3">
                 <Border>
-                    <Label x:Name="TextLabel" HorizontalContentAlignment="Center" Foreground="{Binding #ButtonRoot.Foreground}" Content="Test" VerticalContentAlignment="Center" FontSize="16"/>
+                    <Label x:Name="TextLabel" 
+                           HorizontalContentAlignment="Center" 
+                           Foreground="{Binding #ButtonRoot.Foreground}" 
+                           Content="{Binding #ButtonRoot.Text}" 
+                           VerticalContentAlignment="Center" 
+                           FontSize="16"/>
                 </Border>
             </Viewbox>
         </Grid>

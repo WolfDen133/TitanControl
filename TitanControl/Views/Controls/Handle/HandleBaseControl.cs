@@ -4,15 +4,20 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Threading.Tasks;
+using TitanControl.Logging;
+using TitanControl.ViewModels.Workspace.Handle;
 using TitanControl.Views.Controls.Layout.Grid;
 using TitanControl.Views.State;
+using TitanControl.WebAPI.Data;
 
 namespace TitanControl.Views.Controls.Handle
 {
     [PseudoClasses(":selected", ":moving")]
-    public abstract class HandleBaseControl : ContentControl
+    public abstract class HandleBaseControl : ContentControl, ISelectable
     {
-
         public static readonly StyledProperty<int> UserNumberProperty =
             AvaloniaProperty.Register<HandleBaseControl, int>(nameof(UserNumber), -1);
 
@@ -28,8 +33,8 @@ namespace TitanControl.Views.Controls.Handle
         public static readonly StyledProperty<string> HaloProperty =
              AvaloniaProperty.Register<HandleBaseControl, string>(nameof(Halo), "#4A5562");
 
-        public static readonly StyledProperty<KeyProfile> KeyProfileProperty =
-            AvaloniaProperty.Register<HandleBaseControl, KeyProfile>(nameof(KeyProfile));
+        public static readonly StyledProperty<HandleKeyProfile> KeyProfileProperty =
+            AvaloniaProperty.Register<HandleBaseControl, HandleKeyProfile>(nameof(KeyProfile));
 
         public static readonly StyledProperty<bool> IsSelectedProperty =
             AvaloniaProperty.Register<HandleBaseControl, bool>(nameof(IsSelected));
@@ -53,18 +58,35 @@ namespace TitanControl.Views.Controls.Handle
         public static readonly AttachedProperty<int> GridYSpanProperty =
             AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
                 "GridYSpan");
+ 
 
-        public HandleBaseControl() : base()
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            ImageProperty.Changed.AddClassHandler<HandleBaseControl>((control, args) =>
-            {
-                HasImage = args.NewValue != null;
-            });
+            base.OnPropertyChanged(change);
 
-            EditMode.IsEnabledProperty.Changed.AddClassHandler<HandleBaseControl>((control, args) =>
+
+            if (change.Property == EditMode.IsEnabledProperty)
             {
-                IsEnabled = !(bool)args.NewValue!;
-            });
+                IsEnabled = !EditMode.GetIsEnabled(this);
+                return;
+            }
+
+            if (change.Property == IsSelectedProperty)
+            {
+                PseudoClasses.Set(":selected", (bool)change.NewValue!);
+                return;
+            }
+
+            if (change.Property == IsMovingProperty)
+            {
+                PseudoClasses.Set(":moving", (bool)change.NewValue!);
+                return;
+            }
+
+            if (change.Property == ImageProperty)
+            {
+                HasImage = change.NewValue != null;
+            }
         }
 
 
@@ -98,7 +120,7 @@ namespace TitanControl.Views.Controls.Handle
             set => SetValue(HaloProperty, value);
         }
 
-        public KeyProfile KeyProfile
+        public HandleKeyProfile KeyProfile
         {
             get => GetValue(KeyProfileProperty);
             set => SetValue(KeyProfileProperty, value);
@@ -107,7 +129,11 @@ namespace TitanControl.Views.Controls.Handle
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);
-            set => SetValue(IsSelectedProperty, value);
+            set
+            {
+                SetValue(IsSelectedProperty, value);
+                Log.Debug($"Selected: {value}");
+            }
         }
 
         public bool IsMoving

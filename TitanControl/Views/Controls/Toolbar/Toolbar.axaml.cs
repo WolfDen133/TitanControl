@@ -1,10 +1,17 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using System;
-using TitanControl.ViewModels.Controls;
+using System.Diagnostics;
+using System.Linq;
+using TitanControl.Logging;
+using TitanControl.ViewModels.Controls.Toolbar;
+using TitanControl.Views.Controls.Layout.Grid;
 using TitanControl.Views.Controls.Toolbar;
 using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.Views.Controls.Toolbar.Buttons;
+using TitanControl.Views.State;
 
 namespace TitanControl.Views.Controls.Toolbar;
 
@@ -26,9 +33,16 @@ public partial class Toolbar : UserControl
         InitializeComponent();
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
+    protected override void OnPropertyChanged(
+    AvaloniaPropertyChangedEventArgs change)
     {
-        base.OnLoaded(e);
+        base.OnPropertyChanged(change);
+
+        if (change.Property == EditMode.IsEnabledProperty)
+        {
+            Log.Debug(
+                $"Toolbar edit mode: {EditMode.GetIsEnabled(this)}");
+        }
     }
 
     public void DoResize(int height)
@@ -46,11 +60,5 @@ public partial class Toolbar : UserControl
         height = Math.Min(height, (windowWidth / 2 - Math.Min(138, (windowWidth / 4.85f) / 2) - 30) / Toolstrip.MaxPerPage);
 
         return (int)height;
-    }
-
-    private void ToolbarButton_OnClick(object? sender, ButtonAction e)
-    {
-        if (sender is ToolbarButton button && !Design.IsDesignMode)
-            Model.OnButtonClicked((ButtonId)button.ID, e);
     }
 }

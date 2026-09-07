@@ -12,12 +12,14 @@
              Background="{DynamicResource BackgroundDDBrush}">
         <UserControl.DataTemplates>
             <DataTemplate DataType="handle:HandleFaderModel">
-                <handleControls:HandleFaderControl/>
+                <handleControls:HandleFaderControl
+                    IsSelected="{Binding IsSelected}"/>
             </DataTemplate>
             <DataTemplate DataType="handle:HandleButtonModel">
                 <handleControls:HandleButtonControl
                     Halo="{Binding Color}"
-                    Legend="{Binding Legend}"/>
+                    Legend="{Binding Legend}"
+                    IsSelected="{Binding IsSelected}"/>
             </DataTemplate>
         </UserControl.DataTemplates>
   <Grid>
@@ -25,7 +27,8 @@
                         ZIndex="0"
                        Opacity="{Binding 
                            Path=(state:EditMode.IsEnabled), 
-                           RelativeSource={RelativeSource Self}}"
+                           RelativeSource={RelativeSource Self}, 
+                           Mode=OneWay}"
                        Brush="{DynamicResource BorderSubtleBrush}" 
                        Columns="{Binding Columns, ElementName=root}" 
                        Rows="{Binding Rows, ElementName=root}"/>
@@ -63,7 +66,8 @@
                       x:Name="GridLayout" 
                       Background="Transparent" 
                       Columns="{Binding Columns, ElementName=root}" 
-                      Rows="{Binding Rows, ElementName=root}"/>
+                      Rows="{Binding Rows, ElementName=root}"
+                      SelectOver="{Binding SelectOver, ElementName=root}"/>
               </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
       </ItemsControl>

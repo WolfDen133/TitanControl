@@ -7,7 +7,11 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="TitanControl.Views.WorkspaceView"
              x:DataType="page:WorkspaceViewModel">
-  <grid:ControlGrid x:Name="PART_ControlGrid" Controls="{Binding Controls}"
+  <grid:ControlGrid x:Name="PART_ControlGrid" 
+                    Controls="{Binding Controls}"
                     Rows="{Binding CurrentWorkspace.Options.GridSize.Height}"
-                    Columns="{Binding CurrentWorkspace.Options.GridSize.Width}"/>
+                    Columns="{Binding CurrentWorkspace.Options.GridSize.Width}"
+                    SelectOver="True"
+                    SelectedControls="{Binding SelectedControls, Mode=TwoWay}"
+                    />
 </UserControl>

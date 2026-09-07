@@ -1,7 +1,8 @@
-﻿using System.Drawing;
+﻿using Avalonia;
+using System.Drawing;
 using System.Text.Json.Serialization;
 using TitanControl.Services.Session;
-using TitanControl.Views.Controls.Handle;
+using TitanControl.ViewModels.Workspace.Handle;
 using TitanControl.WebAPI.Data;
 
 namespace TitanControl.Models.Control
@@ -9,7 +10,7 @@ namespace TitanControl.Models.Control
     public abstract class ControlModel : IControlModel
     {
         [JsonPropertyName("type")]
-        public virtual ControlId ControlId { get; init; } = ControlId.None;
+        public virtual HandleControlId ControlId { get; init; } = HandleControlId.None;
 
         [JsonPropertyName("location")]
         public Rectangle Location { get; set; }
@@ -21,7 +22,7 @@ namespace TitanControl.Models.Control
         public HandleType HandleType { get; set; }
 
         [JsonPropertyName("keyProfile")]
-        public KeyProfile KeyProfile { get; set; }
+        public HandleKeyProfile KeyProfile { get; set; }
 
         public abstract ISaveable ToInstance(ISessionService service);
 

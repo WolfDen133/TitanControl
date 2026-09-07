@@ -1,11 +1,14 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using TitanControl.Events.Control;
 using TitanControl.Logging;
 using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.Views.Controls.Toolbar.Buttons;
@@ -17,27 +20,35 @@ namespace TitanControl.Views.Controls.Toolbar
     {
         private const string LogCategory = nameof(Toolstrip);
 
-        private readonly Dictionary<int, ToolbarButton> _buttonsById = new();
-        private bool _initialized;
-        private int _current = -1;
+        public static int MaxPerPage => 6;
 
-        public static int MaxPerPage { get; } = 6;
+        private readonly Dictionary<ButtonId, ToolbarButton> _buttonsById = new();
+        private readonly Dictionary<ButtonId, Control> _containersById = new();
+        private ButtonId _current = ButtonId.None;
 
-        /// <summary>
-        /// Flat collection of every button registered with this Toolstrip.
-        /// Buttons may be declared as direct Toolstrip children or nested inside
-        /// ToolbarButton.Children in AXAML.
-        /// </summary>
+
         public ObservableCollection<ToolbarButton> MenuTree { get; } = [];
-        public List<int> DefaultIndexes = [];
+        public List<ButtonId> DefaultIds = [];
 
         public bool Exclusive { get; set; } = false;
 
-        public int Current => _current;
+        public ButtonId Current => _current;
+
+        public static readonly RoutedEvent<ToolButtonPressedEventArgs>
+            ToolButtonPressedEvent =
+                RoutedEvent.Register<Toolstrip, ToolButtonPressedEventArgs>(
+                    nameof(ToolButtonPressed),
+                    RoutingStrategies.Bubble);
+
+
+        public event EventHandler<ToolButtonPressedEventArgs> ToolButtonPressed
+        {
+            add => AddHandler(ToolButtonPressedEvent, value);
+            remove => RemoveHandler(ToolButtonPressedEvent, value);
+        }
 
         public Toolstrip()
         {
-            FlowDirection = Avalonia.Media.FlowDirection.LeftToRight;
             Orientation = Avalonia.Layout.Orientation.Horizontal;
             Margin = new Thickness(4);
         }
@@ -46,64 +57,101 @@ namespace TitanControl.Views.Controls.Toolbar
         {
             base.OnLoaded(e);
 
-            if (_initialized)
-                return;
+            RebuildButtonIndex();
+        }
 
-            _initialized = true;
+        protected override void OnUnloaded(RoutedEventArgs e)
+        {
+            UnregisterButtons();
 
-            // Snapshot the direct AXAML children before we add nested menu children
-            // to the StackPanel's visual collection.
-            var rootButtons = Children
-                .OfType<ToolbarButton>()
+            base.OnUnloaded(e);
+        }
+
+        private void RebuildButtonIndex()
+        {
+            UnregisterButtons();
+
+            var generatedButtons = Children
+                .OfType<Control>()
+                .Select(container => new
+                {
+                    Container = container,
+                    Button = ResolveToolbarButton(container)
+                })
+                .Where(entry => entry.Button is not null)
+                .Select(entry => new
+                {
+                    entry.Container,
+                    Button = entry.Button!
+                })
                 .ToList();
 
-            DefaultIndexes = [.. rootButtons.Where(b => b.ID != -1).Select(b => b.ID)];
+            foreach (var entry in generatedButtons)
+            {
+                var button = entry.Button;
 
-            RegisterButtonTree(rootButtons);
+                if (!_buttonsById.TryAdd(button.Id, button))
+                {
+                    throw new InvalidOperationException(
+                        $"A toolbar button with ID {button.Id} " +
+                        "has already been registered.");
+                }
 
-            InitializeButtons();
+                _containersById.Add(button.Id, entry.Container);
+                MenuTree.Add(button);
+
+                button.Toolstrip = this;
+                button.OnClick += OnButtonClick;
+            }
+
+            // Determine which generated buttons are children of other buttons.
+            var childIds = generatedButtons
+                .SelectMany(entry => entry.Button.Children)
+                .ToHashSet();
+
+            DefaultIds =
+            [
+                .. generatedButtons
+                .Select(entry => entry.Button)
+                .Where(button =>
+                    ((int)button.Id) <= 10
+                    && button.Id != ButtonId.Back)
+                .Select(b => b.Id)
+            ];
+
+            ValidateChildButtons();
+
             ShowDefaultPage();
         }
 
-        /// <summary>
-        /// Recursively registers buttons declared in ToolbarButton.Children.
-        /// Nested buttons are also attached to this StackPanel so visibility/layout
-        /// can continue to be controlled by the Toolstrip exactly as before.
-        /// </summary>
-        private void RegisterButtonTree(IEnumerable<ToolbarButton> buttons)
-        {
-            foreach (var button in buttons)
-            {
-                if (_buttonsById.ContainsKey(button.ID))
-                {
-                    throw new InvalidOperationException(
-                        $"A toolbar button with ID {button.ID} has already been registered.");
-                }
-
-                _buttonsById.Add(button.ID, button);
-                MenuTree.Add(button);
-
-                // The Toolstrip owns the toolbar button's UI lifetime.
-                button.Toolstrip = this;
-
-                // Snapshot because descendants will be attached to Children below.
-                var childButtons = button.Children.ToList();
-
-                RegisterButtonTree(childButtons);
-
-                foreach (var child in childButtons)
-                {
-                    if (!Children.Contains(child))
-                        Children.Add(child);
-                }
-            }
-        }
-
-        private void InitializeButtons()
+        private void UnregisterButtons()
         {
             foreach (var button in MenuTree)
             {
-                button.OnClick += OnButtonClick;
+                button.OnClick -= OnButtonClick;
+                button.Toolstrip = null;
+            }
+
+            MenuTree.Clear();
+            _buttonsById.Clear();
+            _containersById.Clear();
+            DefaultIds.Clear();
+        }
+
+        private void ValidateChildButtons()
+        {
+            foreach (var parent in MenuTree)
+            {
+                foreach (var child in parent.Children)
+                {
+                    if (_buttonsById.ContainsKey(child))
+                        continue;
+
+                    throw new InvalidOperationException(
+                        $"Toolbar button {parent.Id} references child " +
+                        $"{child}, but {child} is not present in the " +
+                        "ItemsControl.ItemsSource.");
+                }
             }
         }
 
@@ -119,53 +167,28 @@ namespace TitanControl.Views.Controls.Toolbar
                 await ShowPageAfter(selectedButton, selectedButton.Children.Count > 0);
             }
 
-            if (selectedButton.ID == -1)
+            if (selectedButton.Id == ButtonId.Back)
             {
                 await ShowPageAfter(null, false);
                 return;
             }
 
-            if (!Exclusive) return;
-
-            foreach (var button in MenuTree)
+            if (Exclusive && action != ButtonAction.ToggleUp)
             {
-                if (button.ID != selectedButton.ID)
-                    button.ReleaseToggle(true);
+                foreach (var button in MenuTree)
+                {
+                    Log.Debug($"{button.Id != selectedButton.Id} {button.Id} {selectedButton.Id}");
+                    if (button.Id != selectedButton.Id)
+                        button.ReleaseToggle();
+                }
             }
+
+            RaiseEvent(new ToolButtonPressedEventArgs(ToolButtonPressedEvent) { ButtonAction = action, ButtonId = selectedButton.Id });
         }
 
         protected virtual void ShowDefaultPage()
         {
             ShowPage(null, includeBackButton: false);
-        }
-
-        public void LoadPage(int id)
-        {
-            if (id == 0 || id == -1)
-            {
-                ShowDefaultPage();
-                return;
-            }
-
-            if (!_buttonsById.TryGetValue(id, out var pageButton))
-            {
-                Log.Warning(
-                    $"Unable to load toolbar page {id}: the page does not exist.",
-                    LogCategory);
-
-                return;
-            }
-
-            if (pageButton.Children?.Count == 0)
-            {
-                Log.Warning(
-                    $"Unable to load toolbar page {id}: the page has no child buttons.",
-                    LogCategory);
-
-                return;
-            }
-
-            ShowPage(pageButton, includeBackButton: true);
         }
 
         private async Task ShowPageAfter(ToolbarButton? page, bool includeBackButton)
@@ -179,30 +202,26 @@ namespace TitanControl.Views.Controls.Toolbar
             ToolbarButton? page,
             bool includeBackButton)
         {
-            foreach (var button in MenuTree)
-                button.IsVisible = false;
+            foreach (var container in _containersById.Values)
+                container.IsVisible = false;
 
-            if (includeBackButton &&
-                _buttonsById.TryGetValue(-1, out var backButton))
-            {
-                backButton.IsVisible = true;
-            }
+            if (includeBackButton)
+                SetButtonVisible(ButtonId.Back);
 
             if (page is null)
             {
                 ShowDefaultButtons();
-                _current = -1;
+                _current = ButtonId.None;
 
                 InvalidateMeasure();
                 InvalidateArrange();
                 return;
             }
 
-            // Children are now the actual ToolbarButton instances.
             foreach (var child in page.Children)
-                child.IsVisible = true;
+                SetButtonVisible(child);
 
-            _current = page.ID;
+            _current = page.Id;
 
             InvalidateMeasure();
             InvalidateArrange();
@@ -210,15 +229,45 @@ namespace TitanControl.Views.Controls.Toolbar
 
         protected virtual void ShowDefaultButtons()
         {
-            foreach (var index in DefaultIndexes)
+            foreach (var index in DefaultIds)
                 SetButtonVisible(index);
         }
 
-        protected void SetButtonVisible(int buttonId, bool visible = true)
+        protected void SetButtonVisible(
+            ButtonId buttonId,
+            bool visible = true)
         {
-            if (_buttonsById.TryGetValue(buttonId, out var button))
-                button.IsVisible = visible;
+            if (_containersById.TryGetValue(buttonId, out var container))
+                container.IsVisible = visible;
         }
+
+        private static ToolbarButton? ResolveToolbarButton(Control container)
+        {
+            // Supports the old direct-child approach.
+            if (container is ToolbarButton directButton)
+                return directButton;
+
+            if (container is ContentPresenter presenter)
+            {
+                // ItemsSource contains actual ToolbarButton instances.
+                if (presenter.Content is ToolbarButton contentButton)
+                    return contentButton;
+
+                // ItemsSource contains view models and a DataTemplate creates
+                // the ToolbarButton.
+                return presenter
+                    .GetVisualDescendants()
+                    .OfType<ToolbarButton>()
+                    .FirstOrDefault();
+            }
+
+            return container
+                .GetVisualDescendants()
+                .OfType<ToolbarButton>()
+                .FirstOrDefault();
+        }
+
+        
 
         protected override Size MeasureOverride(Size availableSize)
         {

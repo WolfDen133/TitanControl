@@ -18,6 +18,7 @@ using TitanControl.ViewModel;
 using TitanControl.ViewModels.Controls;
 using TitanControl.ViewModels.Page;
 using TitanControl.Views.Controls.Layout.Grid;
+using TitanControl.Views.Controls.Toolbar;
 using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.Views.Pages;
 using static System.Net.Mime.MediaTypeNames;
@@ -52,7 +53,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        AddHandler(GridLayout.GridDoubleClickedEvent, OnGrid_DoubleClicked);
+
+        AddHandler(GridLayout.GridDoubleClickedEvent, OnGrid_DoubleClicked, RoutingStrategies.Bubble);
+        AddHandler(Toolstrip.ToolButtonPressedEvent, OnToolButtonClicked, RoutingStrategies.Bubble);
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -66,8 +69,6 @@ public partial class MainWindow : Window
 
         ToolbarContainer.Height = 0;
 
-        Model.ToolbarModel.ButtonClicked += ToolbarModel_ButtonClicked;
-
         _toolbarTransitions = ToolbarContainer.Transitions;
 
         SetPagePositionImmediately(Model.CurrentPage != ViewModels.Page.PageId.None);
@@ -76,8 +77,6 @@ public partial class MainWindow : Window
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
-
-        Model.ToolbarModel.ButtonClicked -= ToolbarModel_ButtonClicked;
     }
 
     protected override void OnSizeChanged(SizeChangedEventArgs e)
@@ -98,8 +97,10 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void ToolbarModel_ButtonClicked(object? sender, ToolButtonPressedEventArgs e)
+    private async void OnToolButtonClicked(object? sender, ToolButtonPressedEventArgs e)
     {
+        Model.WorkspaceModel.ToolButtonClicked(e.ButtonId, e.ButtonAction);
+
         PageId page = e.ButtonId switch
         { 
             ButtonId.Sessions => PageId.Session,
@@ -300,8 +301,11 @@ public partial class MainWindow : Window
             ToolbarContainer.Height = height;
             PART_Toolbar.DoResize(height);
         }
-        else 
+        else
+        {
             ToolbarContainer.Height = 0;
+            Model.WorkspaceModel.ClearSelection();
+        }
     }
 
     private void HandlePanelVisibility(Panel panel, bool visible)

@@ -28,10 +28,11 @@ namespace TitanControl.ViewModels.Workspace.Handle
         }
 
         public TModel Model { get; }
+        IControlModel IHandleControl.Model => Model;
 
         protected ICommandMap<TModel> CommandMap { get; set; } = null!;
 
-        public ControlId ControlId => Model.ControlId;
+        public HandleControlId ControlId => Model.ControlId;
 
         protected HandleInformation? HandleInformation
         {
@@ -98,7 +99,7 @@ namespace TitanControl.ViewModels.Workspace.Handle
             }
         }
 
-        public KeyProfile KeyProfile
+        public HandleKeyProfile KeyProfile
         {
             get => Model.KeyProfile;
             set
@@ -123,5 +124,7 @@ namespace TitanControl.ViewModels.Workspace.Handle
         {
             return Model;
         }
+
+        public abstract IHandleControl Copy();
     }
 }

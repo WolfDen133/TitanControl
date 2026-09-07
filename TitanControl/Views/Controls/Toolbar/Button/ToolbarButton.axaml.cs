@@ -6,6 +6,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TitanControl.Views.Controls.Toolbar.Button;
 
@@ -16,17 +17,32 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
     {
         private bool _isSvg;
 
+        public static readonly StyledProperty<ButtonId> IdProperty =
+           AvaloniaProperty.Register<ToolbarButton, ButtonId>(nameof(Id), ButtonId.None);
+
+        public static readonly StyledProperty<bool> ToggleProperty =
+           AvaloniaProperty.Register<ToolbarButton, bool>(nameof(Toggle), false);
+
+        public static readonly StyledProperty<string?> TextProperty =
+            AvaloniaProperty.Register<ToolbarButton, string?>(nameof(Text), "Toolbutton");
+
         public static readonly StyledProperty<string?> PathProperty =
             AvaloniaProperty.Register<ToolbarButton, string?>(nameof(Path), null);
+
+        public static readonly StyledProperty<bool> ToggledProperty =
+            AvaloniaProperty.Register<ToolbarButton, bool>(nameof(Toggled), false);
+
+        public static readonly StyledProperty<ObservableCollection<ButtonId>> ChildrenProperty =
+            AvaloniaProperty.Register<ToolbarButton, ObservableCollection<ButtonId>>(nameof(Children));
+
+        public static readonly StyledProperty<bool> AvailableProperty =
+            AvaloniaProperty.Register<ToolbarButton, bool>(nameof(Available), false);
 
         public static readonly DirectProperty<ToolbarButton, bool> IsSvgProperty =
             AvaloniaProperty.RegisterDirect<ToolbarButton, bool>(nameof(IsSvg), o => o.IsSvg);
 
 
 
-        /// <summary>
-        /// Set automatically by the containing Toolstrip when the menu tree is loaded.
-        /// </summary>
         public Toolstrip? Toolstrip { get; internal set; }
 
         public string? Path
@@ -35,35 +51,46 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
             set => SetValue(PathProperty, value);
         }
 
-        public int ID { get; set; }
-
-        /// <summary>
-        /// Child menu buttons belonging to this button.
-        ///
-        /// These are real ToolbarButton instances rather than IDs. The Toolstrip
-        /// discovers this hierarchy on load and attaches the nested buttons to its
-        /// visual collection so it can control their visibility.
-        /// </summary>
-        public ObservableCollection<ToolbarButton> Children { get; } = new();
-
-        public string Text
+        public bool Toggled
         {
-            set => TextLabel.Content = value;
-            get => (string?)TextLabel.Content ?? "Button";
+            get => GetValue(ToggledProperty);
+            set => SetValue(ToggledProperty, value);
+        }
+
+        public string? Text
+        {
+            set => SetValue(TextProperty, value);
+            get => GetValue(TextProperty);
+        }
+
+        public ButtonId Id 
+        { 
+            get => GetValue(IdProperty); 
+            set => SetValue(IdProperty, value); 
+        }
+
+        public bool Toggle
+        {
+            get => GetValue(ToggleProperty);
+            set => SetValue(ToggleProperty, value);
+        }
+
+        public ObservableCollection<ButtonId> Children 
+        { 
+            get => GetValue(ChildrenProperty);
+            set => SetValue(ChildrenProperty, value);
+        }
+
+        public bool Available
+        {
+            get => GetValue(AvailableProperty);
+            set => SetValue(AvailableProperty, value);
         }
 
         public string Description { get; set; } =
             "This is the description of a mouse button";
 
         public bool IsMouseDown = false;
-
-        public bool Toggle
-        {
-            get;
-            set;
-        } = false;
-
-        private bool toggled = false;
 
         public bool IsSvg
         {
@@ -80,6 +107,12 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center;
 
             InvalidateVisual();
+
+            this.GetObservable(ToggledProperty).Subscribe(isToggled 
+                => PseudoClasses.Set(":toggled", isToggled));
+
+            this.GetObservable(AvailableProperty).Subscribe(isAvaiable 
+                => PseudoClasses.Set(":available", isAvaiable));
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -93,7 +126,7 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
                     ".svg",
                     StringComparison.OrdinalIgnoreCase);
 
-                if (!IsSvg)
+                if (!IsSvg) 
                     LoadImage();
             }
         }
@@ -144,7 +177,7 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
 
             PseudoClasses.Set(":hover", true);
 
-            if (Toggle && toggled)
+            if (Toggle && Toggled)
                 return;
         }
 
@@ -159,25 +192,22 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
 
         private void InternalToggle()
         {
-            if (toggled)
+            if (Toggled)
             {
                 ReleaseToggle();
                 return;
             }
 
-            toggled = true;
-            PseudoClasses.Set(":toggled", true);
-
+            SetCurrentValue(ToggledProperty, true);
             ClickAction(ButtonAction.ToggleDown);
         }
 
         public void ReleaseToggle(bool soft = false)
         {
-            if (!toggled)
+            if (!Toggled)
                 return;
 
-            toggled = false;
-            PseudoClasses.Set(":toggled", false);
+            SetCurrentValue(ToggledProperty, false);
 
             if (!soft)
                 ClickAction(ButtonAction.ToggleUp);

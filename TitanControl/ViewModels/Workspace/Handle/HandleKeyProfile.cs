@@ -1,6 +1,6 @@
-﻿namespace TitanControl.Views.Controls.Handle
+﻿namespace TitanControl.ViewModels.Workspace.Handle
 {
-    public enum KeyProfile
+    public enum HandleKeyProfile
     {
         None,
         Latch,

@@ -1,6 +1,6 @@
-﻿namespace TitanControl.Views.Controls.Handle
+﻿namespace TitanControl.ViewModels.Workspace.Handle
 {
-    public enum ControlId
+    public enum HandleControlId
     {
         None = -1,
         Fader = 0,

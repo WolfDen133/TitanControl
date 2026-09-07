@@ -13,6 +13,7 @@
         Config = 7,
         Windows = 8,
         Disk = 9,
+        Latch = 10,
 
         AddButton = 11,
         AddFader = 12,
@@ -28,5 +29,7 @@
         Load = 93,
         Rename = 94,
         New = 95,
+
+        
     }
 }

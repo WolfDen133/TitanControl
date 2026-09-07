@@ -9,7 +9,7 @@ using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.Services.Session;
 using TitanControl.Services.Workspace;
-using TitanControl.ViewModels.Controls;
+using TitanControl.ViewModels.Controls.Toolbar;
 using TitanControl.ViewModels.Page;
 using TitanControl.ViewModels.Page.HandleBrowser;
 using TitanControl.ViewModels.Workspace;
@@ -45,7 +45,9 @@ namespace TitanControl.ViewModel
         public bool EditMode
         {
             get => _editMode;
-            set => SetProperty(ref _editMode, value);
+            set {
+                SetProperty(ref _editMode, value);
+            }
         }
 
         public bool IsGoingBack
@@ -60,7 +62,7 @@ namespace TitanControl.ViewModel
             _sessionService = sessionService;
 
             ToolbarModel = new ToolbarModel(sessionService, workspaceService);
-            WorkspaceModel = new WorkspaceViewModel(workspaceService, sessionService);
+            WorkspaceModel = new WorkspaceViewModel(workspaceService, sessionService, ToolbarModel);
         }
 
         public void EnableEditMode(bool enable = true)

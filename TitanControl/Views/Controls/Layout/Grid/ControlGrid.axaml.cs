@@ -1,190 +1,345 @@
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
-using Avalonia.Input;
+using Avalonia.Controls.Presenters;
 using Avalonia.Interactivity;
+using Avalonia.Styling;
 using Avalonia.VisualTree;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
+using TitanControl.Logging;
+using TitanControl.ViewModels.Workspace;
 using TitanControl.Views.Controls.Handle;
 using TitanControl.Views.State;
 
-namespace TitanControl.Views.Controls.Layout.Grid
+namespace TitanControl.Views.Controls.Layout.Grid;
+
+public partial class ControlGrid : UserControl
 {
-    public partial class ControlGrid : UserControl
+    private GridLayout? _gridLayout;
+
+    private static readonly Transitions FadeOutTransitions =
+    [
+        new DoubleTransition
+        {
+            Property = Visual.OpacityProperty,
+            Duration = TimeSpan.FromMilliseconds(120)
+        }
+    ];
+
+    public static readonly StyledProperty<int> RowsProperty =
+        AvaloniaProperty.Register<ControlGrid, int>(
+            nameof(Rows),
+            defaultValue: 12);
+
+    public static readonly StyledProperty<int> ColumnsProperty =
+        AvaloniaProperty.Register<ControlGrid, int>(
+            nameof(Columns),
+            defaultValue: 12);
+
+    public static readonly StyledProperty<bool> DisplayLinesProperty =
+        AvaloniaProperty.Register<ControlGrid, bool>(
+            nameof(DisplayLines),
+            defaultValue: true);
+
+    public static readonly StyledProperty<IEnumerable<IHandleControl>>
+        ControlsProperty =
+            AvaloniaProperty.Register<
+                ControlGrid,
+                IEnumerable<IHandleControl>>(
+                    nameof(Controls),
+                    defaultValue: Array.Empty<IHandleControl>());
+
+    public static readonly StyledProperty<bool> SelectOverProperty =
+        AvaloniaProperty.Register<ControlGrid, bool>(
+            nameof(SelectOver),
+            defaultValue: false);
+
+    public static readonly StyledProperty<bool> SnapSelectionProperty =
+        AvaloniaProperty.Register<ControlGrid, bool>(
+            nameof(SnapSelection),
+            defaultValue: false);
+
+    public static readonly StyledProperty<WorkspaceAction> CurrentActionProperty =
+     AvaloniaProperty.Register<ControlGrid, WorkspaceAction>(
+         nameof(CurrentAction),
+         defaultValue: WorkspaceAction.None);
+
+    public static readonly StyledProperty<ObservableCollection<IHandleControl>> SelectedControlsProperty =
+            AvaloniaProperty.Register<
+                ControlGrid, 
+                ObservableCollection<IHandleControl>>(nameof(SelectedControls),
+                    defaultValue: new ObservableCollection<IHandleControl>());
+
+
+    public static readonly RoutedEvent<RoutedEventArgs> ControlsSelectedEvent = 
+        RoutedEvent.Register<ControlGrid, RoutedEventArgs>(
+            nameof(ControlsSelected), RoutingStrategies.Bubble);
+
+    public static readonly RoutedEvent<RoutedEventArgs> SelectionCompletedEvent =
+        RoutedEvent.Register<ControlGrid, RoutedEventArgs>(
+            nameof(SelectionCompleted), RoutingStrategies.Bubble);
+
+
+    public int Rows
     {
-        private GridLayout? _gridLayout;
+        get => GetValue(RowsProperty);
+        set => SetValue(RowsProperty, value);
+    }
 
-        private static readonly Transitions FadeOutTransitions =
-        [
-            new DoubleTransition
+    public int Columns
+    {
+        get => GetValue(ColumnsProperty);
+        set => SetValue(ColumnsProperty, value);
+    }
+
+    public IEnumerable<IHandleControl> Controls
+    {
+        get => GetValue(ControlsProperty);
+        set => SetValue(ControlsProperty, value);
+    }
+
+    public ObservableCollection<IHandleControl> SelectedControls
+    {
+        get => GetValue(SelectedControlsProperty);
+        set => SetValue(SelectedControlsProperty, value);
+    }
+
+    public bool DisplayLines
+    {
+        get => GetValue(DisplayLinesProperty);
+        set => SetValue(DisplayLinesProperty, value);
+    }
+
+    public bool SelectOver
+    {
+        get => GetValue(SelectOverProperty);
+        set => SetValue(SelectOverProperty, value);
+    }
+
+    public bool SnapSelection
+    {
+        get => GetValue(SnapSelectionProperty);
+        set => SetValue(SnapSelectionProperty, value);
+    }
+
+    public WorkspaceAction CurrentAction
+    {
+        get => GetValue(CurrentActionProperty);
+        set => SetValue(CurrentActionProperty, value);
+    }
+
+    public event EventHandler<RoutedEventArgs> ControlsSelected
+    {
+        add => AddHandler(ControlsSelectedEvent, value);
+        remove => RemoveHandler(ControlsSelectedEvent, value);
+    }
+
+    public event EventHandler<RoutedEventArgs> SelectionCompleted
+    {
+        add => AddHandler(SelectionCompletedEvent, value);
+        remove => RemoveHandler(SelectionCompletedEvent, value);
+    }
+
+    public Rect SelectedArea => _gridLayout!.GetSelectedCoords();
+
+    public ControlGrid()
+    {
+        InitializeComponent();
+
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
+
+    protected override void OnPropertyChanged(
+    AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == EditMode.IsEnabledProperty)
+            UpdateSelectionEnabled();
+    }
+
+    private void UpdateSelectionEnabled()
+    {
+        if (_gridLayout is null)
+            return;
+
+        _gridLayout.IsSelectionEnabled =
+            EditMode.GetIsEnabled(this);
+    }
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        DetachGridLayout();
+        AttachGridLayout();
+    }
+
+    private void OnUnloaded(object? sender, RoutedEventArgs e)
+    {
+        DetachGridLayout();
+    }
+
+
+    private void AttachGridLayout()
+    {
+        _gridLayout = this
+            .GetVisualDescendants()
+            .OfType<GridLayout>()
+            .FirstOrDefault()
+            ?? throw new InvalidOperationException(
+                "Grid layout not found");
+
+        _gridLayout.SelectionStarted += OnSelectionStarted;
+        _gridLayout.SelectionChanged += OnSelectionChanged;
+        _gridLayout.SelectionCompleted += OnSelectionCompleted;
+
+        UpdateSelectionEnabled();
+    }
+
+    private void DetachGridLayout()
+    {
+        if (_gridLayout is null)
+            return;
+
+        _gridLayout.SelectionStarted -= OnSelectionStarted;
+        _gridLayout.SelectionChanged -= OnSelectionChanged;
+        _gridLayout.SelectionCompleted -= OnSelectionCompleted;
+
+        _gridLayout = null;
+    }
+
+    private void OnSelectionStarted(object? sender, EventArgs e)
+    {
+        UpdateCurrentSelection();
+        ShowSelection();
+    }
+
+    private void OnSelectionChanged(object? sender, EventArgs e)
+    {
+        UpdateCurrentSelection();
+    }
+
+    private void OnSelectionCompleted(object? sender, EventArgs e)
+    {
+        UpdateCurrentSelection();
+        HideSelection();
+
+        RaiseEvent(new RoutedEventArgs(SelectionCompletedEvent));
+
+        if (SelectedControls.Any())
+            RaiseEvent(new RoutedEventArgs(ControlsSelectedEvent));
+    }
+
+    private void UpdateCurrentSelection()
+    {
+        if (_gridLayout is null)
+            return;
+
+        var selectedArea = SnapSelection
+            ? _gridLayout.GetSelectedCoordsArea()
+            : _gridLayout.GetSelectedArea();
+
+        UpdateSelectionRectangle(selectedArea);
+
+        if (SelectOver)
+        {
+            UpdateSelectedChildren(selectedArea);
+        }
+    }
+
+    private void UpdateSelectedChildren(Rect selectionArea)
+    {
+        if (_gridLayout is null || SnapSelection)
+            return;
+
+        SelectedControls.Clear();
+
+        // These are normally the ContentPresenters generated by ItemsControl.
+        foreach (var container in _gridLayout.Children.OfType<Control>())
+        {
+            var selectable = ResolveSelectable(container);
+
+            if (selectable is null)
+                continue;
+
+            var isSelected =
+                selectionArea.Intersects(container.Bounds);
+
+            selectable.IsSelected = isSelected;
+
+            if (isSelected &&
+                ResolveHandleControl(container) is { } handleControl &&
+                !SelectedControls.Contains(handleControl))
             {
-                Property = Visual.OpacityProperty,
-                Duration = TimeSpan.FromMilliseconds(120)
+                (SelectedControls).Add(handleControl);
             }
-        ];
-
-        public static readonly StyledProperty<int> RowsProperty =
-            AvaloniaProperty.Register<GridLayout, int>(nameof(Rows), 12);
-
-        public static readonly StyledProperty<int> ColumnsProperty =
-            AvaloniaProperty.Register<GridLayout, int>(nameof(Columns), 12);
-
-        public static readonly StyledProperty<bool> DisplayLinesProperty =
-            AvaloniaProperty.Register<GridLayout, bool>(nameof(DisplayLines), true);
-
-        public static readonly StyledProperty<IEnumerable<IHandleControl>?> ControlsProperty =
-        AvaloniaProperty.Register<ControlGrid, IEnumerable<IHandleControl>?>(
-            nameof(Controls));
-
-
-        public bool SnapSelection = false;
-
-        public int Rows
-        {
-            get => GetValue(RowsProperty);
-            set => SetValue(RowsProperty, value);
         }
+    }
 
-        public int Columns
-        {
-            get => GetValue(ColumnsProperty);
-            set => SetValue(ColumnsProperty, value);
-        }
+    private static ISelectable? ResolveSelectable(Control container)
+    {
+        // Handles actual controls placed directly in GridLayout.
+        if (container is ISelectable direct)
+            return direct;
 
-        public IEnumerable<IHandleControl>? Controls
-        {
-            get => GetValue(ControlsProperty);
-            set => SetValue(ControlsProperty, value);
-        }
-
-        public bool DisplayLines
-        {
-            get => GetValue(DisplayLinesProperty);
-            set => SetValue(DisplayLinesProperty, value);
-        }
-
-        public ControlGrid()
-        {
-            InitializeComponent();
-
-            Loaded += OnLoaded;
-            Unloaded += OnUnloaded;
-        }
-
-        private void OnLoaded(object? sender, RoutedEventArgs e)
-        {
-            _gridLayout = this
-                .GetVisualDescendants()
-                .OfType<GridLayout>()
-                .SingleOrDefault();
-
-            if (_gridLayout is null)
-                return; // Or throw while developing.
-
-            EditMode.IsEnabledProperty.Changed.AddClassHandler<ControlGrid>((s, e) =>
+        // Handles an ItemsControl whose data item implements ISelectable.
+        if (container is ContentPresenter
             {
-                if ((bool)e.NewValue! == true)
-                    AddGridHandlers();
-                else
-                    RemoveGridHandlers();
-            });
-        }
-
-        private void AddGridHandlers()
+                Content: ISelectable content
+            })
         {
-            if (_gridLayout is null)
-                return;
-
-            _gridLayout.PointerPressed += OnGridPointerPressed;
-            _gridLayout.PointerMoved += OnGridPointerMoved;
-            _gridLayout.PointerReleased += OnGridPointerReleased;
+            return content;
         }
 
-        private void RemoveGridHandlers()
+        // Handles a control created inside a DataTemplate.
+        return container
+            .GetVisualDescendants()
+            .OfType<ISelectable>()
+            .FirstOrDefault();
+    }
+
+    private static IHandleControl? ResolveHandleControl(Control container)
+    {
+        if (container is IHandleControl direct)
+            return direct;
+
+        if (container is ContentPresenter
+            {
+                Content: IHandleControl content
+            })
         {
-            if (_gridLayout is null)
-                return;
-
-            _gridLayout.PointerPressed -= OnGridPointerPressed;
-            _gridLayout.PointerMoved -= OnGridPointerMoved;
-            _gridLayout.PointerReleased -= OnGridPointerReleased;
+            return content;
         }
 
-        private void OnUnloaded(object? sender, RoutedEventArgs e)
-        {
-            if (_gridLayout is null)
-                return;
+        return container
+            .GetVisualDescendants()
+            .OfType<IHandleControl>()
+            .FirstOrDefault();
+    }
 
-            RemoveGridHandlers();
+    private void ShowSelection()
+    {
+        Selection.Transitions = null;
+        Selection.Opacity = 1;
+    }
 
-            _gridLayout = null;
-        }
+    private void HideSelection()
+    {
+        Selection.Transitions = FadeOutTransitions;
+        Selection.Opacity = 0;
+    }
 
-        private void OnGridPointerPressed(object? sender, PointerPressedEventArgs e)
-        {
-            if (_gridLayout is null)
-                return;
+    private void UpdateSelectionRectangle(Rect bounds)
+    {
+        Canvas.SetLeft(Selection, bounds.X);
+        Canvas.SetTop(Selection, bounds.Y);
 
-            var point = e.GetCurrentPoint(this);
-
-            SnapSelection = point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed;
-
-            UpdateSelection(
-                !SnapSelection
-                    ? _gridLayout.GetSelectedArea()
-                    : _gridLayout.GetSelectedCoordsArea());
-
-            ShowSelection();
-        }
-
-        private void OnGridPointerMoved(object? sender, PointerEventArgs e)
-        {
-            if (_gridLayout is null)
-                return;
-
-            UpdateSelection(
-                !SnapSelection
-                    ? _gridLayout.GetSelectedArea()
-                    : _gridLayout.GetSelectedCoordsArea());
-        }
-
-        private void OnGridPointerReleased(object? sender, PointerReleasedEventArgs e)
-        {
-            if (_gridLayout is null)
-                return;
-
-            HideSelection();
-        }
-
-        private void ShowSelection()
-        {
-            Selection.Transitions = null;
-            Selection.Opacity = 1;
-        }
-
-        private void HideSelection()
-        {
-            Selection.Transitions = FadeOutTransitions;
-            Selection.Opacity = 0;
-        }
-
-        private void UpdateSelection(Rect bounds)
-        {
-            Canvas.SetLeft(
-                Selection,
-                bounds.X);
-
-            Canvas.SetTop(
-                Selection,
-                bounds.Y);
-
-            Selection.Width =
-                bounds.Width;
-
-            Selection.Height =
-                bounds.Height;
-        }
+        Selection.Width = bounds.Width;
+        Selection.Height = bounds.Height;
     }
 }
