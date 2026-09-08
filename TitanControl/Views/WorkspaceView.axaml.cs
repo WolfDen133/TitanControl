@@ -1,9 +1,11 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using ShimSkiaSharp.Editing;
 using System;
 using System.Collections.Generic;
+using TitanControl.Events.Workspace;
 using TitanControl.Logging;
 using TitanControl.ViewModels.Workspace;
 using TitanControl.Views.Controls.Layout.Grid;
@@ -15,6 +17,11 @@ namespace TitanControl.Views
     public partial class WorkspaceView : UserControl
     {
         private const string LoggingCategory = "WorkspaceView";
+
+        public static readonly RoutedEvent<WorkspaceActionEventArgs> ActionChangedEvent =
+            RoutedEvent.Register<WorkspaceView, WorkspaceActionEventArgs>(
+                nameof(ActionChanged), 
+                RoutingStrategies.Tunnel);
 
         private List<WorkspaceAction> _twoStepActions =
         [
@@ -31,6 +38,12 @@ namespace TitanControl.Views
 
                 return m;
             }
+        }
+
+        public event EventHandler<WorkspaceActionEventArgs> ActionChanged
+        {
+            add => AddHandler(ActionChangedEvent, value, RoutingStrategies.Tunnel);
+            remove => RemoveHandler(ActionChangedEvent, value);
         }
 
         public WorkspaceView()
@@ -52,6 +65,8 @@ namespace TitanControl.Views
         {
             if (e.PropertyName != nameof(Model.Action))
                 return;
+
+            RaiseEvent(new WorkspaceActionEventArgs(ActionChangedEvent, Model.Action));
 
             EnableSelectionAreaListener(false);
             EnableExclusiveSelection(false);
@@ -75,7 +90,6 @@ namespace TitanControl.Views
 
         private void EnableExclusiveSelection(bool value = true)
         {
-            Log.Debug($"Exclusive {value}");
             PART_ControlGrid.SnapSelection = value;
             PART_ControlGrid.SelectOver = !value;
         }
@@ -102,6 +116,13 @@ namespace TitanControl.Views
 
         private void Execute(bool bypass = false)
         {
+            if (PART_ControlGrid.SelectedArea.Equals(new Rect(0, 0, 0, 0))
+                && (_twoStepActions.Contains(Model.Action)
+                   || Model.Action.Equals(WorkspaceAction.Add)))
+            {
+                return;
+            }
+
             if (_twoStepActions.Contains(Model.Action) && !bypass)
             {
                 EnableSelectionAreaListener();

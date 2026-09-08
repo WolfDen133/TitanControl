@@ -19,6 +19,16 @@ namespace TitanControl.Views.Controls.Layout.Grid
         public static readonly StyledProperty<IBrush> BrushProperty =
             AvaloniaProperty.Register<GridLines, IBrush>(nameof(Brush), Brushes.White);
 
+
+        static GridLines()
+        {
+            AffectsRender<GridLines>(
+                ThicknessProperty, 
+                BrushProperty,
+                RowsProperty,
+                ColumnsProperty);
+        }
+
         public int Columns
         {
             get => GetValue(ColumnsProperty);
@@ -43,8 +53,12 @@ namespace TitanControl.Views.Controls.Layout.Grid
             set => SetValue(BrushProperty, value);
         }
 
+
         public override void Render(DrawingContext context)
         {
+            if (Columns <= 0 || Rows <= 0)
+                return;
+
             double w = Bounds.Width;
             double h = Bounds.Height;
 

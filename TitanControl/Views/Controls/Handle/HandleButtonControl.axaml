@@ -13,7 +13,7 @@
 
     <Design.PreviewWith>
         <Border Padding="15" Background="{DynamicResource BackgroundBrush}" Width="200" Height="150">
-                <controls:HandleButtonControl VerticalAlignment="Stretch" />
+                <controls:HandleButtonControl VerticalAlignment="Stretch" IsMoving="True"/>
         </Border>
     </Design.PreviewWith>
 
@@ -30,7 +30,7 @@
                         BorderBrush="{TemplateBinding Halo, 
                             Converter={StaticResource HaloStringToBrushConverter},
                             ConverterParameter=0.7}"
-                        BorderThickness="{TemplateBinding BorderThickness}"/>
+                        BorderThickness="1"/>
 
                     <Grid RowDefinitions="Auto,*">
                        
@@ -101,18 +101,19 @@
                                 x:Name="DisabledFill"
                                 Fill="{TemplateBinding Halo, 
                                 Converter={StaticResource HaloStringToBrushConverter}, 
-                                    ConverterParameter=0.2}"
-                                Opacity="{TemplateBinding IsEnabled}"/>
+                                    ConverterParameter=0.4}"
+                                Opacity="{TemplateBinding IsEnabled, 
+                                    Converter={x:Static BoolConverters.Not}}"/>
                     </Grid>
   
                 </Panel>
             </ControlTemplate>
         </Setter>
+        
         <Style Selector="^:selected">
             <Setter Property="Background" Value="{DynamicResource ForegroundSecondaryBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/>
             
-
             <Style Selector="^ Border#ControlBorder">
                 <Setter Property="BorderBrush"
                     Value="{DynamicResource BorderFocusBrush}"/>
@@ -126,6 +127,14 @@
                 <Setter Property="Foreground" Value="{DynamicResource BackgroundLLBrush}"/>
             </Style>
 
+        </Style>
+        <Style Selector="^:moving">
+            <Style Selector="^ Border#ControlBorder">
+                <Setter Property="BorderBrush"
+                    Value="{DynamicResource ForegroundBrush}"/>
+                <Setter Property="BorderThickness"
+                        Value="2"/>
+            </Style>
         </Style>
     </ControlTheme>
 </ResourceDictionary>

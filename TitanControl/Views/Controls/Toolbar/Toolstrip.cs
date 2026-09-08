@@ -162,6 +162,15 @@ namespace TitanControl.Views.Controls.Toolbar
             if (sender is not ToolbarButton selectedButton)
                 return;
 
+            if (Exclusive && action != ButtonAction.ToggleUp)
+            {
+                foreach (var button in MenuTree)
+                {
+                    if (button.Id != selectedButton.Id)
+                        button.ReleaseToggle();
+                }
+            }
+
             if (selectedButton.Children.Count > 0)
             {
                 await ShowPageAfter(selectedButton, selectedButton.Children.Count > 0);
@@ -171,16 +180,6 @@ namespace TitanControl.Views.Controls.Toolbar
             {
                 await ShowPageAfter(null, false);
                 return;
-            }
-
-            if (Exclusive && action != ButtonAction.ToggleUp)
-            {
-                foreach (var button in MenuTree)
-                {
-                    Log.Debug($"{button.Id != selectedButton.Id} {button.Id} {selectedButton.Id}");
-                    if (button.Id != selectedButton.Id)
-                        button.ReleaseToggle();
-                }
             }
 
             RaiseEvent(new ToolButtonPressedEventArgs(ToolButtonPressedEvent) { ButtonAction = action, ButtonId = selectedButton.Id });

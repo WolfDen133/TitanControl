@@ -1,23 +1,30 @@
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
+using System.Diagnostics;
 using System.Linq;
+using TitanControl.Converters;
+using TitanControl.Events.Workspace;
+using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.ViewModels.Workspace;
+using TitanControl.ViewModels.Workspace.Handle;
 using TitanControl.Views.Controls.Handle;
 using TitanControl.Views.State;
 
 namespace TitanControl.Views.Controls.Layout.Grid;
 
+[PseudoClasses(":selecting")]
 public partial class ControlGrid : UserControl
 {
     private GridLayout? _gridLayout;
@@ -30,6 +37,10 @@ public partial class ControlGrid : UserControl
             Duration = TimeSpan.FromMilliseconds(120)
         }
     ];
+
+    public static readonly StyledProperty<string?> TopLeftTextProperty =
+    AvaloniaProperty.Register<ControlGrid, string?>(
+        nameof(TopLeftText), null);
 
     public static readonly StyledProperty<int> RowsProperty =
         AvaloniaProperty.Register<ControlGrid, int>(
@@ -84,6 +95,12 @@ public partial class ControlGrid : UserControl
         RoutedEvent.Register<ControlGrid, RoutedEventArgs>(
             nameof(SelectionCompleted), RoutingStrategies.Bubble);
 
+
+    public string? TopLeftText
+    {
+        get => GetValue(TopLeftTextProperty);
+        set => SetValue(TopLeftTextProperty, value);
+    }
 
     public int Rows
     {
@@ -155,6 +172,17 @@ public partial class ControlGrid : UserControl
         Unloaded += OnUnloaded;
     }
 
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+    }
+
+    private void ControlGrid_ControlsSelected(object? sender, RoutedEventArgs e)
+    {
+        if (SelectedControls.Any())
+            UpdateGridDisplay();
+    }
+
     protected override void OnPropertyChanged(
     AvaloniaPropertyChangedEventArgs change)
     {
@@ -162,6 +190,38 @@ public partial class ControlGrid : UserControl
 
         if (change.Property == EditMode.IsEnabledProperty)
             UpdateSelectionEnabled();
+
+        if (change.Property == CurrentActionProperty)
+        {
+            if (CurrentAction is WorkspaceAction.Add or WorkspaceAction.None || 
+                SelectedControls.Any())
+                UpdateGridDisplay();
+        }
+    }
+
+    private void UpdateGridDisplay()
+    {
+        Log.Debug($"{CurrentAction} + {SelectedControls.Count}");
+        if (CurrentAction
+                is WorkspaceAction.Add
+                or WorkspaceAction.Copy
+                or WorkspaceAction.Move)
+        {
+            PseudoClasses.Set(":selecting", true);
+
+            foreach (var control in Controls)
+            {
+                if (!control.IsSelected)
+                    control.IsMoving = true;
+            }
+
+            return;
+        }
+
+        PseudoClasses.Set(":selecting", false);
+
+        foreach (var control in Controls)
+            control.IsMoving = false;
     }
 
     private void UpdateSelectionEnabled()
@@ -177,6 +237,8 @@ public partial class ControlGrid : UserControl
     {
         DetachGridLayout();
         AttachGridLayout();
+
+        ControlsSelected += ControlGrid_ControlsSelected; ;
     }
 
     private void OnUnloaded(object? sender, RoutedEventArgs e)
@@ -184,6 +246,10 @@ public partial class ControlGrid : UserControl
         DetachGridLayout();
     }
 
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
+        base.OnSizeChanged(e);
+    }
 
     private void AttachGridLayout()
     {
@@ -341,5 +407,18 @@ public partial class ControlGrid : UserControl
 
         Selection.Width = bounds.Width;
         Selection.Height = bounds.Height;
+    }
+
+    private IBrush HexToBrush(string? hex, double opacity = 1d)
+    {
+        if (!Color.TryParse(hex, out Color color))
+            return ResourceHelper.GetThemeBrush("BorderSubtleBrush");
+
+        opacity = Math.Clamp(opacity, 0, 1);
+
+        var alpha = (byte)Math.Round(opacity * 255d);
+
+        return new SolidColorBrush(
+            Color.FromRgb(color.R, color.G, color.B), alpha);
     }
 }

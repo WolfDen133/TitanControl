@@ -140,6 +140,9 @@ namespace TitanControl.ViewModels.Workspace
                 _ => WorkspaceAction.None
             };
 
+            if (!_toolbar.ContextButtons.Any(b => b.Id == id))
+                return;
+
             _addingControlType = id switch
             {
                 ButtonId.AddButton => HandleControlId.Button,
@@ -154,7 +157,7 @@ namespace TitanControl.ViewModels.Workspace
                 _ => WorkspaceAction.None
             };
 
-            Log.Debug($"Toolbar button clicked: {id}, Action: {action}", LoggingCategory);
+            Log.Debug($"Workspace action {Action} selected.", LoggingCategory);
         }
 
 
@@ -208,6 +211,7 @@ namespace TitanControl.ViewModels.Workspace
             if (_latch)
             {
                 Action = old;
+                Log.Debug($"Action {old} completed, action latched.", LoggingCategory);
                 return;
             }
 
@@ -230,6 +234,8 @@ namespace TitanControl.ViewModels.Workspace
 
             if (button != ButtonId.None)
                 _toolbar.ReleaseToggleSoft(button);
+
+            Log.Debug($"Action {old} completed, action released.", LoggingCategory);
         }
 
         private void Add(Rect at)
@@ -313,8 +319,9 @@ namespace TitanControl.ViewModels.Workspace
 
             // TODO Calculations of multiple
             var control = SelectedControls.FirstOrDefault()!;
+            var oldLoc = control.Location;
 
-            control!.Location 
+            control.Location 
                 = new Rectangle(
                     (int)to.X,
                     (int)to.Y,

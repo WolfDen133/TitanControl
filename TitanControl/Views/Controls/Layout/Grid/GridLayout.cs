@@ -3,7 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using System;
+using System.Diagnostics;
 using TitanControl.Events.Control;
+using TitanControl.Logging;
 using TitanControl.Views.State;
 using Control = Avalonia.Controls.Control;
 
@@ -61,7 +63,12 @@ public class GridLayout : Panel
 
     private Point _selectionStart;
     private Point _selectionEnd;
-    private bool _isSelecting;
+    private Point _pendingPointerStart;
+    private Rect? _startingOccupiedArea;
+    private bool _isPointerDown;
+    private bool _hasSelection;
+    private enum ExitSide { None, Left, Right, Top, Bottom }
+    private ExitSide _exitSide;
 
     static GridLayout()
     {
@@ -113,9 +120,7 @@ public class GridLayout : Panel
         if (change.Property == IsSelectionEnabledProperty &&
             !IsSelectionEnabled)
         {
-            _selectionStart = default;
-            _selectionEnd = default;
-            _isSelecting = false;
+            CancelSelection();
         }
     }
 
@@ -143,7 +148,7 @@ public class GridLayout : Panel
         set => SetValue(SelectOverProperty, value);
     }
 
-    public bool IsSelecting => _isSelecting;
+    public bool IsSelecting => _isPointerDown;
 
     public event EventHandler? SelectionStarted;
     public event EventHandler? SelectionChanged;
@@ -207,18 +212,27 @@ public class GridLayout : Panel
             return;
         }
 
-        // When false, a child cannot initiate box selection.
-        if (!SelectOver && !ReferenceEquals(e.Source, this))
-            return;
+        var pointerPosition = ClampToBounds(e.GetPosition(this));
 
-        _selectionStart = ClampToBounds(e.GetPosition(this));
-        _selectionEnd = _selectionStart;
-        _isSelecting = true;
+        _isPointerDown = true;
+        _hasSelection = false;
+        _exitSide = ExitSide.None;
+        _pendingPointerStart = pointerPosition;
+        _startingOccupiedArea = SelectOver
+            ? null
+            : FindOccupiedArea(pointerPosition);
+
+        // Do not instantiate the real selection coordinates while the pointer
+        // is inside a child. They are created only after a child edge is exited.
+        if (_startingOccupiedArea is null)
+        {
+            BeginSelection(pointerPosition, pointerPosition);
+
+            SelectionStarted?.Invoke(this, EventArgs.Empty);
+            SelectionChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         e.Pointer.Capture(this);
-
-        SelectionStarted?.Invoke(this, EventArgs.Empty);
-        SelectionChanged?.Invoke(this, EventArgs.Empty);
 
         e.Handled = true;
     }
@@ -227,10 +241,31 @@ public class GridLayout : Panel
         object? sender,
         PointerEventArgs e)
     {
-        if (!_isSelecting || !IsSelectionEnabled)
+        if (!_isPointerDown || !IsSelectionEnabled)
             return;
 
-        _selectionEnd = ClampToBounds(e.GetPosition(this));
+        var pointerPosition = ClampToBounds(e.GetPosition(this));
+
+        if (!_hasSelection)
+        {
+            if (_startingOccupiedArea is not Rect occupiedArea ||
+                !TryCreateExitAnchor(
+                    _pendingPointerStart,
+                    pointerPosition,
+                    occupiedArea,
+                    out var selectionAnchor))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            BeginSelection(selectionAnchor, pointerPosition);
+            SelectionStarted?.Invoke(this, EventArgs.Empty);
+        }
+        else
+        {
+            _selectionEnd = pointerPosition;
+        }
 
         SelectionChanged?.Invoke(this, EventArgs.Empty);
 
@@ -241,22 +276,49 @@ public class GridLayout : Panel
         object? sender,
         PointerReleasedEventArgs e)
     {
-        if (!_isSelecting || !IsSelectionEnabled)
+        if (!_isPointerDown || !IsSelectionEnabled)
             return;
 
-        _selectionEnd = ClampToBounds(e.GetPosition(this));
-        _isSelecting = false;
+        var pointerPosition = ClampToBounds(e.GetPosition(this));
+        var startedOnRelease = false;
+
+        if (!_hasSelection &&
+            _startingOccupiedArea is Rect occupiedArea &&
+            TryCreateExitAnchor(
+                _pendingPointerStart,
+                pointerPosition,
+                occupiedArea,
+                out var selectionAnchor))
+        {
+            BeginSelection(selectionAnchor, pointerPosition);
+            startedOnRelease = true;
+        }
+        else if (_hasSelection)
+        {
+            _selectionEnd = pointerPosition;
+        }
+
+        _isPointerDown = false;
 
         e.Pointer.Capture(null);
 
-        SelectionChanged?.Invoke(this, EventArgs.Empty);
-        SelectionCompleted?.Invoke(this, EventArgs.Empty);
+        if (_hasSelection)
+        {
+            if (startedOnRelease)
+                SelectionStarted?.Invoke(this, EventArgs.Empty);
+
+            SelectionChanged?.Invoke(this, EventArgs.Empty);
+            SelectionCompleted?.Invoke(this, EventArgs.Empty);
+        }
 
         e.Handled = true;
     }
 
     public Rect GetSelectedArea()
     {
+        if (!_hasSelection)
+            return default;
+
         var selectedArea = CreateNormalizedRect(
             _selectionStart,
             _selectionEnd);
@@ -268,6 +330,9 @@ public class GridLayout : Panel
 
     public Rect GetSelectedCoords()
     {
+        if (!_hasSelection)
+            return default;
+
         // Calculate from the raw pointer rectangle. Pixel-space clipping is not
         // used here because snapping can expand the rectangle back into a child.
         var selectedArea = CreateNormalizedRect(
@@ -276,10 +341,10 @@ public class GridLayout : Panel
 
         var cellSize = GetCellSize();
 
-        var left = Math.Floor(selectedArea.Left / cellSize.Width);
-        var top = Math.Floor(selectedArea.Top / cellSize.Height);
-        var right = Math.Ceiling(selectedArea.Right / cellSize.Width);
-        var bottom = Math.Ceiling(selectedArea.Bottom / cellSize.Height);
+        var left = Math.Floor(SnapGridEdge(selectedArea.Left / cellSize.Width));
+        var top = Math.Floor(SnapGridEdge(selectedArea.Top / cellSize.Height));
+        var right = Math.Ceiling(SnapGridEdge(selectedArea.Right / cellSize.Width));
+        var bottom = Math.Ceiling(SnapGridEdge(selectedArea.Bottom / cellSize.Height));
 
         if (right <= left)
             right = left + 1;
@@ -291,6 +356,23 @@ public class GridLayout : Panel
         top = Math.Clamp(top, 0, Math.Max(0, Rows - 1));
         right = Math.Clamp(right, left + 1, Math.Max(1, Columns));
         bottom = Math.Clamp(bottom, top + 1, Math.Max(1, Rows));
+
+        // The selected area must remain on the side where the drag first exited.
+        // In particular, never force a minimum cell back into the starting child.
+        if (!SelectOver && _exitSide != ExitSide.None)
+        {
+            var anchor = GetSelectionAnchor(useGridCoordinates: true);
+            switch (_exitSide)
+            {
+                case ExitSide.Left: right = Math.Min(right, anchor.X); break;
+                case ExitSide.Right: left = Math.Max(left, anchor.X); break;
+                case ExitSide.Top: bottom = Math.Min(bottom, anchor.Y); break;
+                case ExitSide.Bottom: top = Math.Max(top, anchor.Y); break;
+            }
+
+            if (right <= left || bottom <= top)
+                return default;
+        }
 
         var selectedCoordinates = new Rect(
             left,
@@ -308,6 +390,10 @@ public class GridLayout : Panel
     public Rect GetSelectedCoordsArea()
     {
         var coordinates = GetSelectedCoords();
+
+        if (coordinates.Width <= 0 || coordinates.Height <= 0)
+            return default;
+
         var cellSize = GetCellSize();
 
         return new Rect(
@@ -347,8 +433,21 @@ public class GridLayout : Panel
         var rows = Math.Max(1, Rows);
 
         return new Size(
-            Math.Max(1, Bounds.Width / columns),
-            Math.Max(1, Bounds.Height / rows));
+            Bounds.Width > 0 ? Bounds.Width / columns : 1,
+            Bounds.Height > 0 ? Bounds.Height / rows : 1);
+    }
+
+    public Rect GetCellBounds(int x, int y, int width = 1, int height = 1)
+    {
+        var columns = Math.Max(1, Columns);
+        var rows = Math.Max(1, Rows);
+        var cellSize = GetCellSize();
+
+        return new Rect(
+            x * cellSize.Width,
+            y * cellSize.Height,
+            Math.Max(1, width) * cellSize.Width,
+            Math.Max(1, height) * cellSize.Height);
     }
 
     private Point ClampToBounds(Point point)
@@ -356,6 +455,112 @@ public class GridLayout : Panel
         return new Point(
             Math.Clamp(point.X, 0, Bounds.Width),
             Math.Clamp(point.Y, 0, Bounds.Height));
+    }
+
+    private void BeginSelection(Point start, Point end)
+    {
+        _selectionStart = start;
+        _selectionEnd = end;
+        _hasSelection = true;
+    }
+
+    private void CancelSelection()
+    {
+        _selectionStart = default;
+        _selectionEnd = default;
+        _pendingPointerStart = default;
+        _startingOccupiedArea = null;
+        _isPointerDown = false;
+        _hasSelection = false;
+        _exitSide = ExitSide.None;
+    }
+
+    private Rect? FindOccupiedArea(Point point)
+    {
+        // Search backwards so the top-most generated item wins if controls
+        // happen to overlap.
+        for (var index = Children.Count - 1; index >= 0; index--)
+        {
+            var child = Children[index];
+
+            var area = GetOccupiedArea(child, useGridCoordinates: false);
+            if (child.IsVisible && area.Contains(point))
+                return area;
+        }
+
+        return null;
+    }
+
+    private bool TryCreateExitAnchor(
+        Point pointerStart,
+        Point pointerEnd,
+        Rect occupiedArea,
+        out Point anchor)
+    {
+        anchor = default;
+
+        // Still inside the control: there is no selectable area yet.
+        if (IsInside(occupiedArea, pointerEnd))
+            return false;
+
+        var deltaX = pointerEnd.X - pointerStart.X;
+        var deltaY = pointerEnd.Y - pointerStart.Y;
+        var horizontalExitTime = double.PositiveInfinity;
+        var verticalExitTime = double.PositiveInfinity;
+        var horizontalEdge = pointerStart.X;
+        var verticalEdge = pointerStart.Y;
+
+        if (deltaX > 0 && pointerEnd.X > occupiedArea.Right)
+        {
+            horizontalEdge = occupiedArea.Right;
+            horizontalExitTime =
+                (occupiedArea.Right - pointerStart.X) / deltaX;
+        }
+        else if (deltaX < 0 && pointerEnd.X < occupiedArea.Left)
+        {
+            horizontalEdge = occupiedArea.Left;
+            horizontalExitTime =
+                (occupiedArea.Left - pointerStart.X) / deltaX;
+        }
+
+        if (deltaY > 0 && pointerEnd.Y > occupiedArea.Bottom)
+        {
+            verticalEdge = occupiedArea.Bottom;
+            verticalExitTime =
+                (occupiedArea.Bottom - pointerStart.Y) / deltaY;
+        }
+        else if (deltaY < 0 && pointerEnd.Y < occupiedArea.Top)
+        {
+            verticalEdge = occupiedArea.Top;
+            verticalExitTime =
+                (occupiedArea.Top - pointerStart.Y) / deltaY;
+        }
+
+        if (double.IsPositiveInfinity(horizontalExitTime) &&
+            double.IsPositiveInfinity(verticalExitTime))
+        {
+            return false;
+        }
+
+        // For a diagonal drag, use the first side crossed by the pointer ray.
+        // The unaffected coordinate remains the original mouse-down position.
+        anchor = horizontalExitTime <= verticalExitTime
+            ? new Point(horizontalEdge, pointerStart.Y)
+            : new Point(pointerStart.X, verticalEdge);
+
+        _exitSide = horizontalExitTime <= verticalExitTime
+            ? (deltaX < 0 ? ExitSide.Left : ExitSide.Right)
+            : (deltaY < 0 ? ExitSide.Top : ExitSide.Bottom);
+
+        return true;
+    }
+
+    private static bool IsInside(Rect area, Point point)
+    {
+        return point.X > area.Left &&
+               point.X < area.Right &&
+               point.Y > area.Top &&
+               point.Y < area.Bottom;
     }
 
     /// <summary>
@@ -367,7 +572,26 @@ public class GridLayout : Panel
         bool useGridCoordinates)
     {
         if (candidate.Width <= 0 || candidate.Height <= 0)
-            return candidate;
+            return default;
+
+        if (!SelectOver && _exitSide != ExitSide.None)
+        {
+            var anchor = GetSelectionAnchor(useGridCoordinates);
+            var left = candidate.Left;
+            var top = candidate.Top;
+            var right = candidate.Right;
+            var bottom = candidate.Bottom;
+            switch (_exitSide)
+            {
+                case ExitSide.Left: right = Math.Min(right, anchor.X); break;
+                case ExitSide.Right: left = Math.Max(left, anchor.X); break;
+                case ExitSide.Top: bottom = Math.Min(bottom, anchor.Y); break;
+                case ExitSide.Bottom: top = Math.Max(top, anchor.Y); break;
+            }
+            if (right <= left || bottom <= top)
+                return default;
+            candidate = new Rect(left, top, right - left, bottom - top);
+        }
 
         var draggingRight = _selectionEnd.X >= _selectionStart.X;
         var draggingDown = _selectionEnd.Y >= _selectionStart.Y;
@@ -377,16 +601,24 @@ public class GridLayout : Panel
             if (!child.IsVisible)
                 continue;
 
-            var occupiedArea = useGridCoordinates
-                ? new Rect(
-                    GetGridX(child),
-                    GetGridY(child),
-                    Math.Max(1, GetGridXSpan(child)),
-                    Math.Max(1, GetGridYSpan(child)))
-                : child.Bounds;
+            var occupiedArea = GetOccupiedArea(child, useGridCoordinates);
 
             if (!IntersectsWith(candidate, occupiedArea))
                 continue;
+
+            // A candidate completely contained by a child has no valid
+            // unoccupied portion. Returning an empty rectangle also prevents
+            // the old one-axis-locked result.
+            if (Contains(occupiedArea, candidate))
+                return default;
+
+            var candidateAnchor = GetSelectionAnchor(useGridCoordinates);
+
+            // This is a defensive fallback for an occupied starting point. In
+            // normal pointer operation the pending-anchor logic above prevents
+            // this path from being reached.
+            if (IsInside(occupiedArea, candidateAnchor))
+                return default;
 
             candidate = ClipAroundOccupiedArea(
                 candidate,
@@ -394,15 +626,45 @@ public class GridLayout : Panel
                 draggingRight,
                 draggingDown);
 
+            Log.Debug($"{candidate}");
+
             if (candidate.Width <= 0 || candidate.Height <= 0)
-                return new Rect(
-                    candidate.X,
-                    candidate.Y,
-                    Math.Max(0, candidate.Width),
-                    Math.Max(0, candidate.Height));
+                return default;
         }
 
         return candidate;
+    }
+
+    private Point GetSelectionAnchor(bool useGridCoordinates)
+    {
+        if (!useGridCoordinates)
+            return _selectionStart;
+
+        var cellSize = GetCellSize();
+
+        return new Point(
+            SnapGridEdge(_selectionStart.X / cellSize.Width),
+            SnapGridEdge(_selectionStart.Y / cellSize.Height));
+    }
+
+    private static double SnapGridEdge(double value)
+    {
+        var nearest = Math.Round(value);
+        return Math.Abs(value - nearest) < 1e-9 ? nearest : value;
+    }
+
+    private Rect GetOccupiedArea(Control child, bool useGridCoordinates)
+    {
+        var area = new Rect(
+            Math.Max(0, GetGridX(child)),
+            Math.Max(0, GetGridY(child)),
+            Math.Max(1, GetGridXSpan(child)),
+            Math.Max(1, GetGridYSpan(child)));
+        if (useGridCoordinates)
+            return area;
+        var cell = GetCellSize();
+        return new Rect(area.X * cell.Width, area.Y * cell.Height,
+            area.Width * cell.Width, area.Height * cell.Height);
     }
 
     private static Rect ClipAroundOccupiedArea(
@@ -455,6 +717,14 @@ public class GridLayout : Panel
                first.Right > second.Left &&
                first.Top < second.Bottom &&
                first.Bottom > second.Top;
+    }
+
+    private static bool Contains(Rect outer, Rect inner)
+    {
+        return inner.Left >= outer.Left &&
+               inner.Top >= outer.Top &&
+               inner.Right <= outer.Right &&
+               inner.Bottom <= outer.Bottom;
     }
 
     private static double GetArea(Rect rectangle) =>

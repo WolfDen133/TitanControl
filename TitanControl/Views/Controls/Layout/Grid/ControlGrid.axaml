@@ -5,6 +5,7 @@
              xmlns:handleControls="using:TitanControl.Views.Controls.Handle"
              xmlns:grid="using:TitanControl.Views.Controls.Layout.Grid"
              xmlns:state="using:TitanControl.Views.State"
+             xmlns:titancontrol="using:TitanControl"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="TitanControl.Views.Controls.Layout.Grid.ControlGrid"
@@ -19,21 +20,58 @@
                 <handleControls:HandleButtonControl
                     Halo="{Binding Color}"
                     Legend="{Binding Legend}"
-                    IsSelected="{Binding IsSelected}"/>
+                    IsSelected="{Binding IsSelected}"
+                    IsMoving="{Binding IsMoving}"/>
             </DataTemplate>
         </UserControl.DataTemplates>
+    <UserControl.Styles>
+        <Style Selector="grid|GridLines">
+            <Setter Property="Brush" Value="{DynamicResource BorderSubtleBrush}"/>
+            <Setter Property="Thickness" Value="1"/>
+            <Setter Property="ZIndex" Value="10"/>
+        </Style>
+        <Style Selector="grid|ControlGrid:selecting">
+            <Style Selector="^ grid|GridLines">
+                <Setter Property="Brush" Value="{DynamicResource BorderBrush}"/>
+                <Setter Property="Thickness" Value="1"/>
+                <Setter Property="ZIndex" Value="20"/>
+            </Style>
+        </Style>
+    </UserControl.Styles>
   <Grid>
-       <grid:GridLines IsHitTestVisible="False"
-                        ZIndex="0"
-                       Opacity="{Binding 
-                           Path=(state:EditMode.IsEnabled), 
-                           RelativeSource={RelativeSource Self}, 
-                           Mode=OneWay}"
-                       Brush="{DynamicResource BorderSubtleBrush}" 
-                       Columns="{Binding Columns, ElementName=root}" 
-                       Rows="{Binding Rows, ElementName=root}"/>
+        <Panel>
+            <TextBlock IsHitTestVisible="False" 
+                        VerticalAlignment="Top" 
+                        HorizontalAlignment="Left"
+                        Text="{Binding TopLeftText, ElementName=root}"
+                        FontSize="32"
+                        FontWeight="DemiBold"
+                        Padding="8, 4"
+                        Foreground="{DynamicResource BackgroundLBrush}"
+                        />
+            
+            <TextBlock IsHitTestVisible="False" 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center"
+                    Padding="180"
+                    Text="{x:Static titancontrol:AppConstants.AppName}"
+                    FontSize="56"
+                    FontWeight="DemiBold"
+                    Foreground="{DynamicResource BackgroundLBrush}"
+                    />
+              
+        </Panel>
+      
+       <grid:GridLines 
+                    IsHitTestVisible="False"
+                    Opacity="{Binding 
+                        Path=(state:EditMode.IsEnabled), 
+                        RelativeSource={RelativeSource Self}, 
+                        Mode=OneWay}"
+                    Columns="{Binding Columns, ElementName=root}" 
+                    Rows="{Binding Rows, ElementName=root}"/>
 
-      <ItemsControl ItemsSource="{Binding #root.Controls}" ZIndex="10">
+      <ItemsControl ItemsSource="{Binding #root.Controls}" ZIndex="20">
         <ItemsControl.ItemContainerTheme>
             <ControlTheme
                 TargetType="ContentPresenter"
@@ -56,8 +94,6 @@
                     Value="{Binding Location.Height}" />
 
             </ControlTheme>
-
-
         </ItemsControl.ItemContainerTheme>
           <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
@@ -68,12 +104,14 @@
                       Columns="{Binding Columns, ElementName=root}" 
                       Rows="{Binding Rows, ElementName=root}"
                       SelectOver="{Binding SelectOver, ElementName=root}"/>
+                  <!-- I want outline over the children of this control-->
               </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
       </ItemsControl>
-     
 
-      <Canvas x:Name="SelectionCanvas" IsHitTestVisible="False" ZIndex="20">
+      
+
+      <Canvas x:Name="SelectionCanvas" IsHitTestVisible="False" ZIndex="40">
            <Border x:Name="Selection" 
                    Opacity="0" 
                    IsHitTestVisible="False" 

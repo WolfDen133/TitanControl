@@ -11,43 +11,29 @@ using HandleInformation = TitanControl.WebAPI.Data.Model.Handle;
 
 namespace TitanControl.ViewModels.Workspace.Handle
 {
-    public abstract class HandleControlModel<TModel>
-        : ObservableObject, IHandleControl<TModel>, ISaveable
-        where TModel : ControlModel
+    public abstract class HandleControlModel
+    : ObservableObject, IHandleControl, ISaveable
     {
         private bool _isSelected;
         private bool _isMoving;
         private HandleInformation? _handleInformation;
 
-        protected ISessionService SessionService;
-
-        protected HandleControlModel(TModel model, ISessionService service)
+        protected HandleControlModel(
+            ControlModel model,
+            ISessionService sessionService)
         {
             Model = model;
-            SessionService = service;
+            SessionService = sessionService;
         }
 
-        public TModel Model { get; }
-        IControlModel IHandleControl.Model => Model;
+        protected ISessionService SessionService { get; }
 
-        protected ICommandMap<TModel> CommandMap { get; set; } = null!;
+        public ControlModel Model { get; }
+
+        IControlModel IHandleControl.Model => Model;
 
         public HandleControlId ControlId => Model.ControlId;
 
-        protected HandleInformation? HandleInformation
-        {
-            get => _handleInformation;
-            set
-            {
-                if (_handleInformation == value)
-                    return;
-
-                TitanId = value?.TitanId ?? -1;
-
-                SetProperty(ref _handleInformation, value);
-            }
-
-        }
         public bool IsSelected
         {
             get => _isSelected;
@@ -69,7 +55,7 @@ namespace TitanControl.ViewModels.Workspace.Handle
                     return;
 
                 Model.Location = value;
-                OnPropertyChanged(nameof(Location));
+                OnPropertyChanged();
             }
         }
 
@@ -82,7 +68,7 @@ namespace TitanControl.ViewModels.Workspace.Handle
                     return;
 
                 Model.TitanId = value;
-                OnPropertyChanged(nameof(TitanId));
+                OnPropertyChanged();
             }
         }
 
@@ -95,7 +81,7 @@ namespace TitanControl.ViewModels.Workspace.Handle
                     return;
 
                 Model.HandleType = value;
-                OnPropertyChanged(nameof(HandleType));
+                OnPropertyChanged();
             }
         }
 
@@ -108,23 +94,55 @@ namespace TitanControl.ViewModels.Workspace.Handle
                     return;
 
                 Model.KeyProfile = value;
-                OnPropertyChanged(nameof(KeyProfile));
+                OnPropertyChanged();
             }
         }
 
-        public Task ExecuteAsync()
+        protected HandleInformation? HandleInformation
         {
-            return CommandMap.ExecuteAsync(
+            get => _handleInformation;
+            set
+            {
+                if (_handleInformation == value)
+                    return;
+
+                _handleInformation = value;
+                TitanId = value?.TitanId ?? -1;
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Halo));
+            }
+        }
+
+        public string? Halo => HandleInformation?.Halo;
+
+        public ISaveModel ToModel() => Model;
+
+        public abstract Task ExecuteAsync();
+
+        public abstract IHandleControl Copy();
+    }
+
+    public abstract class HandleControlModel<TModel>
+        : HandleControlModel, IHandleControl<TModel>
+        where TModel : ControlModel
+    {
+        protected HandleControlModel(
+            TModel model,
+            ISessionService sessionService)
+            : base(model, sessionService)
+        { }
+
+        public new TModel Model => (TModel)base.Model;
+
+        TModel IHandleControl<TModel>.Model => Model;
+
+        protected ICommandMap<TModel> CommandMap { get; set; } = null!;
+
+        public override Task ExecuteAsync() =>
+            CommandMap.ExecuteAsync(
                 KeyProfile,
                 HandleType,
                 Model);
-        }
-
-        public ISaveModel ToModel()
-        {
-            return Model;
-        }
-
-        public abstract IHandleControl Copy();
     }
 }

@@ -173,8 +173,6 @@ namespace TitanControl.ViewModels.Controls.Toolbar
                     $"No button found with ID {buttonId}");
 
             button.Toggled = false;
-
-            Log.Debug($"Released toggle for {buttonId}");
         }
 
         public void ShowAvailable(bool show = true)
