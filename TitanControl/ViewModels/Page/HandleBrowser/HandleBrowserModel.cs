@@ -24,8 +24,10 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
         private ObservableCollection<Handle> _displayHandles = new();
         private HandleType _currentTab = HandleType.None;
         private BrowserMode _mode = BrowserMode.Assign;
-
         private ISession? CurrentSession => _sessionService.CurrentSession;
+        private Action<bool> _closeAction;
+
+        public event EventHandler<List<Handle>>? OnClosing;
 
         public ObservableCollection<Handle> Handles
         {
@@ -78,9 +80,10 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
               } 
             + ".svg"; 
 
-        public HandleBrowserModel(ISessionService sessionService)
+        public HandleBrowserModel(ISessionService sessionService, Action<bool> onClose)
         {
             _sessionService = sessionService;
+            _closeAction = onClose;
 
             Handles.CollectionChanged += (s, e) =>
             {
@@ -99,6 +102,8 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
 
         public override async Task OnOpenAsync()
         {
+            await base.OnOpenAsync();
+
             if (!_sessionService.CurrentSession?.IsConnected ?? true)
                 return;
 
@@ -155,7 +160,7 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
             _handles.Clear();
             Handles.Clear();
 
-            return Task.CompletedTask;
+            return base.OnCloseAsync();
         }
 
         public Task ShowTypeHandles(HandleType type)
@@ -180,6 +185,25 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
         [RelayCommand]
         public async Task ShowHandles(HandleType type) 
             => await ShowTypeHandles(type);
+
+        [RelayCommand]
+        public async Task Select()
+        {
+            OnClosing?.Invoke(this, Handles.Where(h => h.Selected).ToList());
+            ClosePage(false);
+        }
+
+        [RelayCommand]
+        public async Task Close()
+        {
+            OnClosing?.Invoke(this, []);
+            ClosePage(true);
+        }
+
+        public void ClosePage(bool cancelled = false)
+        {
+            _closeAction.Invoke(cancelled);
+        }
 
 
         public override ValueTask DisposeAsync()

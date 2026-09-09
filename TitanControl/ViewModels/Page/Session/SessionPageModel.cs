@@ -172,14 +172,14 @@ namespace TitanControl.ViewModels.Page
         {
             StartScanner();
 
-            return Task.CompletedTask;
+            return base.OnOpenAsync();
         }
 
         public override Task OnCloseAsync()
         {
             StopScanner();
 
-            return Task.CompletedTask;
+            return base.OnCloseAsync();
         }
 
         /*

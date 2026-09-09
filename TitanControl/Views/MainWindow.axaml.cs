@@ -37,7 +37,6 @@ public partial class MainWindow : Window
 
     private Transitions? _toolbarTransitions;
     private Dictionary<PageId, BasePage> _pages = new();
-    private readonly List<PageId> _pageHistory = new();
 
     public MainWindowModel Model
     {
@@ -68,7 +67,6 @@ public partial class MainWindow : Window
         Dispatcher.Post(ScanPages, DispatcherPriority.Loaded);
 
         ToolbarContainer.Height = 0;
-
         _toolbarTransitions = ToolbarContainer.Transitions;
 
         SetPagePositionImmediately(Model.CurrentPage != ViewModels.Page.PageId.None);
@@ -91,36 +89,13 @@ public partial class MainWindow : Window
         SetToolbarHeightImmediately(height);
         PART_Toolbar.DoResize(height);
 
-        if (Model.CurrentPage == ViewModels.Page.PageId.None)
-        {
+        if (Model.CurrentPage == PageId.None)
             SetPagePositionImmediately(false);
-        }
     }
 
     private async void OnToolButtonClicked(object? sender, ToolButtonPressedEventArgs e)
     {
-        Model.WorkspaceModel.ToolButtonClicked(e.ButtonId, e.ButtonAction);
-
-        PageId page = e.ButtonId switch
-        { 
-            ButtonId.Sessions => PageId.Session,
-            ButtonId.Assign => PageId.HandleBrowser,
-            _ => PageId.None
-        };
-
-        if (page == PageId.None)
-            return;
-
-        switch (e.ButtonAction)
-        {
-            case ButtonAction.ToggleDown:
-                await NavigateTo(page);
-                break;
-
-            case ButtonAction.ToggleUp:
-                await ClosePageNavigation(page);
-                break;
-        }
+        await Model.OnToolButtonClicked(e.ButtonId, e.ButtonAction);
     }
 
     private void OnGrid_DoubleClicked(object? sender, GridDoubleClickedEventArgs e)
@@ -130,118 +105,32 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void ScanPages()
+    private async Task OnPageRequestOpen(IPageModel pageModel)
     {
-        var pages = this.GetVisualDescendants().OfType<BasePage>();
-        var count = pages.ToList().Count;
-        if (count < 1)
+        if (!_pages.TryGetValue(pageModel.Id, out BasePage? page))
         {
-            var ex = new InvalidOperationException("No pages found");
-            Log.Error(ex, "Cound not find any pages to assign models to.", LoggingCategory);
+            var ex = new InvalidOperationException("Page not found");
+            Log.Error(ex, $"Cound not find page {pageModel.Id} to close.", LoggingCategory);
             throw ex;
         }
 
-        Log.Debug($"Found {count} pages.", LoggingCategory);
-
-        foreach (var page in pages)
-        {
-            if (!Model.PageModels.TryGetValue(page.Id, out IPageModel? model))
-            {
-                var ex = new InvalidOperationException("No page model found");
-                Log.Error(ex, $"Cound not find page model for {page.Id}.", LoggingCategory);
-                throw ex;
-            }
-
-            page.IsActive = false;
-            page.IsVisible = false;
-            page.DataContext = model;
-
-            if (!_pages.TryAdd(page.Id, page))
-            {
-                throw new InvalidOperationException(
-                    $"Multiple views were registered for page {page.Id}.");
-            }
-        }
-    }
-
-    private async Task NavigateTo(PageId id)
-    {
-        if (!_pages.TryGetValue(id, out var page))
-            throw new InvalidOperationException($"No page found for {id}.");
-
-        // Already on top.
-        if (_pageHistory.Count > 0 &&
-            _pageHistory[^1] == id)
-            return;
-
-        // Close the currently displayed page.
-        if (_pageHistory.Count > 0)
-        {
-            var currentId = _pageHistory[^1];
-
-            if (_pages.TryGetValue(currentId, out var currentPage))
-                await ClosePage(currentPage);
-        }
-
-        // Avoid duplicate history entries.
-        _pageHistory.Remove(id);
-        _pageHistory.Add(id);
+        Log.Debug($"Opening {pageModel.Id}");
 
         await OpenPage(page);
     }
 
-    private async Task ClosePageNavigation(PageId id)
+    private async Task OnPageRequestClose(IPageModel pageModel)
     {
-        int index = _pageHistory.IndexOf(id);
-
-        if (index < 0)
-            return;
-
-        bool isCurrentPage =
-            index == _pageHistory.Count - 1;
-
-        // Remove THIS page, regardless of where it is.
-        _pageHistory.RemoveAt(index);
-
-        // It wasn't the visible page.
-        // Nothing visually needs to change.
-        if (!isCurrentPage)
-            return;
-
-        if (_pages.TryGetValue(id, out var page))
-            await ClosePage(page);
-
-        // Reveal whatever was underneath.
-        if (_pageHistory.Count > 0)
+        if (!_pages.TryGetValue(pageModel.Id, out BasePage? page))
         {
-            var previousId = _pageHistory[^1];
-
-            if (_pages.TryGetValue(previousId, out var previousPage))
-                await OpenPage(previousPage);
+            var ex = new InvalidOperationException("Page not found");
+            Log.Error(ex, $"Cound not find page {pageModel.Id} to close.", LoggingCategory);
+            throw ex;
         }
-    }
 
-    private async Task NavigateBack()
-    {
-        if (_pageHistory.Count == 0)
-            return;
+        Log.Debug($"Closing {pageModel.Id}");
 
-        // Current page is always the last item.
-        PageId currentId = _pageHistory[^1];
-
-        _pageHistory.RemoveAt(_pageHistory.Count - 1);
-
-        if (_pages.TryGetValue(currentId, out var currentPage))
-            await ClosePage(currentPage);
-
-        // Nothing underneath -> back to workspace.
-        if (_pageHistory.Count == 0)
-            return;
-
-        PageId previousId = _pageHistory[^1];
-
-        if (_pages.TryGetValue(previousId, out var previousPage))
-            await OpenPage(previousPage);
+        await ClosePage(page);
     }
 
     private async Task OpenPage(BasePage page)
@@ -267,7 +156,7 @@ public partial class MainWindow : Window
             page.State = PageState.Open;
     }
 
-    private async Task ClosePage(BasePage page) 
+    private async Task ClosePage(BasePage page)
     {
         var dockPosition = GetHiddenOffset(page.Dock);
 
@@ -289,6 +178,47 @@ public partial class MainWindow : Window
 
         Log.Debug($"Closing page {page.Id}");
     }
+
+    private void ScanPages()
+    {
+        var pages = this.GetVisualDescendants().OfType<BasePage>();
+        var count = pages.ToList().Count;
+
+        if (count < 1)
+        {
+            var ex = new InvalidOperationException("No pages found");
+            Log.Error(ex, "Cound not find any pages to assign models to.", LoggingCategory);
+            throw ex;
+        }
+
+        Log.Debug($"Found {count} pages.", LoggingCategory);
+
+        foreach (var page in pages)
+        {
+            if (!Model.PageModels.TryGetValue(page.Id, out IPageModel? model))
+            {
+                var ex = new InvalidOperationException("No page model found");
+                Log.Error(ex, $"Cound not find page model for {page.Id}.", LoggingCategory);
+                throw ex;
+            }
+
+            model.RequestOpen += OnPageRequestOpen;
+            model.RequestClose += OnPageRequestClose;
+
+            page.DataContext = model;
+
+            page.IsActive = false;
+            page.IsVisible = false;
+
+            if (!_pages.TryAdd(page.Id, page))
+            {
+                throw new InvalidOperationException(
+                    $"Multiple views were registered for page {page.Id}.");
+            }
+        }
+    }
+
+   
 
     private void HandleToolbarVisibility(bool visible)
     {

@@ -5,6 +5,7 @@ using Avalonia.VisualTree;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using TitanControl.Events.Control;
 using TitanControl.Logging;
 using TitanControl.ViewModels.Controls.Toolbar;
 using TitanControl.Views.Controls.Layout.Grid;
@@ -34,7 +35,7 @@ public partial class Toolbar : UserControl
     }
 
     protected override void OnPropertyChanged(
-    AvaloniaPropertyChangedEventArgs change)
+        AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
 

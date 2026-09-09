@@ -7,6 +7,9 @@ namespace TitanControl.Events.Control
 {
     public class ToolButtonPressedEventArgs : RoutedEventArgs
     {
+        public ToolButtonPressedEventArgs()
+        { }
+
         public ToolButtonPressedEventArgs(RoutedEvent revent) : base(revent)
         { }
 

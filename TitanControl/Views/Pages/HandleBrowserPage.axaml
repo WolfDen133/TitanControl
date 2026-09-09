@@ -23,7 +23,8 @@
                   <controls:IconButton 
                       HorizontalAlignment="Right" 
                       VerticalAlignment="Top"
-                      BorderBrush="{DynamicResource BorderBrush}">
+                      BorderBrush="{DynamicResource BorderBrush}"
+                      Command="{Binding CloseCommand}">
                     <controls:IconButton.Icon>
                         <Border Padding="5">
                             <Svg Width="28" Height="28" CurrentColor="{DynamicResource Foreground}" Path="/Assets/Icons/cross.svg"/>
@@ -143,7 +144,8 @@
                       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
                           <controls:IconButton 
                               Text="Cancel" 
-                              BorderBrush="{DynamicResource BorderBrush}">
+                              BorderBrush="{DynamicResource BorderBrush}"
+                              Command="{Binding CloseCommand}">
                               <controls:IconButton.Icon>
                                   
                                       <Svg Width="20" Height="20" CurrentColor="{DynamicResource Foreground}" Path="/Assets/Icons/cross.svg"/>

@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using System;
 using System.Threading.Tasks;
 
 namespace TitanControl.ViewModels.Page
@@ -7,14 +8,13 @@ namespace TitanControl.ViewModels.Page
     {
         PageId Id { get; }
 
-        Task OnOpenAsync()
-        {
-            return null!;
-        }
+        event PageRequestHandler? RequestOpen;
+        event PageRequestHandler? RequestClose;
 
-        Task OnCloseAsync()
-        {
-            return null!;
-        }
+        Task OnOpenAsync();
+
+        Task OnCloseAsync();
     }
+
+    public delegate Task PageRequestHandler(IPageModel page);
 }

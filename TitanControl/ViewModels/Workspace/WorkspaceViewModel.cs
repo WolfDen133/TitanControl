@@ -11,6 +11,7 @@ using System.Diagnostics.Tracing;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using TitanControl.Events.Workspace;
 using TitanControl.Logging;
 using TitanControl.Models.Control;
 using TitanControl.Models.Workspace;
@@ -60,7 +61,7 @@ namespace TitanControl.ViewModels.Workspace
 
         public WorkspaceModel CurrentWorkspace => _workspaceService.CurrentWorkspace;
 
-        public event EventHandler<WorkspaceAction>? ExecuteAvailable;
+        public event EventHandler<PageRequestedEventArgs>? RequestPage;
 
         public WorkspaceViewModel(IWorkspaceService workspaceService, 
             ISessionService sessionService, 
@@ -150,14 +151,35 @@ namespace TitanControl.ViewModels.Workspace
                 _ => HandleControlId.None
             };
 
-            Action = action switch
-            {
-                ButtonAction.ToggleDown => workspaceAction,
-                ButtonAction.ToggleUp => WorkspaceAction.None,
-                _ => WorkspaceAction.None
-            };
+            if (action == ButtonAction.ToggleDown)
+                Action = workspaceAction;
+            else
+                HandleActionCancel(workspaceAction);
 
             Log.Debug($"Workspace action {Action} selected.", LoggingCategory);
+        }
+
+        public void HandleActionCancel(WorkspaceAction action)
+        {
+            Action = WorkspaceAction.None;
+
+            var openPage = action switch
+            {
+                WorkspaceAction.Assign => PageId.HandleBrowser,
+                // Options
+                _ => PageId.None
+            };
+
+            if (openPage == PageId.None)
+                return;
+            
+            RequestPage?.Invoke(this, new()
+            {
+                Page = openPage,
+                Opening = false
+            });
+
+            _toolbar.ReleaseToggleSoft(ActionToButton(action));
         }
 
 
@@ -180,14 +202,17 @@ namespace TitanControl.ViewModels.Workspace
             {
                 case WorkspaceAction.Add:
                     Add((Rect)args!);
+                    HandleActionCompleted();
                     break;
 
                 case WorkspaceAction.Copy:
                     Copy((Rect)args!);
+                    HandleActionCompleted();
                     break;
 
                 case WorkspaceAction.Move:
                     Move((Rect)args!);
+                    HandleActionCompleted();
                     break;
 
                 case WorkspaceAction.Assign:
@@ -200,9 +225,13 @@ namespace TitanControl.ViewModels.Workspace
 
                 case WorkspaceAction.Remove:
                     Remove();
+                    HandleActionCompleted();
                     break;
-            }
+            } 
+        }
 
+        public void HandleActionCompleted()
+        {
             ClearSelection();
 
             var old = Action;
@@ -215,25 +244,8 @@ namespace TitanControl.ViewModels.Workspace
                 return;
             }
 
-            var button = old switch
-            {
-                WorkspaceAction.Add => _addingControlType switch
-                {
-                    HandleControlId.Button => ButtonId.AddButton,
-                    HandleControlId.Fader => ButtonId.AddFader,
-                    HandleControlId.ColorPicker => ButtonId.AddColorPicker,
-                    _ => ButtonId.None,
-                },
-                WorkspaceAction.Copy => ButtonId.Copy,
-                WorkspaceAction.Move => ButtonId.Move,
-                WorkspaceAction.Assign => ButtonId.Assign,
-                WorkspaceAction.Options => ButtonId.Options,
-                WorkspaceAction.Remove => ButtonId.Remove,
-                _ => ButtonId.None
-            };
-
-            if (button != ButtonId.None)
-                _toolbar.ReleaseToggleSoft(button);
+            if (old != WorkspaceAction.None)
+                _toolbar.ReleaseToggleSoft(ActionToButton(old));
 
             Log.Debug($"Action {old} completed, action released.", LoggingCategory);
         }
@@ -280,6 +292,9 @@ namespace TitanControl.ViewModels.Workspace
             if (Action == WorkspaceAction.None
                 || SelectedControls.Count == 0)
                 return;
+
+            RequestPage?.Invoke(this, new()
+                { Page = PageId.HandleBrowser });
 
             // Open the assign page for the selected controls
             // Assign the selected controls to the returned titan handle information
@@ -346,6 +361,26 @@ namespace TitanControl.ViewModels.Workspace
             Controls.Clear();
 
             return ValueTask.CompletedTask;
+        }
+
+        public ButtonId ActionToButton(WorkspaceAction action)
+        {
+            return action switch
+            {
+                WorkspaceAction.Add => _addingControlType switch
+                {
+                    HandleControlId.Button => ButtonId.AddButton,
+                    HandleControlId.Fader => ButtonId.AddFader,
+                    HandleControlId.ColorPicker => ButtonId.AddColorPicker,
+                    _ => ButtonId.None,
+                },
+                WorkspaceAction.Copy => ButtonId.Copy,
+                WorkspaceAction.Move => ButtonId.Move,
+                WorkspaceAction.Assign => ButtonId.Assign,
+                WorkspaceAction.Options => ButtonId.Options,
+                WorkspaceAction.Remove => ButtonId.Remove,
+                _ => ButtonId.None
+            };
         }
     }
 }

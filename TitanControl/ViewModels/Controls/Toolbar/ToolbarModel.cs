@@ -15,7 +15,6 @@ namespace TitanControl.ViewModels.Controls.Toolbar
 {
     public class ToolbarModel : BaseViewModel
     {
-        public event EventHandler<ToolButtonPressedEventArgs>? ButtonClicked;
 
         public InfoModel InfoModel { get; set; }
 
