@@ -154,15 +154,16 @@ namespace TitanControl.ViewModels.Workspace
             if (action == ButtonAction.ToggleDown)
                 Action = workspaceAction;
             else
-                HandleActionCancel(workspaceAction);
+            {
+                HandleActionCancel(workspaceAction, false);
+                Action = WorkspaceAction.None;
+            }
 
             Log.Debug($"Workspace action {Action} selected.", LoggingCategory);
         }
 
-        public void HandleActionCancel(WorkspaceAction action)
+        public void HandleActionCancel(WorkspaceAction action, bool release = true)
         {
-            Action = WorkspaceAction.None;
-
             var openPage = action switch
             {
                 WorkspaceAction.Assign => PageId.HandleBrowser,
@@ -179,7 +180,11 @@ namespace TitanControl.ViewModels.Workspace
                 Opening = false
             });
 
-            _toolbar.ReleaseToggleSoft(ActionToButton(action));
+            if (!_latch && release)
+            {
+                _toolbar.ReleaseToggleSoft(ActionToButton(action));
+                Action = WorkspaceAction.None;
+            }
         }
 
 
@@ -230,9 +235,10 @@ namespace TitanControl.ViewModels.Workspace
             } 
         }
 
-        public void HandleActionCompleted()
+        public void HandleActionCompleted(bool clear = true)
         {
-            ClearSelection();
+            if (clear)
+                ClearSelection();
 
             var old = Action;
             Action = WorkspaceAction.None;
