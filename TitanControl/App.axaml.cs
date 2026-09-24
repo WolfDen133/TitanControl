@@ -19,6 +19,8 @@ namespace TitanControl;
 
 public partial class App : Application
 {
+    private const string LoggingCategory = "Application";
+
     private ResourceHelper? _resourceHelper;
     private IDisposable? _dispatcherLogging;
     public static DialogService DialogService
@@ -44,7 +46,7 @@ public partial class App : Application
         if (!Design.IsDesignMode)
         {
             _dispatcherLogging = AvaloniaLogging.InstallDispatcherExceptionLogging(true);
-            Log.Information("Opening main window", "Application");
+            Log.Information("Opening main window", LoggingCategory);
         }
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -57,38 +59,39 @@ public partial class App : Application
 
     private async Task StartAsync(IClassicDesktopStyleApplicationLifetime desktop)
     {
-        Log.Information("Initializing TitanControl Application", "Application");
+        Log.Information("Initializing TitanControl Application", LoggingCategory);
+        var fileHandler = new FileHandler();
+        var workspaceService = new WorkspaceService(new WorkspaceRepository(fileHandler));
+        var sessionService = new SessionService(new SessionRepository(fileHandler), workspaceService);
+        var mainWindowModel = new MainWindowModel(workspaceService, sessionService);
 
         try
         {
-            Log.Debug("Initialising file handler", "Application");
-            var fileHandler = new FileHandler();
-            await fileHandler.InitializeAsync();
-
-            Log.Debug("Initialising workspace service", "Application");
-            var workspaceService = new WorkspaceService(new WorkspaceRepository(fileHandler));
-            await workspaceService.InitializeAsync();
-
-            Log.Debug("Initialising session service", "Application");
-            var sessionService = new SessionService(new SessionRepository(fileHandler), workspaceService);
-            await sessionService.InitializeAsync();
-
-            Log.Debug("Initialising MainWindowModel", "Application");
-            var mainWindowModel = new MainWindowModel(workspaceService, sessionService);
-            await mainWindowModel.InitializeAsync();
-
-            Log.Debug("Initialising MainWindow", "Application");
+            Log.Debug("Initialising TitanControl window...", LoggingCategory);
             var mainWindow = new MainWindow
             {
                 DataContext = mainWindowModel
             };
 
-            Log.Debug("Initialising Dialog Service", "Application");
-            DialogService = new DialogService(mainWindow);
-
-            Log.Debug("Opening window", "Application");
+            Log.Information("Opening TitanControl window...", LoggingCategory);
             desktop.MainWindow = mainWindow;
             mainWindow.Show();
+
+            Log.Debug("Initializing file handler...", LoggingCategory);
+            await fileHandler.InitializeAsync();
+
+            Log.Debug("Initialising services...", LoggingCategory);
+            DialogService = new DialogService(mainWindow);
+
+            await workspaceService.InitializeAsync();
+            await sessionService.InitializeAsync();
+
+            Log.Debug("Initializing view models...", LoggingCategory);
+            await mainWindowModel.InitializeAsync();
+
+            mainWindow.InitializationCompleted();
+            Log.Information("TitanControl started successfully!", "Application");
+            
         }
         catch (Exception ex)
         {

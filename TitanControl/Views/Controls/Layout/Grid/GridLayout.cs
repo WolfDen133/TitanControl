@@ -626,8 +626,6 @@ public class GridLayout : Panel
                 draggingRight,
                 draggingDown);
 
-            Log.Debug($"{candidate}");
-
             if (candidate.Width <= 0 || candidate.Height <= 0)
                 return default;
         }

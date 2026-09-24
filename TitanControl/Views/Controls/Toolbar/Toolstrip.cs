@@ -22,10 +22,13 @@ namespace TitanControl.Views.Controls.Toolbar
 
         public static int MaxPerPage => 6;
 
+        public static readonly StyledProperty<bool> ArrangeFromRightProperty =
+            AvaloniaProperty.Register<Toolstrip, bool>(
+                nameof(ArrangeFromRight), false);
+
         private readonly Dictionary<ButtonId, ToolbarButton> _buttonsById = new();
         private readonly Dictionary<ButtonId, Control> _containersById = new();
         private ButtonId _current = ButtonId.None;
-
 
         public ObservableCollection<ToolbarButton> MenuTree { get; } = [];
         public List<ButtonId> DefaultIds = [];
@@ -33,6 +36,12 @@ namespace TitanControl.Views.Controls.Toolbar
         public bool Exclusive { get; set; } = false;
 
         public ButtonId Current => _current;
+
+        public bool ArrangeFromRight
+        {
+            get => GetValue(ArrangeFromRightProperty);
+            set => SetValue(ArrangeFromRightProperty, value);
+        }
 
         public static readonly RoutedEvent<ToolButtonPressedEventArgs>
             ToolButtonPressedEvent =
@@ -47,10 +56,18 @@ namespace TitanControl.Views.Controls.Toolbar
             remove => RemoveHandler(ToolButtonPressedEvent, value);
         }
 
+        static Toolstrip()
+        {
+            ArrangeFromRightProperty.Changed.AddClassHandler<Toolstrip>(
+                (toolstrip, _) => toolstrip.InvalidateArrange());
+        }
+
         public Toolstrip()
         {
             Orientation = Avalonia.Layout.Orientation.Horizontal;
             Margin = new Thickness(4);
+
+            Classes.CollectionChanged += (_, _) => UpdateButtonText();
         }
 
         protected override void OnLoaded(RoutedEventArgs e)
@@ -65,6 +82,12 @@ namespace TitanControl.Views.Controls.Toolbar
             UnregisterButtons();
 
             base.OnUnloaded(e);
+        }
+
+        private void UpdateButtonText()
+        {
+            foreach (var button in MenuTree)
+                button.ShowText = !Classes.Contains("compact");
         }
 
         private void RebuildButtonIndex()
@@ -266,46 +289,60 @@ namespace TitanControl.Views.Controls.Toolbar
                 .FirstOrDefault();
         }
 
-        
-
         protected override Size MeasureOverride(Size availableSize)
         {
-            double height = double.IsInfinity(availableSize.Height)
-                ? 0
-                : availableSize.Height;
+            double buttonSize = GetButtonSize(availableSize);
 
-            double desiredWidth = 0;
-            double desiredHeight = 0;
+            int visibleCount = 0;
 
             foreach (Control child in Children)
             {
                 if (!child.IsVisible)
                     continue;
 
-                child.Measure(
-                    new Size(
-                        height > 0
-                            ? height
-                            : availableSize.Width,
-                        height > 0
-                            ? height
-                            : availableSize.Height));
-
-                double buttonSize = height > 0
-                    ? height
-                    : Math.Max(
-                        child.DesiredSize.Width,
-                        child.DesiredSize.Height);
-
-                desiredWidth += buttonSize;
-                desiredHeight = Math.Max(
-                    desiredHeight,
-                    buttonSize);
+                child.Measure(new Size(buttonSize, buttonSize));
+                visibleCount++;
             }
 
+            double totalSpacing = Math.Max(0, visibleCount - 1) * Spacing;
+
             return new Size(
-                Math.Min(desiredWidth, availableSize.Width),
-                Math.Min(desiredHeight, availableSize.Height));
+                visibleCount * buttonSize + totalSpacing,
+                buttonSize);
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            double buttonSize = finalSize.Height;
+
+            double x = ArrangeFromRight
+                ? finalSize.Width - buttonSize
+                : 0;
+
+            foreach (Control child in Children)
+            {
+                if (!child.IsVisible)
+                    continue;
+
+                child.Arrange(new Rect(
+                    x,
+                    0,
+                    buttonSize,
+                    buttonSize));
+
+                x += ArrangeFromRight
+                    ? -(buttonSize + Spacing)
+                    : buttonSize + Spacing;
+            }
+
+            return finalSize;
+        }
+
+        private static double GetButtonSize(Size availableSize)
+        {
+            return double.IsInfinity(availableSize.Height)
+                ? 80d
+                : Math.Max(0d, availableSize.Height);
         }
     }
 }

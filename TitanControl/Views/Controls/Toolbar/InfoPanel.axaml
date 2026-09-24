@@ -1,0 +1,240 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:TitanControl.Views.Controls.Toolbar"
+                    xmlns:models="using:TitanControl.ViewModels.Controls"
+                    xmlns:svg="using:Avalonia.Svg.Skia"
+                    xmlns:titancontrol="using:TitanControl"
+                    xmlns:layout="using:TitanControl.Views.Controls.Layout"
+                   >
+
+    <!--
+        Additional resources
+        Using Control Themes:
+            https://docs.avaloniaui.net/docs/basics/user-interface/styling/control-themes
+        Using Theme Variants:
+            https://docs.avaloniaui.net/docs/guides/styles-and-resources/how-to-use-theme-variants
+    -->
+
+    <Design.PreviewWith>
+        <Border Padding="10" Background="{DynamicResource BackgroundLBrush}">
+            <StackPanel Spacing="10">
+
+                <controls:InfoPanel
+                    Width="300"
+                    Height="80"/>
+
+                <controls:InfoPanel
+                    Width="400"
+                    Height="80"
+                    Classes="small"/>
+
+                <controls:InfoPanel
+                    Width="520"
+                    Height="80"
+                    Classes="compact"/>
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type controls:InfoPanel}"
+                  TargetType="controls:InfoPanel"
+                  x:DataType="models:InfoModel">
+
+
+        <Setter Property="MinWidth" Value="265"/>
+        <Setter Property="Template"> 
+            <ControlTemplate>
+                <Border
+                    Background="{DynamicResource BackgroundDBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="5"
+                    Classes="drop-s">
+
+                    <Grid x:Name="PART_Layout"
+                        ColumnDefinitions="Auto,*"
+                        RowDefinitions="1.2*,*">
+                        <!-- BRANDING -->
+                        <Border
+                            x:Name="PART_Brand"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            layout:FluidPadding.ReferencePadding="6"
+                            HorizontalAlignment="Stretch">
+
+                            <Grid
+                                x:Name="PART_BrandLayout"
+                                ColumnDefinitions="Auto,*"
+                                ColumnSpacing="6"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                >
+
+                                <!-- Shared icon -->
+                                <Border
+                                    x:Name="PART_Logo"
+                                    Grid.Column="0"
+                                    ClipToBounds="False"
+                                    Classes="drop-m"
+                                    VerticalAlignment="Center">
+
+                                    <Border>
+                                        <Viewbox Stretch="Uniform">
+                                            <svg:Svg Path="/Assets/Icons/icon.svg"/>
+                                        </Viewbox>
+                                    </Border>
+
+                                </Border>
+
+                                <!-- Normal and small branding -->
+                                <Grid
+                                    x:Name="PART_BrandText"
+                                    Grid.Column="1"
+                                    RowDefinitions="1.9*,*"
+                                    ColumnDefinitions="Auto"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Left">
+
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                        <TextBlock
+                                            Classes="title"
+                                            Text="Titan"
+                                            Foreground="{DynamicResource AccentBrush}"/>
+
+                                        <TextBlock
+                                            Classes="title"
+                                            Text="Control"/>
+                                    </StackPanel>
+
+                                    <StackPanel
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Stretch"
+                                        Grid.Row="1">
+                                        <TextBlock
+                                            Classes="subtitle"
+                                            Text="RLX Productions"
+                                            Padding="2, 1"
+                                            Foreground="{DynamicResource ForegroundDisabledBrush}"/>
+
+                                        <TextBlock
+                                            Classes="context"
+                                            Padding="2, 0"
+                                            Text="{Binding Version, StringFormat='v{0}' FallbackValue='v1.0'}"
+                                            Foreground="{DynamicResource ForegroundDisabledBrush}"/>
+                                    </StackPanel>
+
+
+                                </Grid>
+
+                                <!-- Compact branding: icon + version only -->
+                                <TextBlock
+                                    x:Name="PART_CompactVersion"
+                                    Grid.Column="0"
+                                    IsVisible="False"
+                                    Text="{Binding Version, FallbackValue='v1.0'}"
+                                    Classes="context"
+                                    Foreground="{DynamicResource ForegroundDisabledBrush}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,0,2"/>
+
+                            </Grid>
+                        </Border>
+
+                        <!-- WORKSPACE / SESSION -->
+                        <Border
+                            x:Name="PART_DetailsContainer">
+                            <Grid x:Name="PART_Details" 
+                                ColumnDefinitions="*, *"
+                                MinWidth="0"
+                                HorizontalAlignment="Stretch">
+                                 <Border
+                                    x:Name="PART_Workspace"
+                                    layout:FluidPadding.ReferencePadding="12,4"
+                                    BorderBrush="{DynamicResource BorderSubtleBrush}">
+                                    <Grid RowDefinitions="*, 1.2*" ColumnSpacing="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <Viewbox Stretch="Uniform">
+                                                <Border Padding="0, 3" VerticalAlignment="Center">
+                                                    <svg:Svg Width="10" Height="10" Path="/Assets/Icons/folder.svg" CurrentColor="{DynamicResource AccentColor}"/>
+                                                </Border>
+                                            </Viewbox>
+
+                                            <Viewbox Stretch="Uniform">
+                                                <TextBlock x:Name="PART_WorkspaceLabel" VerticalAlignment="Center" Classes="header" Text="Workspace" Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
+                                            </Viewbox>
+                                        </StackPanel>
+                                        
+                                        <Viewbox 
+                                            Stretch="Uniform" 
+                                            Grid.Row="1"
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Left">
+                                            <TextBlock 
+                                                x:Name="PART_WorkspaceValue"
+                                                Grid.Row="2" 
+                                                Padding="2"
+                                                VerticalAlignment="Center" 
+                                                Text="{Binding Workspace, TargetNullValue='-', FallbackValue='-'}" 
+                                                Classes="value"
+                                                TextTrimming="CharacterEllipsis"
+                                                MaxWidth="140"/>
+                                        </Viewbox>
+                                    </Grid>           
+                                </Border>
+
+                                <Border
+                                    x:Name="PART_Session"
+                                    layout:FluidPadding.ReferencePadding="12,4">
+                                    <Grid RowDefinitions="*, 1.2*" ColumnSpacing="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <Viewbox Stretch="Uniform">
+                                                <Border Padding="0, 3" VerticalAlignment="Center">
+                                                    <Ellipse Width="8" Height="8" Fill="{Binding SessionState, Converter={StaticResource SessionStatusToBrushConverter}, FallbackValue='Gray'}" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </Viewbox>
+
+                                            <Viewbox Stretch="Uniform">
+                                                <TextBlock x:Name="PART_SessionLabel" VerticalAlignment="Center" Classes="header" Text="Session" Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
+                                            </Viewbox>
+                                        </StackPanel>
+                                        
+                                        <Viewbox 
+                                            Stretch="Uniform" 
+                                            Grid.Row="1"
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Left">
+                                            <TextBlock 
+                                                x:Name="PART_SessionValue"
+                                                Padding="2"
+                                                TextTrimming="CharacterEllipsis"
+                                                TextWrapping="NoWrap" 
+                                                Text="{Binding Session, TargetNullValue='-', FallbackValue='-'}" 
+                                                Classes="value"
+                                                MaxWidth="100"/>
+                                        </Viewbox>
+                                    </Grid>           
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^.compact /template/ TextBlock#PART_WorkspaceValue">
+            <Setter Property="FontSize" Value="8"/>
+        </Style>
+
+        <Style Selector="^.compact /template/ TextBlock#PART_SessionValue">
+            <Setter Property="FontSize" Value="8"/>
+        </Style>
+
+        <Style Selector="^.small /template/ TextBlock#PART_SessionValue">
+            <Setter Property="FontSize" Value="8"/>
+            <Setter Property="MaxWidth" Value="140"/>
+        </Style>
+            
+    </ControlTheme>
+
+
+</ResourceDictionary>

@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using System.Drawing;
 using System.Text.Json.Serialization;
+using TitanControl.Disk.Converter;
 using TitanControl.Services.Session;
 using TitanControl.ViewModels.Workspace.Handle;
 using TitanControl.WebAPI.Data;
@@ -9,10 +10,11 @@ namespace TitanControl.Models.Control
 {
     public abstract class ControlModel : IControlModel
     {
-        [JsonPropertyName("type")]
+        [JsonIgnore]
         public virtual HandleControlId ControlId { get; init; } = HandleControlId.None;
 
         [JsonPropertyName("location")]
+        [JsonConverter(typeof(RectangleArrayJsonConverter))]
         public Rectangle Location { get; set; }
 
         [JsonPropertyName("titanId")]

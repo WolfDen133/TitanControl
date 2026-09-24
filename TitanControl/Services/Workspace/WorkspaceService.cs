@@ -84,31 +84,61 @@ namespace TitanControl.Services.Workspace
             Log.Information($"Successfully opened {workspace.Name} workspace.", LoggingCategory);
         }
 
-        public async Task SaveAsync()
+        public async Task LoadAsync(string path)
         {
             ThrowIfDisposed();
 
-            await SaveAsync(CurrentWorkspace);
+            var workspace = await _workspaceRepo.TryLoadAsync(path);
+
+            CurrentWorkspace = workspace;
+
+            WorkspacedLoaded?.Invoke(this, new WorkspaceEventArgs(workspace));
+
+            Log.Information($"Successfully opened {workspace.Name} workspace.", LoggingCategory);
         }
 
-        public async Task SaveAsync(WorkspaceModel workspace)
+        public async Task<string?> SaveAsync()
         {
             ThrowIfDisposed();
 
-            await _workspaceRepo.SaveAsync(workspace);
+            return await SaveAsync(CurrentWorkspace);
+        }
+
+        public async Task<string?> SaveAsync(WorkspaceModel workspace, string? path = null)
+        {
+            ThrowIfDisposed();
+
+            var result = await _workspaceRepo.SaveAsync(workspace, path);
 
             WorkspaceSaved?.Invoke(this, new WorkspaceEventArgs(workspace));
 
             Log.Information($"Sucessfully saved {workspace.Name} workspace.", LoggingCategory);
+
+            return result;
+        }
+
+        public async Task<string?> SaveAsync(WorkspaceModel workspace)
+        {
+            return await SaveAsync(workspace, null);
+        }
+
+        public async Task<string?> RenameAsync(WorkspaceModel workspace)
+        {
+            ThrowIfDisposed();
+
+            var result = await _workspaceRepo.RenameAsync(workspace);
+
+            Log.Information($"Sucessfully renamed {workspace.Name} workspace.", LoggingCategory);
+
+            return result;
         }
 
         public async Task<WorkspaceModel> Create(string name)
         {
             ThrowIfDisposed();
 
-            var workspace = new WorkspaceModel
+            var workspace = new WorkspaceModel(Guid.NewGuid())
             {
-                Id = Guid.NewGuid(),
                 Name = name,
                 Options = new WorkspaceOptionsModel
                 {
@@ -187,6 +217,16 @@ namespace TitanControl.Services.Workspace
         private void ThrowIfDisposed()
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
+        }
+
+        Task IItemService<WorkspaceModel, Guid>.SaveAsync()
+        {
+            return SaveAsync();
+        }
+
+        void IDisposable.Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

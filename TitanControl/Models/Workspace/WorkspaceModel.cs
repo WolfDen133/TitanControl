@@ -10,18 +10,28 @@ namespace TitanControl.Models.Workspace
     {
         private string _name = string.Empty;
         private WorkspaceOptionsModel _options = null!;
-        private List<ControlModel> _controls = null!;
+        private List<IControlModel> _controls = null!;
         private DateTime _lastModified;
+
+        public WorkspaceModel(Guid id)
+        {
+            Id = id;
+        }
+
+        public void ReasignId()
+        {
+            Id = Guid.NewGuid();
+        }
 
         [JsonPropertyName("version")]
         public int WorkspaceVersion { get; } = 1;
 
 
         [JsonPropertyName("workspaceId")]
-        public required Guid Id
+        public Guid Id
         {
             get;
-            init;
+            private set;
         }
 
         [JsonPropertyName("name")]
@@ -47,7 +57,7 @@ namespace TitanControl.Models.Workspace
         }
 
         [JsonPropertyName("controls")]
-        public List<ControlModel> Controls
+        public List<IControlModel> Controls
         {
             get => _controls;
             set

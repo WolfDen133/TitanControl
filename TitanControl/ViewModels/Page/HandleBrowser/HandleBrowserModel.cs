@@ -6,16 +6,19 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TitanControl.Events;
 using TitanControl.Logging;
+using TitanControl.Models.Workspace;
 using TitanControl.Services.Session;
 using TitanControl.ViewModel;
+using TitanControl.ViewModels.Workspace;
 using TitanControl.WebAPI;
 using TitanControl.WebAPI.Data;
 using TitanControl.WebAPI.Data.Model;
 
 namespace TitanControl.ViewModels.Page.HandleBrowser
 {
-    public partial class HandleBrowserModel : BasePageModel
+    public partial class HandleBrowserModel : BasePageModel, IDialog
     {
         private const string LoggingCategory = "HandleBrowser ViewModel";
 
@@ -25,9 +28,10 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
         private HandleType _currentTab = HandleType.None;
         private BrowserMode _mode = BrowserMode.Assign;
         private ISession? CurrentSession => _sessionService.CurrentSession;
-        private Action<bool> _closeAction;
 
-        public event EventHandler<List<Handle>>? OnClosing;
+        private WorkspaceViewModel _workspace;
+
+        public event EventHandler<DialogClosedEventArgs>? DialogClosed;
 
         public ObservableCollection<Handle> Handles
         {
@@ -80,10 +84,10 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
               } 
             + ".svg"; 
 
-        public HandleBrowserModel(ISessionService sessionService, Action<bool> onClose)
+        public HandleBrowserModel(ISessionService sessionService, WorkspaceViewModel workspace)
         {
             _sessionService = sessionService;
-            _closeAction = onClose;
+            _workspace = workspace;
 
             Handles.CollectionChanged += (s, e) =>
             {
@@ -91,6 +95,17 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
                 OnPropertyChanged(nameof(TotalCount));
                 OnPropertyChanged(nameof(CountDisplay));
             };
+        }
+
+
+        public void OnCancel()
+        {
+            _workspace.HandleActionCancel(WorkspaceAction.Assign);
+        }
+
+        public void OnAccept()
+        {
+            _workspace.HandleActionCompleted();
         }
 
         public override Task InitializeAsync()
@@ -187,22 +202,31 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
             => await ShowTypeHandles(type);
 
         [RelayCommand]
-        public async Task Select()
+        public void Select()
         {
-            OnClosing?.Invoke(this, Handles.Where(h => h.Selected).ToList());
             ClosePage(false);
+            DialogClosed?.Invoke(this, new DialogClosedEventArgs<List<Handle>>
+            {
+                Result = [.. Handles.Where(h => h.Selected)]
+            });
         }
 
         [RelayCommand]
-        public async Task Close()
+        public void Close()
         {
-            OnClosing?.Invoke(this, []);
             ClosePage(true);
+            DialogClosed?.Invoke(this, new DialogClosedEventArgs<List<Handle>>()
+            {
+                IsCanceled = true,
+            });
         }
 
         public void ClosePage(bool cancelled = false)
         {
-            _closeAction.Invoke(cancelled);
+            if (cancelled)
+                OnCancel();
+            else
+                OnAccept();
         }
 
 

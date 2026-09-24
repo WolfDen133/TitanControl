@@ -38,7 +38,7 @@ namespace TitanControl.ViewModels.Workspace
         private readonly ToolbarModel _toolbar;
 
         public bool ActionAvailable = false;
-        private bool _latch = false;
+        public bool Latch = false;
 
         private WorkspaceAction _action = WorkspaceAction.None;
         private HandleControlId _addingControlType;
@@ -72,15 +72,27 @@ namespace TitanControl.ViewModels.Workspace
             _toolbar = toolbarModel;
         }
 
-        public override async Task InitializeAsync()
+        public override Task InitializeAsync()
         {
-            foreach (var model in CurrentWorkspace.Controls)
-                AddControl(model.ToInstance<IHandleControl>(_sessionService));
+            LoadControls();
 
             SelectedControls.CollectionChanged += SelectedControls_CollectionChanged;
 
             Log.Information($"Loaded {Controls.Count} controls into workspace", LoggingCategory);
-        }       
+
+            return Task.CompletedTask;
+        }
+        
+        public void LoadControls()
+        {
+            foreach (var model in CurrentWorkspace.Controls)
+                AddControl(model.ToInstance<IHandleControl>(_sessionService));
+        }
+
+        public void ClearControls()
+        {
+            Controls.Clear();
+        }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
         {
@@ -125,7 +137,7 @@ namespace TitanControl.ViewModels.Workspace
         {
             if (id == ButtonId.Latch)
             {
-                _latch = action == ButtonAction.ToggleDown ? true : false;
+                Latch = action == ButtonAction.ToggleDown ? true : false;
                 return;
             }
 
@@ -157,6 +169,22 @@ namespace TitanControl.ViewModels.Workspace
             {
                 HandleActionCancel(workspaceAction, false);
                 Action = WorkspaceAction.None;
+
+                var openPage = workspaceAction switch
+                {
+                    WorkspaceAction.Assign => PageId.HandleBrowser,
+                    // Options
+                    _ => PageId.None
+                };
+
+                if (openPage != PageId.None)
+                {
+                    RequestPage?.Invoke(this, new()
+                    {
+                        Page = openPage,
+                        Opening = false
+                    });
+                }
             }
 
             Log.Debug($"Workspace action {Action} selected.", LoggingCategory);
@@ -164,27 +192,32 @@ namespace TitanControl.ViewModels.Workspace
 
         public void HandleActionCancel(WorkspaceAction action, bool release = true)
         {
-            var openPage = action switch
-            {
-                WorkspaceAction.Assign => PageId.HandleBrowser,
-                // Options
-                _ => PageId.None
-            };
-
-            if (openPage == PageId.None)
-                return;
-            
-            RequestPage?.Invoke(this, new()
-            {
-                Page = openPage,
-                Opening = false
-            });
-
-            if (!_latch && release)
+            if (!Latch && release)
             {
                 _toolbar.ReleaseToggleSoft(ActionToButton(action));
                 Action = WorkspaceAction.None;
             }
+        }
+
+        public void HandleActionCompleted(bool clear = true)
+        {
+            if (clear)
+                ClearSelection();
+
+            var old = Action;
+            Action = WorkspaceAction.None;
+
+            if (Latch)
+            {
+                Action = old;
+                Log.Debug($"Action {old} completed, action latched.", LoggingCategory);
+                return;
+            }
+
+            if (old != WorkspaceAction.None)
+                _toolbar.ReleaseToggleSoft(ActionToButton(old));
+
+            Log.Debug($"Action {old} completed, action released.", LoggingCategory);
         }
 
 
@@ -235,26 +268,7 @@ namespace TitanControl.ViewModels.Workspace
             } 
         }
 
-        public void HandleActionCompleted(bool clear = true)
-        {
-            if (clear)
-                ClearSelection();
-
-            var old = Action;
-            Action = WorkspaceAction.None;
-
-            if (_latch)
-            {
-                Action = old;
-                Log.Debug($"Action {old} completed, action latched.", LoggingCategory);
-                return;
-            }
-
-            if (old != WorkspaceAction.None)
-                _toolbar.ReleaseToggleSoft(ActionToButton(old));
-
-            Log.Debug($"Action {old} completed, action released.", LoggingCategory);
-        }
+        
 
         private void Add(Rect at)
         {

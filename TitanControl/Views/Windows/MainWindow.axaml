@@ -1,0 +1,150 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:controls="using:TitanControl.Views.Controls"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:layout="using:TitanControl.Views.Controls.Layout"
+        xmlns:local="using:TitanControl.Views"
+        xmlns:toolbar="using:TitanControl.Views.Controls.Toolbar"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:pages="using:TitanControl.Views.Pages"
+        xmlns:viewmodels="using:TitanControl.ViewModel"
+        xmlns:state="using:TitanControl.Views.State"
+        xmlns:titancontrol="using:TitanControl"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        MinHeight="600"
+        MinWidth="1066"
+        x:Class="TitanControl.Views.MainWindow"
+        x:DataType="viewmodels:MainWindowModel"
+        state:EditMode.IsEnabled="{Binding EditMode}"
+        Title="TitanControl">
+    <Panel x:Name="PART_ContentContainer" Background="{DynamicResource BackgroundDDBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Panel 
+            x:Name="PART_Splash" 
+            VerticalAlignment="Stretch" 
+            HorizontalAlignment="Stretch"
+            ZIndex="20"
+            Opacity="1"
+            Background="{DynamicResource BackgroundLBrush}">
+            <Panel.Transitions>
+                <Transitions>
+                    <DoubleTransition
+                        Property="Opacity"
+                        Easing="CubicEaseInOut"
+                        Duration="0:0:0.4"/>
+                </Transitions>
+            </Panel.Transitions>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Classes="title" FontSize="56" Text="Titan" Foreground="{DynamicResource AccentBrush}"/>
+                    <TextBlock Classes="title" FontSize="56" Text="Control" Foreground="{DynamicResource ForegroundBrush}"/>
+                </StackPanel>
+                <TextBlock 
+                    HorizontalAlignment="Center"
+                    Text="{Binding VersionString}" 
+                    Classes="header" 
+                    FontSize="42"
+                    Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
+                <Border Classes="running-inverse" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+                    <controls:TwoToneSvg 
+                        Height="50" 
+                        Width="50" 
+                        Path="/Assets/Icons/loading.svg" 
+                        CurrentColor="{DynamicResource ForegroundSecondary}"/>
+                </Border>
+            </StackPanel>
+        </Panel>
+        <Grid x:Name="PART_Content">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Panel x:Name="ToolbarContainer" Classes="sliding" Opacity="0" Height="0" IsVisible="False">
+                <Panel.Transitions>
+                    <Transitions>
+                        <DoubleTransition
+                            Property="Height"
+                            Easing="CubicEaseInOut"
+                            Duration="0:0:0.3"/>
+                        <DoubleTransition
+                            Property="Opacity"
+                            Easing="CubicEaseInOut"
+                            Duration="0:0:0.3"/>
+                    </Transitions>
+                </Panel.Transitions>
+                <toolbar:Toolbar x:Name="PART_Toolbar" DataContext="{Binding ToolbarModel}" VerticalAlignment="Bottom"/>
+            </Panel>
+            <Grid x:Name="PageAnchor"
+                  Grid.Row="1"
+                  ClipToBounds="True">
+
+                <!-- Base / root page -->
+                <local:WorkspaceView
+                    ZIndex="10"
+                    DataContext="{Binding WorkspaceModel}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"/>
+
+                <!-- Overlay page -->
+                <Panel x:Name="PageContainer"
+                       Classes="sliding"
+                       Opacity="0"
+                       ZIndex="20"
+                       IsHitTestVisible="False"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch">
+
+                    <Panel.Transitions>
+                        <Transitions>
+                            <DoubleTransition
+                                Property="Opacity"
+                                Easing="CubicEaseInOut"
+                                Duration="0:0:0.3"/>
+                    </Transitions>
+                    </Panel.Transitions>
+
+                    <Panel.RenderTransform>
+                        <TranslateTransform Y="0">
+                            <TranslateTransform.Transitions>
+                                <Transitions>
+                                    <DoubleTransition
+                                        Easing="CubicEaseInOut"
+                                        Property="Y"
+                                        Duration="0:0:0.3"/>
+                                </Transitions>
+                            </TranslateTransform.Transitions>
+                        </TranslateTransform>
+                    </Panel.RenderTransform>
+
+                
+                    <Border 
+                        x:Name="PageBorder"
+                        Margin="5 0 5 5" 
+                        BorderBrush="{DynamicResource AccentBrush}" 
+                        BorderThickness="2 0 2 2" 
+                        CornerRadius="0 10">
+                            <Border
+                                x:Name="PageClip"
+                                CornerRadius="0 8"
+                                ClipToBounds="True">
+                            <Panel>
+                                <pages:SessionPage
+                                    DataContext="{x:Null}"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    CornerRadius="10"/>
+                        
+                                <pages:HandleBrowserPage
+                                    DataContext="{x:Null}"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    CornerRadius="10"/>
+                            </Panel>
+                        </Border>
+                    </Border>
+                </Panel>
+
+            </Grid>
+        
+        </Grid>
+    </Panel>
+</Window>

@@ -18,6 +18,10 @@ namespace TitanControl.Services.Workspace
         event EventHandler<WorkspaceEventArgs>? WorkspacedLoaded;
 
         Task LoadAsync(Guid id);
-        Task SaveAsync(WorkspaceModel workspace);
+        Task LoadAsync(string path);
+        Task<string?> RenameAsync(WorkspaceModel model);
+        Task<string?> SaveAsync(WorkspaceModel workspace, string? path);
+        new Task<string?> SaveAsync();
+
     }
 }

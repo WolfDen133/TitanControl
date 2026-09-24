@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -25,6 +26,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace TitanControl.Views;
 
+[PseudoClasses(":loading")]
 public partial class MainWindow : Window
 {
     private const string LoggingCategory = "MainWindow";
@@ -35,7 +37,6 @@ public partial class MainWindow : Window
     private TranslateTransform PageTransform =>
         (TranslateTransform)PageContainer.RenderTransform!;
 
-    private Transitions? _toolbarTransitions;
     private Dictionary<PageId, BasePage> _pages = new();
 
     public MainWindowModel Model
@@ -53,6 +54,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        PseudoClasses.Set(":loading", true);
+
         AddHandler(GridLayout.GridDoubleClickedEvent, OnGrid_DoubleClicked, RoutingStrategies.Bubble);
         AddHandler(Toolstrip.ToolButtonPressedEvent, OnToolButtonClicked, RoutingStrategies.Bubble);
     }
@@ -64,12 +67,11 @@ public partial class MainWindow : Window
         if (Design.IsDesignMode)
             return;
 
-        Dispatcher.Post(ScanPages, DispatcherPriority.Loaded);
-
         ToolbarContainer.Height = 0;
-        _toolbarTransitions = ToolbarContainer.Transitions;
 
-        SetPagePositionImmediately(Model.CurrentPage != ViewModels.Page.PageId.None);
+        SetPagePositionImmediately(Model.CurrentPage != PageId.None);
+
+        Model.RequestSplash += (s, isVisible) => SetSplashVisible(isVisible);
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
@@ -84,13 +86,31 @@ public partial class MainWindow : Window
         if (Design.IsDesignMode || !Model.EditMode)
             return;
 
-        int height = PART_Toolbar.CalculateHeight((int)e.NewSize.Width);
+        double height = PART_Toolbar.CalculateHeight(e.NewSize.Width);
 
         SetToolbarHeightImmediately(height);
         PART_Toolbar.DoResize(height);
 
         if (Model.CurrentPage == PageId.None)
             SetPagePositionImmediately(false);
+    }
+
+    public async Task InitializationCompleted()
+    {
+        Dispatcher.Post(ScanPages, DispatcherPriority.Loaded);
+
+        // Cheeky but feels smoother
+        await Task.Delay(200);
+
+        SetSplashVisible(false);
+    }
+
+    public void SetSplashVisible(bool isVisible = true)
+    {
+        PART_Splash.Opacity = isVisible ? 1 : 0;
+        PART_Splash.IsHitTestVisible = isVisible;
+
+        PART_Content.IsHitTestVisible = !isVisible;
     }
 
     private async void OnToolButtonClicked(object? sender, ToolButtonPressedEventArgs e)
@@ -114,8 +134,6 @@ public partial class MainWindow : Window
             throw ex;
         }
 
-        Log.Debug($"Opening {pageModel.Id}");
-
         await OpenPage(page);
     }
 
@@ -127,8 +145,6 @@ public partial class MainWindow : Window
             Log.Error(ex, $"Cound not find page {pageModel.Id} to close.", LoggingCategory);
             throw ex;
         }
-
-        Log.Debug($"Closing {pageModel.Id}");
 
         await ClosePage(page);
     }
@@ -217,7 +233,6 @@ public partial class MainWindow : Window
             }
         }
     }
-
    
 
     private void HandleToolbarVisibility(bool visible)
@@ -226,7 +241,7 @@ public partial class MainWindow : Window
 
         if (visible)
         {
-            int height = PART_Toolbar.CalculateHeight((int)Bounds.Width);
+            double height = PART_Toolbar.CalculateHeight((int)Bounds.Width);
 
             ToolbarContainer.Height = height;
             PART_Toolbar.DoResize(height);
@@ -272,7 +287,7 @@ public partial class MainWindow : Window
         PageClip.CornerRadius = GetDockRadius(dock, 8d);
     }
 
-    private void SetToolbarHeightImmediately(int height)
+    private void SetToolbarHeightImmediately(double height)
     {
         var transitions = ToolbarContainer.Transitions;
 

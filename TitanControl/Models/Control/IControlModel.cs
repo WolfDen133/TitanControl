@@ -1,10 +1,14 @@
 ﻿using System.Drawing;
+using System.Text.Json.Serialization;
 using TitanControl.Services.Session;
 using TitanControl.ViewModels.Workspace.Handle;
 using TitanControl.WebAPI.Data;
 
 namespace TitanControl.Models.Control
 {
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+    [JsonDerivedType(typeof(ButtonControlModel), "button")]
+    [JsonDerivedType(typeof(FaderControlModel), "fader")]
     public interface IControlModel : ISaveModel
     {
         HandleControlId ControlId { get; init; }
@@ -13,6 +17,6 @@ namespace TitanControl.Models.Control
         HandleType HandleType { get; set; }
         HandleKeyProfile KeyProfile { get; set; }
 
-        ISaveable ToInstance(ISessionService service);
+        T ToInstance<T>(ISessionService service);
     }
 }

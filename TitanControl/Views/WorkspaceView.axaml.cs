@@ -132,10 +132,12 @@ namespace TitanControl.Views
 
             EnableSelectionAreaListener(false);
             EnableExclusiveSelection(false);
-
             PART_ControlGrid.SelectOver = false;
+
             Model.ExecuteAction(PART_ControlGrid.SelectedArea);
-            PART_ControlGrid.SelectOver = true;
+
+            if (!(Model.Latch && Model.Action == WorkspaceAction.Add))
+                PART_ControlGrid.SelectOver = true;
 
             PART_ControlGrid.InvalidateArrange();
             PART_ControlGrid.InvalidateVisual();

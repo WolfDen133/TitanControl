@@ -60,12 +60,7 @@ namespace TitanControl.Views.Pages
 
             if (Design.IsDesignMode)
                 return;
-            
-            Dispatcher.Post(() =>
-            {
-                Model.PropertyChanged += Model_PropertyChanged;
-            }, DispatcherPriority.Loaded);
-
+           
             ConnectedSession.PointerEntered += ConnectedSession_PointerEntered;
             ConnectedSession.PointerExited += ConnectedSession_PointerExited;
         }
@@ -80,6 +75,18 @@ namespace TitanControl.Views.Pages
 			Model.PropertyChanged -= Model_PropertyChanged;
             ConnectedSession.PointerEntered -= ConnectedSession_PointerEntered;
             ConnectedSession.PointerExited -= ConnectedSession_PointerExited;
+        }
+
+        protected override void OnDataContextChanged(EventArgs e)
+        {
+            base.OnDataContextChanged(e);
+
+            if (DataContext == null) return;
+
+            Dispatcher.Post(() =>
+            {
+                Model.PropertyChanged += Model_PropertyChanged;
+            }, DispatcherPriority.Loaded);
         }
 
         private void Model_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

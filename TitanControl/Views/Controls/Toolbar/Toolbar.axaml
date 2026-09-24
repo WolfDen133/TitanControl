@@ -6,7 +6,7 @@
              xmlns:models="using:TitanControl.ViewModels.Controls.Toolbar"
              xmlns:toolbar="using:TitanControl.Views.Controls.Toolbar"
              d:DesignWidth="1920"
-             mc:Ignorable="d" MaxHeight="140" Height="115" MinHeight="110"
+             mc:Ignorable="d" MaxHeight="140" d:DesignHeight="120"
              x:DataType="models:ToolbarModel"
              ClipToBounds="False"
              Classes="drop-l"
@@ -34,22 +34,35 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <ItemsControl ItemsSource="{Binding ContextButtons}" HorizontalAlignment="Stretch">
+            <ItemsControl 
+                x:Name="PART_ContextItems"
+                ItemsSource="{Binding ContextButtons}" 
+                VerticalAlignment="Center"
+                Loaded="ContextItems_Loaded">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <toolbar:Toolstrip Name="PART_ContextToolstrip" Exclusive="True"/>
+                        <toolbar:Toolstrip Spacing="4" Exclusive="True"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
             
-            <Border Padding="4" ClipToBounds="False" Grid.Column="1">
-                <toolbar:InfoPane x:Name="PART_InfoPane" ClipToBounds="False" Classes="drop-l" DataContext="{Binding InfoModel}"/>
+            <Border Padding="0, 4" ClipToBounds="False" Grid.Column="1" x:Name="PART_InfoContainer">
+                <toolbar:InfoPanel x:Name="PART_InfoPane" ClipToBounds="False" Classes="drop-l" DataContext="{Binding InfoModel}"/>
             </Border>
 
-            <ItemsControl ItemsSource="{Binding SystemButtons}" Grid.Column="2" HorizontalAlignment="Stretch">
+            <ItemsControl 
+                x:Name="PART_SystemItems"
+                ItemsSource="{Binding SystemButtons}" 
+                Grid.Column="2" 
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Loaded="SystemItems_Loaded">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <toolbar:Toolstrip Name="PART_SystemToolstrip" Exclusive="False" FlowDirection="RightToLeft"/>
+                        <toolbar:Toolstrip 
+                            Exclusive="False" 
+                            ArrangeFromRight="True"
+                            Spacing="4"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>

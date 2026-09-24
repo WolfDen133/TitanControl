@@ -15,7 +15,6 @@ namespace TitanControl.ViewModels.Controls.Toolbar
 {
     public class ToolbarModel : BaseViewModel
     {
-
         public InfoModel InfoModel { get; set; }
 
         public List<ButtonId> AvailableContext = 
@@ -109,58 +108,16 @@ namespace TitanControl.ViewModels.Controls.Toolbar
             {
                 IsToggle = true
             },
-            new(ButtonId.Save) {
-                IsToggle = true
-            },
-            new(ButtonId.SaveAs) {
-                IsToggle = true
-            },
-            new(ButtonId.Load){
-                IsToggle = true,
-            },
-            new(ButtonId.Rename) {
-                IsToggle = true,
-            },
-            new(ButtonId.New) {
-                IsToggle = true
-            }
+            new(ButtonId.Save),
+            new(ButtonId.SaveAs),
+            new(ButtonId.Load),
+            new(ButtonId.Rename),
+            new(ButtonId.New)
         ];
 
         public ToolbarModel(ISessionService sessionService, IWorkspaceService workspaceService)
         {
-            InfoModel = new InfoModel();
-
-            sessionService.PropertyChanged += SessionService_PropertyChanged;
-
-            workspaceService.PropertyChanged += (sender, args) =>
-            {
-                if (args.PropertyName != nameof(workspaceService.CurrentWorkspace))
-                    return;
-
-                InfoModel.Workspace = workspaceService.CurrentWorkspace?.Name!;
-            };
-        }
-
-        private void SessionService_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (sender is not ISessionService service || e.PropertyName != nameof(service.CurrentSession))
-                return;
-
-            if (service.CurrentSession == null)
-                Log.Debug("Current session is null");
-            else
-            {
-                InfoModel.SessionState = service.CurrentSession.State;
-                Log.Debug($"Session {service.CurrentSession} is now {service.CurrentSession.State}");
-            }
-
-            service.CurrentSession?.StateChanged += (_, stateEventArgs) =>
-            {
-                InfoModel.SessionState = stateEventArgs.CurrentState;
-                Log.Debug($"Session {service.CurrentSession} is now {stateEventArgs.CurrentState}");
-            };
-
-            InfoModel.Session = service.CurrentSession?.Name!;
+            InfoModel = new InfoModel(workspaceService, sessionService);
         }
 
         public void ReleaseToggleSoft(ButtonId buttonId)

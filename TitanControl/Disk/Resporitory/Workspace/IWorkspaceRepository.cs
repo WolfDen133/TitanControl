@@ -9,6 +9,11 @@ namespace TitanControl.Disk.Resporitory.Workspace
         Guid LastWorkspace { get; }
 
         Task<WorkspaceModel> LoadAsync(Guid id);
+        Task<WorkspaceModel> TryLoadAsync(string path);
+
+        Task<string?> SaveAsync(WorkspaceModel workspace, string? path);
+        Task<string?> RenameAsync(WorkspaceModel workspace);
+
         Task LoadRecord();
 
         string[] WorkspaceNames { get; }

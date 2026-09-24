@@ -59,7 +59,28 @@ namespace TitanControl.Disk.Resporitory.Workspace
             return await LoadByPathAsync(path);
         }
 
-        public async Task<WorkspaceModel> LoadByPathAsync(string path)
+        public async Task<WorkspaceModel> TryLoadAsync(string path)
+        {
+            var workspace = await LoadByPathAsync(path, false);
+
+            _record.LastWorkspace = workspace.Id;
+
+            if (!_record.Workspaces.ContainsKey(workspace.Id))
+            {
+                _record.Workspaces.Add(workspace.Id, new WorkspaceEntryModel
+                {
+                    Name = workspace.Name,
+                    Path = path,
+                });
+            }
+
+                await _fileHandler.SaveWorkspaceRecord(_record);
+
+            Log.Information($"Loaded workspace '{workspace.Name}': {path}", LoggingCategory);
+            return workspace;
+        }
+
+        public async Task<WorkspaceModel> LoadByPathAsync(string path, bool save = true)
         {
             // Load
             var newWorkspace = await _fileHandler.LoadWorkspace(path);
@@ -68,22 +89,25 @@ namespace TitanControl.Disk.Resporitory.Workspace
             _record.LastWorkspace = newWorkspace.Id;
 
             // Save the entry
-            await _fileHandler.SaveWorkspaceRecord(_record);
+            if (save)
+                await _fileHandler.SaveWorkspaceRecord(_record);
 
-            Log.Information($"Loaded {newWorkspace.Id}: {path}", LoggingCategory);
+            Log.Information($"Loaded workspace '{newWorkspace.Name}': {path}", LoggingCategory);
 
             return newWorkspace;
         }
 
-        public async Task SaveAsync(WorkspaceModel workspace)
+        public async Task<string?> SaveAsync(WorkspaceModel workspace, string? path = null)
         {
+            path ??= Path.Combine(PathHelper.DocumentsPath, workspace.Name + ".tcw");
+
             // Get or create entry
             if (!_record.Workspaces.TryGetValue(workspace.Id, out WorkspaceEntryModel? entryModel))
             {
                 entryModel = new WorkspaceEntryModel
                 {
                     Name = workspace.Name,
-                    Path = Path.Combine(PathHelper.DocumentsPath, workspace.Name + ".tcw"),
+                    Path = path,
                 };
 
                 _record.Workspaces.Add(workspace.Id, entryModel);
@@ -91,15 +115,49 @@ namespace TitanControl.Disk.Resporitory.Workspace
             }
 
             // Save
-            await _fileHandler.SaveWorkspace(workspace, entryModel.Path);
+            await _fileHandler.SaveWorkspace(workspace, path!);
             await _fileHandler.SaveWorkspaceRecord(_record);
 
-            Log.Information($"Saved {workspace.Id} to: {entryModel.Path}", LoggingCategory);
+            Log.Information($"Saved workspace '{workspace.Name}' to:\n{entryModel.Path}", LoggingCategory);
+
+            return path;
+        }
+
+        public async Task<string?> RenameAsync(WorkspaceModel workspace)
+        {
+            // Get or create entry
+            if (!_record.Workspaces.TryGetValue(workspace.Id, out WorkspaceEntryModel? entryModel))
+            {
+                await SaveAsync(workspace);
+                return null;
+            }
+
+            string newPath = Path.Combine(PathHelper.DocumentsPath, workspace.Name + ".tcw");
+
+            // Rename
+            await _fileHandler.RenameFileAsync(entryModel.Path, workspace.Name);
+
+            // Update
+            _record.Workspaces[workspace.Id].Name = workspace.Name;
+            _record.Workspaces[workspace.Id].Path = newPath;
+
+            // Save
+            await _fileHandler.SaveWorkspace(workspace, newPath);
+            await _fileHandler.SaveWorkspaceRecord(_record);
+
+            Log.Information($"Renamed workspace '{entryModel.Name}' to '{workspace.Name}'", LoggingCategory);
+
+            return newPath;
         }
 
         public void Dispose()
         {
             _record = null!;
+        }
+
+        Task IRepository<WorkspaceModel>.SaveAsync(WorkspaceModel item)
+        {
+            return SaveAsync(item);
         }
     }
 }

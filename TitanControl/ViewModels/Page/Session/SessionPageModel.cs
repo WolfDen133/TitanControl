@@ -392,7 +392,7 @@ namespace TitanControl.ViewModels.Page
 
                 case SessionConnectionState.Unreachable:
 
-                    await Connect(sessionId);
+                    Connect(sessionId);
                     break;
 
                 case SessionConnectionState.Connected:
@@ -407,7 +407,7 @@ namespace TitanControl.ViewModels.Page
 
                 case SessionConnectionState.Enabled:
 
-                    await Connect(sessionId);
+                    Connect(sessionId);
                     break;
             }
 
@@ -500,7 +500,7 @@ namespace TitanControl.ViewModels.Page
 
 
         [RelayCommand]
-        public async Task Connect(Guid? sessionId = null)
+        public void Connect(Guid? sessionId = null)
         {
             if (sessionId == null)
             {
@@ -551,9 +551,8 @@ namespace TitanControl.ViewModels.Page
 
 
         [RelayCommand]
-        public async Task Edit()
+        public void Edit()
         {
-            Log.Debug($"Hit edit command");
             EnableForm();
         }
 
@@ -623,7 +622,9 @@ namespace TitanControl.ViewModels.Page
             var accepted = await App.DialogService
                         .ShowConfirmationAsync(
                             "Remove session",
-                            $"Are you sure you wish to remove the session: {session.Name}.\nThis action cannot be undone.");
+                            $"Are you sure you wish to remove the session: {session.Name}.\nThis action cannot be undone.", 
+                            "Remove", 
+                            "Cancel");
 
             if (!accepted)
                 return;

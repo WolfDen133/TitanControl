@@ -77,6 +77,9 @@ namespace TitanControl.Views.Controls.Handle
         {
             base.OnPointerPressed(e);
 
+            if (!IsInteractable)
+                return;
+
             e.Pointer.Capture(this);
 
             if (_pressedOverlay is not null)

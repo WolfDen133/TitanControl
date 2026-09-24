@@ -201,7 +201,6 @@ public partial class ControlGrid : UserControl
 
     private void UpdateGridDisplay()
     {
-        Log.Debug($"{CurrentAction} + {SelectedControls.Count}");
         if (CurrentAction
                 is WorkspaceAction.Add
                 or WorkspaceAction.Copy
@@ -229,8 +228,15 @@ public partial class ControlGrid : UserControl
         if (_gridLayout is null)
             return;
 
-        _gridLayout.IsSelectionEnabled =
-            EditMode.GetIsEnabled(this);
+        bool editMode = EditMode.GetIsEnabled(this);
+
+        _gridLayout.IsSelectionEnabled = editMode;
+
+        if (!editMode)
+        {
+            UpdateCurrentSelection();
+            HideSelection();
+        }
     }
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
@@ -238,7 +244,7 @@ public partial class ControlGrid : UserControl
         DetachGridLayout();
         AttachGridLayout();
 
-        ControlsSelected += ControlGrid_ControlsSelected; ;
+        ControlsSelected += ControlGrid_ControlsSelected;
     }
 
     private void OnUnloaded(object? sender, RoutedEventArgs e)

@@ -389,6 +389,7 @@ namespace TitanControl.Disk
             await EnsureInitializationStarted().ConfigureAwait(false);
 
             string normalizedPath = NormalizePath(path);
+            Log.Debug(normalizedPath);
 
             if (ModelCache.TryGetValue(normalizedPath, out ISaveModel? cached))
             {
@@ -544,7 +545,6 @@ namespace TitanControl.Disk
         public async Task SaveSessions(SessionRecordModel sessions)
         {
             await SaveCachedAsync(SessionsPath, sessions).ConfigureAwait(false);
-            Log.Debug("Saved session record.", LoggingCategory);
         }
 
         public Task<WorkspaceRecordModel> LoadWorkspaceRecord()
@@ -556,22 +556,87 @@ namespace TitanControl.Disk
 
         public Task<WorkspaceModel> LoadWorkspace(string path)
         {
+            Log.Debug(path);
             return LoadCachedAsync<WorkspaceModel>(path, WorkspaceSchema);
         }
 
         public async Task SaveWorkspace(WorkspaceModel workspace, string path)
         {
             await SaveCachedAsync(path, workspace).ConfigureAwait(false);
-
-            Log.Debug(
-                $"Saved workspace '{workspace.Name}': {NormalizePath(path)}",
-                LoggingCategory);
         }
 
         public async Task SaveWorkspaceRecord(WorkspaceRecordModel record)
         {
             await SaveCachedAsync(WorkspaceRecordPath, record).ConfigureAwait(false);
             Log.Debug("Saved workspace record.", LoggingCategory);
+        }
+
+        public async Task<string> RenameFileAsync(string path, string newFileName)
+        {
+            await EnsureInitializationStarted().ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("File path cannot be empty.", nameof(path));
+
+            if (string.IsNullOrWhiteSpace(newFileName) ||
+                newFileName != Path.GetFileName(newFileName) ||
+                newFileName is "." or "..")
+            {
+                throw new ArgumentException(
+                    "Provide a file name, not a path.",
+                    nameof(newFileName));
+            }
+
+            string oldPath = NormalizePath(path);
+            string newPath = NormalizePath(
+                Path.Combine(Path.GetDirectoryName(oldPath)!, newFileName));
+
+            if (PathComparer.Equals(oldPath, newPath))
+                return oldPath;
+
+            // Acquire both existing per-path locks in a consistent order.
+            // This prevents concurrent FileHandler reads/writes to either path
+            // while the file and its cache entry are moved.
+            string firstPath = PathComparer.Compare(oldPath, newPath) < 0
+                ? oldPath
+                : newPath;
+
+            string secondPath = PathComparer.Compare(oldPath, newPath) < 0
+                ? newPath
+                : oldPath;
+
+            SemaphoreSlim firstLock = GetFileLock(firstPath);
+            SemaphoreSlim secondLock = GetFileLock(secondPath);
+
+            await firstLock.WaitAsync().ConfigureAwait(false);
+
+            try
+            {
+                await secondLock.WaitAsync().ConfigureAwait(false);
+
+                try
+                {
+                    File.Move(oldPath, newPath);
+
+                    // Preserve the existing model instance under its new path.
+                    if (ModelCache.TryRemove(oldPath, out ISaveModel? model))
+                        ModelCache[newPath] = model;
+
+                    Log.Debug(
+                        $"Renamed file: {oldPath} -> {newPath}",
+                        LoggingCategory);
+
+                    return newPath;
+                }
+                finally
+                {
+                    secondLock.Release();
+                }
+            }
+            finally
+            {
+                firstLock.Release();
+            }
         }
     }
 }

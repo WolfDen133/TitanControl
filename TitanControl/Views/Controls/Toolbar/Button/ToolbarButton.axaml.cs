@@ -8,11 +8,12 @@ using Avalonia.Platform;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using TitanControl.Views.Controls.Layout;
 using TitanControl.Views.Controls.Toolbar.Button;
 
 namespace TitanControl.Views.Controls.Toolbar.Buttons
 {
-    [PseudoClasses(":hover", ":clicked", ":toggled")]
+    [PseudoClasses(":hover", ":clicked", ":toggled", ":textvisible")]
     public partial class ToolbarButton : UserControl
     {
         private bool _isSvg;
@@ -31,6 +32,9 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
 
         public static readonly StyledProperty<bool> ToggledProperty =
             AvaloniaProperty.Register<ToolbarButton, bool>(nameof(Toggled), false);
+
+        public static readonly StyledProperty<bool> ShowTextProperty =
+            AvaloniaProperty.Register<ToolbarButton, bool>(nameof(ShowText), true);
 
         public static readonly StyledProperty<ObservableCollection<ButtonId>> ChildrenProperty =
             AvaloniaProperty.Register<ToolbarButton, ObservableCollection<ButtonId>>(nameof(Children));
@@ -75,6 +79,12 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
             set => SetValue(ToggleProperty, value);
         }
 
+        public bool ShowText
+        {
+            get => GetValue(ShowTextProperty);
+            set => SetValue(ShowTextProperty, value);
+        }
+
         public ObservableCollection<ButtonId> Children 
         { 
             get => GetValue(ChildrenProperty);
@@ -113,6 +123,17 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
 
             this.GetObservable(AvailableProperty).Subscribe(isAvaiable 
                 => PseudoClasses.Set(":available", isAvaiable));
+
+            this.GetObservable(ShowTextProperty).Subscribe(showText => 
+            {
+                PART_TextContainer.IsVisible = showText;
+
+                FluidPadding.SetReferencePadding(PART_ButtonContainer, showText ? new Thickness(5, 5, 5, 0) : new Thickness(10));
+
+                PART_Layout.RowDefinitions[1].Height = showText
+                    ? new GridLength(0.6, GridUnitType.Star)
+                    : new GridLength(0);
+            });
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -129,11 +150,6 @@ namespace TitanControl.Views.Controls.Toolbar.Buttons
                 if (!IsSvg) 
                     LoadImage();
             }
-        }
-
-        public void SetSize(int size)
-        {
-            Width = Height = size;
         }
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)

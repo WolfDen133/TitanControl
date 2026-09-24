@@ -61,18 +61,18 @@
             "type": "string",
             "enum": [
               "none",
-              "fixtureHandle",
-              "groupHandle",
-              "cueHandle",
-              "cueListHandle",
-              "chaseHandle",
-              "trackHandle",
-              "paletteHandle",
-              "macroHandle",
-              "masterHandle",
-              "abMasterHandle",
-              "rateMasterHandle",
-              "playbackGroupHandle"
+              "fixture",
+              "group",
+              "cue",
+              "cueList",
+              "chase",
+              "track",
+              "palette",
+              "macro",
+              "master",
+              "abMaster",
+              "rateMaster",
+              "playbackGroup"
             ]
           },
           "keyProfile": {
@@ -89,7 +89,7 @@
             ]
           }
         },
-        "required": [ "controlId", "location", "titanId", "handleType", "keyProfile" ]
+        "required": [ "type", "location", "titanId", "handleType", "keyProfile" ]
       }
     }
   },

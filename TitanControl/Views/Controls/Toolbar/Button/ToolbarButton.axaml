@@ -4,22 +4,28 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="using:TitanControl.Views.Controls.Toolbar.Buttons"
              xmlns:controls="using:TitanControl.Views.Controls"
-             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="200" Margin="2"
-             Width="{Binding Bounds.Height, RelativeSource={RelativeSource Self}}"
+             xmlns:layout="using:TitanControl.Views.Controls.Layout"
+             mc:Ignorable="d" d:DesignWidth="100" d:DesignHeight="100" 
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
              x:DataType="local:ToolbarButton"
              x:Name="ButtonRoot"
-             x:Class="TitanControl.Views.Controls.Toolbar.Buttons.ToolbarButton" ClipToBounds="False" Classes="drop-m"> 
-        <Grid>
+             x:Class="TitanControl.Views.Controls.Toolbar.Buttons.ToolbarButton" ClipToBounds="False" Classes="drop-m">
+        <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="PART_Layout">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="0.6*"/>
             </Grid.RowDefinitions>
 
-            <Border IsVisible="{Binding #ButtonRoot.IsSvg}"> 
+            <Border 
+                x:Name="PART_ButtonContainer" 
+                IsVisible="{Binding #ButtonRoot.IsSvg}" 
+                layout:FluidPadding.ReferencePadding="5,5,5,0"> 
+
                 <controls:TwoToneSvg x:Name="Buttoncontrols" 
                             PrimaryColor="{DynamicResource Foreground}" 
                             SecondaryColor="{DynamicResource AccentColorD}" 
-                            Margin="5"
                             Path="{Binding #ButtonRoot.Path}"/>
             </Border>
             
@@ -27,15 +33,15 @@
                 <Image x:Name="ButtonImage" Grid.Row="0" Margin="8"/>
             </Border>
             
-            <Viewbox Height="27" VerticalAlignment="Bottom" Grid.Row="1" Margin="3">
-                <Border>
-                    <Label x:Name="TextLabel" 
-                           HorizontalContentAlignment="Center" 
-                           Foreground="{Binding #ButtonRoot.Foreground}" 
-                           Content="{Binding #ButtonRoot.Text}" 
-                           VerticalContentAlignment="Center" 
-                           FontSize="16"/>
-                </Border>
-            </Viewbox>
+            <Border Grid.Row="1" layout:FluidPadding.ReferencePadding="4" x:Name="PART_TextContainer">
+                <Viewbox VerticalAlignment="Bottom">
+                    <Label
+                        HorizontalContentAlignment="Center" 
+                        Foreground="{Binding #ButtonRoot.Foreground}" 
+                        Content="{Binding #ButtonRoot.Text}" 
+                        VerticalContentAlignment="Center" 
+                        FontSize="16"/>
+                </Viewbox>
+            </Border>
         </Grid>
 </UserControl>

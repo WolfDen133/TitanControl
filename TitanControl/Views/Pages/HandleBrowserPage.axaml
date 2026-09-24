@@ -143,18 +143,9 @@
                       </StackPanel>
                       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
                           <controls:IconButton 
-                              Text="Cancel" 
-                              BorderBrush="{DynamicResource BorderBrush}"
-                              Command="{Binding CloseCommand}">
-                              <controls:IconButton.Icon>
-                                  
-                                      <Svg Width="20" Height="20" CurrentColor="{DynamicResource Foreground}" Path="/Assets/Icons/cross.svg"/>
-                                  
-                              </controls:IconButton.Icon>
-                          </controls:IconButton>
-                          <controls:IconButton 
                               Text="{Binding ButtonText}"
-                              BorderBrush="{DynamicResource BorderBrush}">
+                              BorderBrush="{DynamicResource BorderBrush}"
+                              Command="{Binding SelectCommand}">
                               <controls:IconButton.Icon>
                                     <Svg Width="20" Height="20" CurrentColor="{DynamicResource Foreground}" Path="{Binding ButtonIcon}"/>
                               </controls:IconButton.Icon>

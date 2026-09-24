@@ -6,7 +6,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-	<LangVersion>latest</LangVersion>
+	<LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\Icons\*.svg" />
@@ -54,10 +54,13 @@
     <Compile Update="Views\Pages\SessionPage.axaml.cs">
       <DependentUpon>SessionPage.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\Windows\TextDialogWindow.axaml.cs">
+      <DependentUpon>TextDialogWindow.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\WorkspaceView.axaml.cs">
       <DependentUpon>WorkspaceView.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\ModalDialogWindow.axaml.cs">
+    <Compile Update="Views\Windows\ModalDialogWindow.axaml.cs">
       <DependentUpon>ModalDialogWindow.axaml</DependentUpon>
     </Compile>
   </ItemGroup>

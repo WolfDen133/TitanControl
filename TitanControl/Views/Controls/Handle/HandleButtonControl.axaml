@@ -72,7 +72,7 @@
                                 Background="{Binding Halo,
                                     RelativeSource={RelativeSource TemplatedParent},
                                     Converter={StaticResource HaloStringToBrushConverter},
-                                    ConverterParameter=0.25}"
+                                    ConverterParameter=0.3}"
                                 CornerRadius="{TemplateBinding CornerRadius}"/>
                         <Grid 
                             Grid.Row="1"

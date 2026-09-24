@@ -42,6 +42,9 @@ namespace TitanControl.Views.Controls.Handle
         public static readonly StyledProperty<bool> IsMovingProperty =
             AvaloniaProperty.Register<HandleBaseControl, bool>(nameof(IsMoving));
 
+        public static readonly StyledProperty<bool> IsInteractableProperty =
+            AvaloniaProperty.Register<HandleBaseControl, bool>(nameof(IsInteractable), true);
+
 
         public static readonly AttachedProperty<int> GridXProperty =
             AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
@@ -129,17 +132,19 @@ namespace TitanControl.Views.Controls.Handle
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);
-            set
-            {
-                SetValue(IsSelectedProperty, value);
-                Log.Debug($"Selected: {value}");
-            }
+            set => SetValue(IsSelectedProperty, value);
         }
 
         public bool IsMoving
         {
             get => GetValue(IsMovingProperty);
             set => SetValue(IsMovingProperty, value);
+        }
+
+        public bool IsInteractable
+        {
+            get => GetValue(IsInteractableProperty);
+            set => SetValue(IsInteractableProperty, value);
         }
     }
 }
