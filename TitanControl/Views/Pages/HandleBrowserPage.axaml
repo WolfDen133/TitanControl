@@ -110,7 +110,7 @@
                                   <ItemsControl.ItemTemplate>
                                       <DataTemplate>
                                           <titancontrol:TitanHandleButton 
-                                              UserNumber="{Binding UserNumber.Number}"
+                                              UserNumber="{Binding UserNumber}"
                                               Legend="{Binding Legend}"/>
                                       </DataTemplate>
                                   </ItemsControl.ItemTemplate>

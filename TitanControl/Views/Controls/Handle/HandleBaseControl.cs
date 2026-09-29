@@ -31,7 +31,7 @@ namespace TitanControl.Views.Controls.Handle
             AvaloniaProperty.Register<HandleBaseControl, bool>(nameof(HasImage), false);
 
         public static readonly StyledProperty<string> HaloProperty =
-             AvaloniaProperty.Register<HandleBaseControl, string>(nameof(Halo), "#4A5562");
+             AvaloniaProperty.Register<HandleBaseControl, string>(nameof(Halo), "#555555");
 
         public static readonly StyledProperty<HandleKeyProfile> KeyProfileProperty =
             AvaloniaProperty.Register<HandleBaseControl, HandleKeyProfile>(nameof(KeyProfile));

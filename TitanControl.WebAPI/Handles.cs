@@ -50,6 +50,14 @@ namespace TitanControl.WebAPI
             }, priority: TaskPriority.Normal);
         }
 
+        public Task<int[]?> GetAllTitanIds(bool includeUnassigned = true)
+        {
+            return _queue.Enqueue(async token =>
+            {
+                return await http.GetFromJsonAsync<int[]>($"/titan/script/2/Handles/GetAllTitanIds?includeUnassigned={includeUnassigned}", token);
+            }, priority: TaskPriority.Normal);
+        }
+
         /// <summary>
         /// Gets the handle information for a handle using the user number of the playback handle.
         /// </summary>
@@ -63,7 +71,7 @@ namespace TitanControl.WebAPI
             }, priority: TaskPriority.Normal);
         }
 
-        public Task<Handle?> GetHandleFromTitanId(int titanId, string handleType = "playbackHandle")
+        public Task<Handle?> GetHandleFromTitanId(int titanId, string handleType = "handle")
         {
             return _queue.Enqueue(async token =>
             {

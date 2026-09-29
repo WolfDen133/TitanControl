@@ -21,7 +21,6 @@ namespace TitanControl.WebAPI.Data.Model
 
         public string? Legend { get; set; }
 
-        [JsonConverter(typeof(SoftwareVersionConverter))]
         public Version? SoftwareVersion { get; set; }
 
         public string? Notes { get; set; }

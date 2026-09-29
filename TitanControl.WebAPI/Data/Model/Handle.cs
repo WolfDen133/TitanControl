@@ -15,10 +15,10 @@ namespace TitanControl.WebAPI.Data.Model
         public int TitanId { get; set; }
 
         [JsonPropertyName("userNumber")]
-        public HandleUserNumber UserNumber { get; set; } = null!;
+        public string UserNumber { get; set; } = string.Empty;
 
         [JsonPropertyName("properties")]
-        public HandleProperty[] Properties { get; set; } = new HandleProperty[0];
+        public Dictionary<string, string> Properties { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the type of this handle such a fixtureHandle, cueListHandle etc.
@@ -68,22 +68,5 @@ namespace TitanControl.WebAPI.Data.Model
         [JsonPropertyName("Links")]
         public string[] Links { get; set; } = new string[0];
 
-    }
-
-    public class HandleUserNumber
-    {
-        [JsonPropertyName("hashCode")]
-        public int Number { get; set; }
-
-        [JsonPropertyName("userNumbers")]
-        public int[] UserNumbers { get; set; } = new int[0];
-    }
-
-    public class HandleProperty
-    {
-        [JsonPropertyName("Key")]
-        public string Key { get; set; } = string.Empty;
-        [JsonPropertyName("Value")]
-        public string Value { get; set; } = String.Empty;
     }
 }
