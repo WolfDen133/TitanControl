@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using TitanControl.Logging;
-using TitanControl.ViewModels.Workspace.Handle;
+using TitanControl.ViewModels.Workspace.Controls.Handle;
 using TitanControl.Views.Controls.Layout.Grid;
 using TitanControl.Views.State;
 using TitanControl.WebAPI.Data;
@@ -46,21 +46,7 @@ namespace TitanControl.Views.Controls.Handle
             AvaloniaProperty.Register<HandleBaseControl, bool>(nameof(IsInteractable), true);
 
 
-        public static readonly AttachedProperty<int> GridXProperty =
-            AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
-                "GridX");
-
-        public static readonly AttachedProperty<int> GridYProperty =
-            AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
-                "GridY");
-
-        public static readonly AttachedProperty<int> GridXSpanProperty =
-            AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
-                "GridXSpan");
-
-        public static readonly AttachedProperty<int> GridYSpanProperty =
-            AvaloniaProperty.RegisterAttached<GridLayout, Control, int>(
-                "GridYSpan");
+ 
  
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

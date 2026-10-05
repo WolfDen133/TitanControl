@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TitanControl.ViewModels.Workspace.Handle;
 using TitanControl.Views.Controls.Toolbar.Button;
 
 namespace TitanControl.ViewModels.Controls.Toolbar

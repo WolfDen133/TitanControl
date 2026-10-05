@@ -427,7 +427,7 @@ public class GridLayout : Panel
             cellSize.Height * (coordinates.Y + actualOffset.Y));
     }
 
-    private Size GetCellSize()
+    public Size GetCellSize()
     {
         var columns = Math.Max(1, Columns);
         var rows = Math.Max(1, Rows);

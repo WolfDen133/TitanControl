@@ -18,8 +18,7 @@ using TitanControl.Events.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.ViewModels.Workspace;
-using TitanControl.ViewModels.Workspace.Handle;
-using TitanControl.Views.Controls.Handle;
+using TitanControl.ViewModels.Workspace.Controls.Handle;
 using TitanControl.Views.State;
 
 namespace TitanControl.Views.Controls.Layout.Grid;
@@ -86,6 +85,9 @@ public partial class ControlGrid : UserControl
                 ObservableCollection<IHandleControl>>(nameof(SelectedControls),
                     defaultValue: new ObservableCollection<IHandleControl>());
 
+    public static readonly StyledProperty<double> CellHeightProperty =
+        AvaloniaProperty.Register<ControlGrid, double>(nameof(CellHeight), 0d);
+
 
     public static readonly RoutedEvent<RoutedEventArgs> ControlsSelectedEvent = 
         RoutedEvent.Register<ControlGrid, RoutedEventArgs>(
@@ -150,6 +152,12 @@ public partial class ControlGrid : UserControl
         set => SetValue(CurrentActionProperty, value);
     }
 
+    public double CellHeight
+    {
+        get => GetValue(CellHeightProperty);
+        set => SetValue(CellHeightProperty, value);
+    }
+
     public event EventHandler<RoutedEventArgs> ControlsSelected
     {
         add => AddHandler(ControlsSelectedEvent, value);
@@ -175,6 +183,8 @@ public partial class ControlGrid : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+
+        CellHeight = _gridLayout!.GetCellSize().Height;
     }
 
     private void ControlGrid_ControlsSelected(object? sender, RoutedEventArgs e)
@@ -183,8 +193,7 @@ public partial class ControlGrid : UserControl
             UpdateGridDisplay();
     }
 
-    protected override void OnPropertyChanged(
-    AvaloniaPropertyChangedEventArgs change)
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
 
@@ -196,6 +205,14 @@ public partial class ControlGrid : UserControl
             if (CurrentAction is WorkspaceAction.Add or WorkspaceAction.None || 
                 SelectedControls.Any())
                 UpdateGridDisplay();
+        }
+
+        if (change.Property == BoundsProperty)
+        {
+            if (_gridLayout is null)
+                return;
+
+            CellHeight = _gridLayout!.GetCellSize().Height;
         }
     }
 

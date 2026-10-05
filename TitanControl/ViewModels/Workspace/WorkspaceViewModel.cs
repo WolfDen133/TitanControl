@@ -14,14 +14,15 @@ using System.Threading.Tasks;
 using TitanControl.Events.Workspace;
 using TitanControl.Logging;
 using TitanControl.Models.Control;
+using TitanControl.Models.Control.Handle;
 using TitanControl.Models.Workspace;
 using TitanControl.Services.Session;
 using TitanControl.Services.Workspace;
 using TitanControl.ViewModel;
 using TitanControl.ViewModels.Controls.Toolbar;
 using TitanControl.ViewModels.Page;
-using TitanControl.ViewModels.Workspace.Handle;
-using TitanControl.Views.Controls.Handle;
+using TitanControl.ViewModels.Workspace.Controls;
+using TitanControl.ViewModels.Workspace.Controls.Handle;
 using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.Views.State;
 using TitanControl.WebAPI;
@@ -41,7 +42,7 @@ namespace TitanControl.ViewModels.Workspace
         public bool Latch = false;
 
         private WorkspaceAction _action = WorkspaceAction.None;
-        private HandleControlId _addingControlType;
+        private ControlId _addingControlType;
 
         public bool IsSelecting => Action != WorkspaceAction.None;
 
@@ -55,9 +56,9 @@ namespace TitanControl.ViewModels.Workspace
             }
         }
 
-        public ObservableCollection<IHandleControl> SelectedControls { get; set; } = [];
+        public ObservableCollection<IWorkspaceControl> SelectedControls { get; set; } = [];
 
-        public ObservableCollection<IHandleControl> Controls { get; } = [];
+        public ObservableCollection<IWorkspaceControl> Controls { get; } = [];
 
         public WorkspaceModel CurrentWorkspace => _workspaceService.CurrentWorkspace;
 
@@ -82,17 +83,6 @@ namespace TitanControl.ViewModels.Workspace
 
             return Task.CompletedTask;
         }
-        
-        public void LoadControls()
-        {
-            foreach (var model in CurrentWorkspace.Controls)
-                AddControl(model.ToInstance<IHandleControl>(_sessionService));
-        }
-
-        public void ClearControls()
-        {
-            Controls.Clear();
-        }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
         {
@@ -100,7 +90,7 @@ namespace TitanControl.ViewModels.Workspace
 
             if (e.PropertyName != nameof(Action))
                 return;
-            
+
             if (SelectedControls.Any() && Action == WorkspaceAction.None)
             {
                 _toolbar.ShowAvailable();
@@ -123,6 +113,27 @@ namespace TitanControl.ViewModels.Workspace
 
             _toolbar.ShowAvailable(false);
             ActionAvailable = false;
+        }
+
+        public void LoadControls()
+        {
+            foreach (var model in CurrentWorkspace.Controls)
+                AddControl(model.ToInstance<IWorkspaceControl>(_sessionService));
+        }
+
+        private void AddControl(IWorkspaceControl control)
+        {
+            Controls.Add(control);
+        }
+
+        private void RemoveControl(IWorkspaceControl control)
+        {
+            Controls.Remove(control);
+        }
+
+        public void ClearControls()
+        {
+            Controls.Clear();
         }
 
         public void ClearSelection()
@@ -158,9 +169,9 @@ namespace TitanControl.ViewModels.Workspace
 
             _addingControlType = id switch
             {
-                ButtonId.AddButton => HandleControlId.Button,
-                ButtonId.AddFader => HandleControlId.Fader,
-                _ => HandleControlId.None
+                ButtonId.AddButton => ControlId.Button,
+                ButtonId.AddFader => ControlId.Fader,
+                _ => ControlId.None
             };
 
             if (action == ButtonAction.ToggleDown)
@@ -220,17 +231,6 @@ namespace TitanControl.ViewModels.Workspace
             Log.Debug($"Action {old} completed, action released.", LoggingCategory);
         }
 
-
-        private void AddControl(IHandleControl control)
-        {
-            Controls.Add(control);
-        }
-
-        private void RemoveControl(IHandleControl control)
-        {
-            Controls.Remove(control);
-        }
-
         public void ExecuteAction(Rect? args = null)
         {
             if (Action == WorkspaceAction.None)
@@ -268,14 +268,12 @@ namespace TitanControl.ViewModels.Workspace
             } 
         }
 
-        
-
         private void Add(Rect at)
         {
-            ControlModel controlModel = _addingControlType switch
+            HandleModel controlModel = _addingControlType switch
             {
-                HandleControlId.Fader => new FaderControlModel(),
-                HandleControlId.Button => new ButtonControlModel(),
+                ControlId.Fader => new FaderHandleModel(),
+                ControlId.Button => new ButtonHandleModel(),
                 _ => throw new ArgumentOutOfRangeException(nameof(_addingControlType), $"No control type defined for {_addingControlType}")
             };
 
@@ -297,10 +295,13 @@ namespace TitanControl.ViewModels.Workspace
         {
             foreach (var control in SelectedControls)
             {
-                control.IsSelected = false;
+                if (control is not IHandleControl handleControl)
+                    return;
 
-                CurrentWorkspace.Controls.Remove((ControlModel)control.Model);
-                RemoveControl(control);
+                handleControl.IsSelected = false;
+
+                CurrentWorkspace.Controls.Remove((HandleModel)handleControl.Model);
+                RemoveControl(handleControl);
             }
 
             Log.Information($"Removed selected controls from workspace {CurrentWorkspace.Name}", LoggingCategory);
@@ -332,16 +333,19 @@ namespace TitanControl.ViewModels.Workspace
             // TODO Calculations of multiple
             var control = SelectedControls.FirstOrDefault()!.Copy();
 
-            control.Location
+            if (control is not IHandleControl handleControl)
+                return;
+
+            handleControl.Location
                 = new Rectangle(
                     (int)to.X,
                     (int)to.Y,
                     (int)to.Width,
                     (int)to.Height);
 
-            CurrentWorkspace.Controls.Add((ControlModel)control.Model);
+            CurrentWorkspace.Controls.Add((HandleModel)handleControl.Model);
 
-            AddControl(control);
+            AddControl(handleControl);
 
             Log.Information($"Copied {control.GetType().Name} to {to.ToString()} in workspace {CurrentWorkspace.Name}.", LoggingCategory);
         }
@@ -389,9 +393,9 @@ namespace TitanControl.ViewModels.Workspace
             {
                 WorkspaceAction.Add => _addingControlType switch
                 {
-                    HandleControlId.Button => ButtonId.AddButton,
-                    HandleControlId.Fader => ButtonId.AddFader,
-                    HandleControlId.ColorPicker => ButtonId.AddColorPicker,
+                    ControlId.Button => ButtonId.AddButton,
+                    ControlId.Fader => ButtonId.AddFader,
+                    ControlId.ColorPicker => ButtonId.AddColorPicker,
                     _ => ButtonId.None,
                 },
                 WorkspaceAction.Copy => ButtonId.Copy,

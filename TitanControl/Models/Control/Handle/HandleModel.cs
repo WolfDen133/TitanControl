@@ -3,15 +3,15 @@ using System.Drawing;
 using System.Text.Json.Serialization;
 using TitanControl.Disk.Converter;
 using TitanControl.Services.Session;
-using TitanControl.ViewModels.Workspace.Handle;
+using TitanControl.ViewModels.Workspace.Controls.Handle;
 using TitanControl.WebAPI.Data;
 
-namespace TitanControl.Models.Control
+namespace TitanControl.Models.Control.Handle
 {
-    public abstract class ControlModel : IControlModel
+    public abstract class HandleModel : IHandleModel
     {
         [JsonIgnore]
-        public virtual HandleControlId ControlId { get; init; } = HandleControlId.None;
+        public virtual ControlId ControlId { get; init; } = ControlId.None;
 
         [JsonPropertyName("location")]
         [JsonConverter(typeof(RectangleArrayJsonConverter))]

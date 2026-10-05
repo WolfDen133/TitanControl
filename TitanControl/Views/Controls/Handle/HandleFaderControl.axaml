@@ -11,54 +11,169 @@
     -->
 
     <Design.PreviewWith>
-        <StackPanel Width="400" Spacing="10">
-            <StackPanel Background="{DynamicResource SystemRegionBrush}">
-                <controls:HandleFaderControl />
-            </StackPanel>
-        </StackPanel>
+            <Border Padding="15" Background="{DynamicResource BackgroundBrush}" Width="140" Height="400">
+                <controls:HandleFaderControl VerticalAlignment="Stretch" Classes="button"/>
+        </Border>
     </Design.PreviewWith>
 
     <ControlTheme x:Key="{x:Type controls:HandleFaderControl}"
                   TargetType="controls:HandleFaderControl">
+           <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Border
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}}"
-                    BorderThickness="{TemplateBinding BorderThickness}">
+                <Grid RowDefinitions="Auto, *">
+                    <Border
+                        x:Name="ControlBorder"
+                        Grid.RowSpan="2"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding Halo, 
+                            Converter={StaticResource HaloStringToBrushConverter},
+                            ConverterParameter=0.7}"
+                        BorderThickness="1"/>
 
-                    <Grid RowDefinitions="Auto,*">
+                    <Grid RowDefinitions="Auto,*" Margin="1, 1, 1, 0">
+                        <Border x:Name="PART_Info" Padding="5, 4" Height="60"
+                                Background="{TemplateBinding Halo, 
+                                    Converter={StaticResource HaloStringToBrushConverter}, 
+                                    ConverterParameter=0.2}"
+                                BorderBrush="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.7}"
+                                > 
+                            <Panel>
+                                <Grid
+                                    ColumnDefinitions="Auto,*,Auto"
+                                    VerticalAlignment="Top">
+                                
+                                    <Border
+                                        x:Name="UserNumber"
+                                        Padding="5,2"
+                                        CornerRadius="5"
+                                        Background="{DynamicResource BackgroundLBrush}"
+                                        BorderThickness="1"
+                                        BorderBrush="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}, ConverterParameter=0.3}">
 
-                        <Grid
-                            ColumnDefinitions="Auto,*,Auto"
-                            Margin="5,4">
+                                        <TextBlock
+                                            Text="{TemplateBinding UserNumber}"
+                                            Foreground="{TemplateBinding Foreground}"
+                                            HorizontalAlignment="Center"/>
+                                    </Border>
+                                
+                              
+                                    <TextBlock
+                                        x:Name="KeyProfile"
+                                        Grid.Column="2"
+                                        Text="{TemplateBinding KeyProfile}"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource ForegroundSecondaryBrush}"/>
+                                </Grid>
+                                <Grid
+                                    VerticalAlignment="Center">
 
-                            <Border
-                                Padding="5,2"
-                                CornerRadius="3"
-                                Background="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}}">
-                                <TextBlock
-                                    Text="{TemplateBinding UserNumber}"/>
-                            </Border>
+                                    <Border
+                                        CornerRadius="5"
+                                        ClipToBounds="True">
 
-                            <TextBlock
-                                Grid.Column="2"
-                                Text="{TemplateBinding Legend}"
-                                Foreground="{TemplateBinding Halo, Converter={StaticResource HaloStringToBrushConverter}}"/>
-                        </Grid>
+                                        <Image
+                                            IsVisible="{TemplateBinding HasImage}"
+                                            Source="{TemplateBinding Image}"
+                                            Stretch="UniformToFill"/>
+                                    </Border>
 
-                        <Slider
-                            Grid.Row="1"
-                            Orientation="Vertical"
-                            Minimum="{TemplateBinding Minimum}"
-                            Maximum="{TemplateBinding Maximum}"
-                            Value="{TemplateBinding Value}"
-                            Margin="8"/>
+                                    <TextBlock
+                                        IsVisible="{TemplateBinding HasImage, Converter={x:Static BoolConverters.Not}}"
+                                        Text="{TemplateBinding Legend}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontWeight="SemiBold"
+                                        FontSize="12"/>
+                                </Grid>
+                            </Panel>
+                        </Border>
 
+                        <Border
+                            x:Name="PART_PressedOverlay"
+                            IsHitTestVisible="False"
+                            Opacity="0"
+                            Background="{Binding Halo,
+                                RelativeSource={RelativeSource TemplatedParent},
+                                Converter={StaticResource HaloStringToBrushConverter},
+                                ConverterParameter=0.3}"
+                            CornerRadius="{TemplateBinding CornerRadius}"/>
                     </Grid>
-
-                </Border>
+                    <Border x:Name="PART_Fader"
+                            Grid.Row="1"
+                            Margin="1, 0, 1, 1">
+                        <Canvas 
+                            VerticalAlignment="Stretch" 
+                            HorizontalAlignment="Stretch" 
+                            x:Name="PART_FaderCanvas">
+                            <Rectangle 
+                                Fill="{TemplateBinding Halo, 
+                                Converter={StaticResource HaloStringToBrushConverter}, 
+                                    ConverterParameter=0.2}"
+                                HorizontalAlignment="Stretch" 
+                                VerticalAlignment="Bottom"
+                                x:Name="PART_FaderProgress"
+                                Width="{Binding #PART_FaderCanvas.Bounds.Width}"
+                                Height="17"
+                                ZIndex="9"/>
+                            
+                            <Rectangle 
+                                Fill="{TemplateBinding Halo, 
+                                Converter={StaticResource HaloStringToBrushConverter}, 
+                                    ConverterParameter=0.8}"
+                                HorizontalAlignment="Stretch" 
+                                Height="20"
+                                Width="{Binding #PART_FaderCanvas.Bounds.Width}"
+                                x:Name="PART_FaderPill"
+                                ZIndex="10"/>
+                        </Canvas>
+                    </Border>
+                    <Rectangle Grid.RowSpan="2"
+                                x:Name="DisabledFill"
+                                Fill="{TemplateBinding Halo, 
+                                Converter={StaticResource HaloStringToBrushConverter}, 
+                                    ConverterParameter=0.4}"
+                                Opacity="{TemplateBinding IsEnabled, 
+                                    Converter={x:Static BoolConverters.Not}}"/>
+                </Grid>
             </ControlTemplate>
         </Setter>
+        
+        <Style Selector="^.button">
+            <Style Selector="^ Border#PART_Info">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0, 0, 0, 1"/>
+            </Style>
+            <Style Selector="^ Border#KeyProfile">
+                <Setter Property="IsVisible" Value="False"/>
+            </Style>
+        </Style>
+        <Style Selector="^:selected">
+            <Setter Property="Background" Value="{DynamicResource ForegroundSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/>
+            
+            <Style Selector="^ Border#ControlBorder">
+                <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderFocusBrush}"/>
+            </Style>
+
+            <Style Selector="^ Border#UserNumber">
+                <Setter Property="Background" Value="{DynamicResource ForegroundDisabledBrush}"/>
+            </Style>
+
+            <Style Selector="^ TextBlock#KeyProfile">
+                <Setter Property="Foreground" Value="{DynamicResource BackgroundLLBrush}"/>
+            </Style>
+
+        </Style>
+        <Style Selector="^:moving">
+            <Style Selector="^ Border#ControlBorder">
+                <Setter Property="BorderBrush"
+                    Value="{DynamicResource ForegroundBrush}"/>
+                <Setter Property="BorderThickness"
+                        Value="2"/>
+            </Style>
+        </Style>
     </ControlTheme>
 </ResourceDictionary>

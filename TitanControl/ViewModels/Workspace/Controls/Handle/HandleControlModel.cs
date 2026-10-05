@@ -3,13 +3,13 @@ using System.Drawing;
 using System.Threading.Tasks;
 using TitanControl.Models;
 using TitanControl.Models.Control;
+using TitanControl.Models.Control.Handle;
 using TitanControl.Services.Session;
-using TitanControl.ViewModels.Workspace.Handle.Command;
-using TitanControl.Views.Controls.Handle;
+using TitanControl.ViewModels.Workspace.Controls.Handle.Command;
 using TitanControl.WebAPI.Data;
 using HandleInformation = TitanControl.WebAPI.Data.Model.Handle;
 
-namespace TitanControl.ViewModels.Workspace.Handle
+namespace TitanControl.ViewModels.Workspace.Controls.Handle
 {
     public abstract class HandleControlModel
     : ObservableObject, IHandleControl, ISaveable
@@ -19,7 +19,7 @@ namespace TitanControl.ViewModels.Workspace.Handle
         private HandleInformation? _handleInformation;
 
         protected HandleControlModel(
-            ControlModel model,
+            HandleModel model,
             ISessionService sessionService)
         {
             Model = model;
@@ -28,11 +28,11 @@ namespace TitanControl.ViewModels.Workspace.Handle
 
         protected ISessionService SessionService { get; }
 
-        public ControlModel Model { get; }
+        public HandleModel Model { get; }
 
         IControlModel IHandleControl.Model => Model;
 
-        public HandleControlId ControlId => Model.ControlId;
+        public ControlId ControlId => Model.ControlId;
 
         public bool IsSelected
         {
@@ -55,19 +55,6 @@ namespace TitanControl.ViewModels.Workspace.Handle
                     return;
 
                 Model.Location = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public int TitanId
-        {
-            get => Model.TitanId;
-            private set
-            {
-                if (Model.TitanId == value)
-                    return;
-
-                Model.TitanId = value;
                 OnPropertyChanged();
             }
         }
@@ -107,25 +94,28 @@ namespace TitanControl.ViewModels.Workspace.Handle
                     return;
 
                 _handleInformation = value;
-                TitanId = value?.TitanId ?? -1;
 
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(TitanId));
                 OnPropertyChanged(nameof(Halo));
+                OnPropertyChanged(nameof(Legend));
             }
         }
 
         public string? Halo => HandleInformation?.Halo;
+        public string? Legend => HandleInformation?.Legend;
+        public int? TitanId => HandleInformation?.TitanId;
 
         public ISaveModel ToModel() => Model;
 
         public abstract Task ExecuteAsync();
 
-        public abstract IHandleControl Copy();
+        public abstract IWorkspaceControl Copy();
     }
 
     public abstract class HandleControlModel<TModel>
         : HandleControlModel, IHandleControl<TModel>
-        where TModel : ControlModel
+        where TModel : HandleModel
     {
         protected HandleControlModel(
             TModel model,

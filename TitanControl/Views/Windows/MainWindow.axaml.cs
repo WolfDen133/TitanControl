@@ -47,7 +47,7 @@ public partial class MainWindow : Window
                 throw new InvalidOperationException($"Could not find valid data context for {nameof(MainWindow)}.");
 
             return m;
-        }
+        } 
     }
 
     public MainWindow()

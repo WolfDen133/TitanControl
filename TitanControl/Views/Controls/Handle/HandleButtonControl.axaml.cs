@@ -25,14 +25,6 @@ namespace TitanControl.Views.Controls.Handle
 
         private Border? _pressedOverlay;
 
-        public static readonly StyledProperty<string?> TitleProperty =
-            AvaloniaProperty.Register<HandleButtonControl, string?>(
-                nameof(Title));
-
-        public static readonly StyledProperty<string?> SubtitleProperty =
-            AvaloniaProperty.Register<HandleButtonControl, string?>(
-                nameof(Subtitle));
-
         public static readonly StyledProperty<ICommand?> PressCommandProperty =
             AvaloniaProperty.Register<HandleButtonControl, ICommand?>(
                 nameof(PressCommand));
@@ -51,18 +43,6 @@ namespace TitanControl.Views.Controls.Handle
         {
             get => GetValue(ReleaseCommandProperty);
             set => SetValue(ReleaseCommandProperty, value);
-        }
-
-        public string? Title
-        {
-            get => GetValue(TitleProperty);
-            set => SetValue(TitleProperty, value);
-        }
-
-        public string? Subtitle
-        {
-            get => GetValue(SubtitleProperty);
-            set => SetValue(SubtitleProperty, value);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)

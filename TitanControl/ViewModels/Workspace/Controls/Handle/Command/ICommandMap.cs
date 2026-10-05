@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
+using TitanControl.ViewModels.Workspace.Controls.Handle;
 using TitanControl.WebAPI.Data;
 
-namespace TitanControl.ViewModels.Workspace.Handle.Command
+namespace TitanControl.ViewModels.Workspace.Controls.Handle.Command
 {
     public interface ICommandMap<TitanControlModel>
     {

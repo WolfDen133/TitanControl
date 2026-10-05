@@ -1,4 +1,4 @@
-﻿namespace TitanControl.ViewModels.Workspace.Handle
+﻿namespace TitanControl.ViewModels.Workspace.Controls.Handle
 {
     public enum HandleKeyProfile
     {

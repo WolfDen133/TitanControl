@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:handle="using:TitanControl.ViewModels.Workspace.Handle"
+             xmlns:handle="using:TitanControl.ViewModels.Workspace.Controls.Handle"
              xmlns:handleControls="using:TitanControl.Views.Controls.Handle"
              xmlns:grid="using:TitanControl.Views.Controls.Layout.Grid"
              xmlns:state="using:TitanControl.Views.State"
@@ -11,19 +11,22 @@
              x:Class="TitanControl.Views.Controls.Layout.Grid.ControlGrid"
              x:Name="root"
              Background="{DynamicResource BackgroundDDBrush}">
-        <UserControl.DataTemplates>
-            <DataTemplate DataType="handle:HandleFaderModel">
-                <handleControls:HandleFaderControl
-                    IsSelected="{Binding IsSelected}"/>
-            </DataTemplate>
-            <DataTemplate DataType="handle:HandleButtonModel">
-                <handleControls:HandleButtonControl
-                    Halo="{Binding Color}"
-                    Legend="{Binding Legend}"
-                    IsSelected="{Binding IsSelected}"
-                    IsMoving="{Binding IsMoving}"/>
-            </DataTemplate>
-        </UserControl.DataTemplates>
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="handle:HandleFaderModel">
+            <handleControls:HandleFaderControl
+                IsSelected="{Binding IsSelected}"
+                CellHeight="{Binding #root.CellHeight}"
+                CellYSpan="{Binding Location.Height}"
+                />
+        </DataTemplate>
+        <DataTemplate DataType="handle:HandleButtonModel">
+            <handleControls:HandleButtonControl
+                Halo="{Binding Halo}"
+                Legend="{Binding Legend}"
+                IsSelected="{Binding IsSelected}"
+                IsMoving="{Binding IsMoving}"/>
+        </DataTemplate>
+    </UserControl.DataTemplates>
     <UserControl.Styles>
         <Style Selector="grid|GridLines">
             <Setter Property="Brush" Value="{DynamicResource BorderSubtleBrush}"/>
@@ -38,7 +41,7 @@
             </Style>
         </Style>
     </UserControl.Styles>
-  <Grid>
+    <Grid>
         <Panel>
             <TextBlock IsHitTestVisible="False" 
                         VerticalAlignment="Top" 
