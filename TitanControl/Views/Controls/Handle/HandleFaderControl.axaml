@@ -12,14 +12,19 @@
 
     <Design.PreviewWith>
             <Border Padding="15" Background="{DynamicResource BackgroundBrush}" Width="140" Height="400">
-                <controls:HandleFaderControl VerticalAlignment="Stretch" Classes="button"/>
+                <controls:HandleFaderControl 
+                    VerticalAlignment="Stretch" 
+                    Classes="button"
+                    IsMoving="True"
+                    />
         </Border>
     </Design.PreviewWith>
 
     <ControlTheme x:Key="{x:Type controls:HandleFaderControl}"
                   TargetType="controls:HandleFaderControl">
-           <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid RowDefinitions="Auto, *">
@@ -30,7 +35,8 @@
                         BorderBrush="{TemplateBinding Halo, 
                             Converter={StaticResource HaloStringToBrushConverter},
                             ConverterParameter=0.7}"
-                        BorderThickness="1"/>
+                        BorderThickness="1"
+                        ZIndex="10"/>
 
                     <Grid RowDefinitions="Auto,*" Margin="1, 1, 1, 0">
                         <Border x:Name="PART_Info" Padding="5, 4" Height="60"
@@ -102,7 +108,7 @@
                     </Grid>
                     <Border x:Name="PART_Fader"
                             Grid.Row="1"
-                            Margin="1, 0, 1, 1">
+                            Margin="1, 1, 1, 0">
                         <Canvas 
                             VerticalAlignment="Stretch" 
                             HorizontalAlignment="Stretch" 

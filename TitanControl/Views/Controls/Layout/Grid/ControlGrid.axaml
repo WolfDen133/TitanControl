@@ -17,14 +17,22 @@
                 IsSelected="{Binding IsSelected}"
                 CellHeight="{Binding #root.CellHeight}"
                 CellYSpan="{Binding Location.Height}"
+                Halo="{Binding Halo}"
+                IsMoving="{Binding IsMoving}"
+                UserNumber="{Binding UserNumber}"
                 />
         </DataTemplate>
         <DataTemplate DataType="handle:HandleButtonModel">
             <handleControls:HandleButtonControl
                 Halo="{Binding Halo}"
                 Legend="{Binding Legend}"
+                KeyProfile="{Binding KeyProfile}"
                 IsSelected="{Binding IsSelected}"
-                IsMoving="{Binding IsMoving}"/>
+                IsMoving="{Binding IsMoving}"
+                UserNumber="{Binding UserNumber}"
+                PressCommand="{Binding PressCommand}"
+                ReleaseCommand="{Binding ReleaseCommand}"
+                />
         </DataTemplate>
     </UserControl.DataTemplates>
     <UserControl.Styles>

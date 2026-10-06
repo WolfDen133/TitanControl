@@ -9,6 +9,7 @@ using TitanControl.Disk.Resporitory.Session;
 using TitanControl.Disk.Resporitory.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
+using TitanControl.Services.Command;
 using TitanControl.Services.Dialog;
 using TitanControl.Services.Session;
 using TitanControl.Services.Workspace;
@@ -21,8 +22,11 @@ public partial class App : Application
 {
     private const string LoggingCategory = "Application";
 
+    public static IServiceProvider? ServiceProvider { get; private set; }
+
     private ResourceHelper? _resourceHelper;
     private IDisposable? _dispatcherLogging;
+
     public static DialogService DialogService
     {
         get;
@@ -60,10 +64,13 @@ public partial class App : Application
     private async Task StartAsync(IClassicDesktopStyleApplicationLifetime desktop)
     {
         Log.Information("Initializing TitanControl Application", LoggingCategory);
+
         var fileHandler = new FileHandler();
         var workspaceService = new WorkspaceService(new WorkspaceRepository(fileHandler));
         var sessionService = new SessionService(new SessionRepository(fileHandler), workspaceService);
-        var mainWindowModel = new MainWindowModel(workspaceService, sessionService);
+        var commandService = new CommandService(sessionService);
+
+        var mainWindowModel = new MainWindowModel(workspaceService, sessionService, commandService);
 
         try
         {
@@ -85,11 +92,12 @@ public partial class App : Application
 
             await workspaceService.InitializeAsync();
             await sessionService.InitializeAsync();
+            await commandService.InitializeAsync();
 
             Log.Debug("Initializing view models...", LoggingCategory);
             await mainWindowModel.InitializeAsync();
 
-            mainWindow.InitializationCompleted();
+            _ = mainWindow.InitializationCompleted();
             Log.Information("TitanControl started successfully!", "Application");
             
         }

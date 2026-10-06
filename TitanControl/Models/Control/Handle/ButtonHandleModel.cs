@@ -7,9 +7,9 @@ namespace TitanControl.Models.Control.Handle
     {
         public override ControlId ControlId => ControlId.Button;
 
-        public override HandleButtonModel ToInstance(ISessionService service)
+        public override HandleButtonModel ToInstance()
         {
-            return new HandleButtonModel(this, service);
+            return new HandleButtonModel(this);
         }
     }
 }

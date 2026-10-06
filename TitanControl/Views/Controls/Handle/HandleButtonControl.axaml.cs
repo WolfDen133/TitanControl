@@ -7,6 +7,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using System;
 using System.Windows.Input;
+using TitanControl.Logging;
 
 namespace TitanControl.Views.Controls.Handle
 {

@@ -1,7 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:TitanControl"
-        xmlns:data="using:TitanControl.WebAPI.Data">
+        xmlns:controls="using:TitanControl.Views.Controls.Menu"
+        xmlns:data="using:TitanControl.WebAPI.Data"
+        xmlns:helper="using:TitanControl.Helper"
+        xmlns:helpers="using:TitanControl.Helpers">
 
   <!--
     Additional resources 
@@ -64,7 +66,8 @@
 
             <controls:TitanHandleButton
                 HandleType="{x:Static data:HandleType.PlaybackGroup}"
-                Legend="Playback Group"/>
+                Legend="Playback Group"
+                Icon="https://picsum.photos/400/200"/>
         </UniformGrid>
     </Border>
   </Design.PreviewWith>
@@ -103,11 +106,22 @@
                     <Panel 
                         Margin="8" 
                         ZIndex="30">
-                        <TextBlock
-                            FontWeight="Regular"
-                            FontSize="10"
-                            Text="{TemplateBinding UserNumber}"
-                            Foreground="{TemplateBinding Foreground}"/>
+                        <Border 
+                            x:Name="PART_IconBackground"
+                            Background="Transparent"
+                            CornerRadius="5"
+                            Padding="2"
+                            VerticalAlignment="Top" HorizontalAlignment="Left"
+                            ZIndex="20">
+                            <TextBlock
+                                x:Name="PART_UserNumber"
+                                FontWeight="Regular"
+                                FontSize="10"
+                                Text="{TemplateBinding UserNumber}"
+                                Foreground="{TemplateBinding Foreground}"
+                                ZIndex="20"/>
+                        </Border>
+
                         <TextBlock 
                             TextWrapping="Wrap" 
                             HorizontalAlignment="Center" 
@@ -115,12 +129,22 @@
                             TextAlignment="Center"
                             FontWeight="Normal" 
                             FontSize="12" 
+                            IsVisible="{TemplateBinding Icon, Converter={StaticResource ObjectIsNullConverter}}"
                             Text="{TemplateBinding Legend}"
-                            Foreground="{TemplateBinding Foreground}"/>
+                            Foreground="{TemplateBinding Foreground}"
+                            ZIndex="20"/>
+
+                        <Image Source="{TemplateBinding ImageSource}" 
+                               IsVisible="{TemplateBinding Icon, Converter={StaticResource InvertedObjectIsNullConverter}}"
+                               Stretch="Uniform"
+                               HorizontalAlignment="Stretch" 
+                               VerticalAlignment="Stretch"/>
                     </Panel>
                 </Panel>
             </ControlTemplate>
         </Setter>
+
+
 
         <Style Selector="^:pointerover">
             <Setter Property="BorderBrush"
@@ -130,12 +154,12 @@
                     ConverterParameter=0.7}"/>
 
             <Style Selector="^ /template/ Border#PART_Overlay">
-                <Setter Property="Opacity" Value="0.4"/>
+                <Setter Property="Opacity" Value="0.3"/>
             </Style>
         </Style>    
-
-        <Style Selector="^:click">
-            <Setter Property="Background" Value="White"/>
+        
+        <Style Selector="^:selected">
+            <Setter Property="Background" Value="{DynamicResource ForegroundBrush}"/>
             <Setter Property="BorderBrush"
                     Value="{Binding Halo,
                             RelativeSource={RelativeSource Self},
@@ -146,6 +170,21 @@
 
             <Style Selector="^ /template/ Border#PART_Overlay">
                 <Setter Property="Opacity" Value="0.8"/>
+            </Style>
+        </Style>
+
+        <Style Selector="^:pressed">
+            <Setter Property="Background" Value="{DynamicResource ForegroundDisabledBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{Binding Halo,
+                            RelativeSource={RelativeSource Self},
+                            Converter={StaticResource HaloStringToBrushConverter}}"/>
+
+            <Setter Property="Foreground"
+                    Value="{DynamicResource BackgroundDDBrush}"/>
+
+            <Style Selector="^ /template/ Border#PART_Overlay">
+                <Setter Property="Opacity" Value="0.5"/>
             </Style>
         </Style>
 

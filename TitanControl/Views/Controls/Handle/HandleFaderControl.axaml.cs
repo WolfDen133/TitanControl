@@ -152,7 +152,7 @@ namespace TitanControl.Views.Controls.Handle
                 return;
 
             double infoHeight = CellHeight - 1;
-            _info.Height = CellYSpan > 2 ? infoHeight : Bounds.Height / 2;
+            _info.Height = CellYSpan > 2 ? infoHeight : Bounds.Height / 3;
 
             UpdateVisual();
         }

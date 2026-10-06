@@ -16,6 +16,6 @@ namespace TitanControl.Models.Control
         ControlId ControlId { get; }
         Rectangle Location { get; set; }
 
-        T ToInstance<T>(ISessionService service);
+        T ToInstance<T>();
     }
 }

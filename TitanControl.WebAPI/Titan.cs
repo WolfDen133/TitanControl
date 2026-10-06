@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Net.Sockets;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -65,7 +66,20 @@ namespace TitanControl.WebAPI
             };
 
             _queue = new PriorityTaskQueue();
+            CueLists = new CueLists(_http, _queue);
+            Dmx = new Dmx(_http, _queue);
+            Fixtures = new Fixtures(_http, _queue); 
+            Groups = new Groups(_http, _queue);
             Handles = new Handles(_http, _queue);
+            Macros = new Macros(_http, _queue);
+            Masters = new Masters(_http, _queue);
+            Menu = new Menu(_http, _queue);
+            Palettes = new Palettes(_http, _queue);
+            Playbacks = new Playbacks(_http, _queue);
+            Programmer = new Programmer(_http, _queue);
+            SelectIf = new SelectIf(_http, _queue);
+            Selection = new Selection(_http, _queue);
+            SetList = new SetList(_http, _queue);
         }
 
         private static SocketsHttpHandler CreateHandler(IPAddress localInterfaceAddress)
@@ -124,7 +138,20 @@ namespace TitanControl.WebAPI
 
         public Device? ConnectedDevice { get; set; }
 
+        public CueLists CueLists { get; private set; }
+        public Dmx Dmx { get; private set; }
+        public Fixtures Fixtures { get; private set; }
+        public Groups Groups { get; private set; }
         public Handles Handles { get; private set; }
+        public Macros Macros { get; private set; }
+        public Masters Masters { get; private set; }
+        public Menu Menu { get; private set; }
+        public Palettes Palettes { get; private set; }
+        public Playbacks Playbacks { get; private set; }
+        public Programmer Programmer { get; private set; }
+        public SelectIf SelectIf { get; private set; }
+        public Selection Selection { get; private set; }
+        public SetList SetList { get; private set; }
 
         public Task<bool> IsConnected()
         {

@@ -109,9 +109,13 @@
                                   </ItemsControl.ItemsPanel>
                                   <ItemsControl.ItemTemplate>
                                       <DataTemplate>
-                                          <titancontrol:TitanHandleButton 
-                                              UserNumber="{Binding UserNumber}"
-                                              Legend="{Binding Legend}"/>
+                                          <menu:TitanHandleButton 
+                                              UserNumber="{Binding Handle.UserNumber}"
+                                              Legend="{Binding Handle.Legend}"
+                                              Halo="{Binding Handle.Halo}"
+                                              HandleType="{Binding Handle.Type}"
+                                              Icon="{Binding Handle.Icon}"
+                                              IsSelected="{Binding IsSelected, Mode=TwoWay}"/>
                                       </DataTemplate>
                                   </ItemsControl.ItemTemplate>
                               </ItemsControl>

@@ -15,6 +15,7 @@ using TitanControl.ViewModels.Workspace;
 using TitanControl.WebAPI;
 using TitanControl.WebAPI.Data;
 using TitanControl.WebAPI.Data.Model;
+using Tmds.DBus.Protocol;
 
 namespace TitanControl.ViewModels.Page.HandleBrowser
 {
@@ -23,8 +24,8 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
         private const string LoggingCategory = "HandleBrowser ViewModel";
 
         private ISessionService _sessionService;
-        private List<Handle> _handles = new();
-        private ObservableCollection<Handle> _displayHandles = new();
+        private List<HandleEntry> _handles = new();
+        private ObservableCollection<HandleEntry> _displayHandles = new();
         private HandleType _currentTab = HandleType.None;
         private BrowserMode _mode = BrowserMode.Assign;
         private ISession? CurrentSession => _sessionService.CurrentSession;
@@ -33,7 +34,7 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
 
         public event EventHandler<DialogClosedEventArgs>? DialogClosed;
 
-        public ObservableCollection<Handle> Handles
+        public ObservableCollection<HandleEntry> Handles
         {
             get => _displayHandles;
             set => SetProperty(ref _displayHandles, value);
@@ -131,7 +132,7 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
             OnPropertyChanged(nameof(CountDisplay));
 
             if (Handles.Count > 0)
-                await ShowHandles(Handles.FirstOrDefault()!.Type);
+                await ShowHandles(Handles.FirstOrDefault()!.Handle.Type);
         }
         
         private async Task RegisterHandles()
@@ -153,10 +154,10 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
                 if (handle is null)
                     continue;
 
-                _handles.Add(handle);
+                _handles.Add(new HandleEntry { Handle = handle });
             }
 
-            foreach (var group in _handles.GroupBy(x => x.Type))
+            foreach (var group in _handles.GroupBy(x => x.Handle.Type))
             {
                 HandleCount.Add(new HandleCount
                 {
@@ -180,7 +181,7 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
 
         public Task ShowTypeHandles(HandleType type)
         {
-            Handles = [.. _handles.Where(h => h.Type == type)];
+            Handles = [.. _handles.Where(h => h.Handle.Type == type)];
             CurrentTab = type;
 
             OnPropertyChanged(nameof(Count));
@@ -204,11 +205,12 @@ namespace TitanControl.ViewModels.Page.HandleBrowser
         [RelayCommand]
         public void Select()
         {
-            ClosePage(false);
             DialogClosed?.Invoke(this, new DialogClosedEventArgs<List<Handle>>
             {
-                Result = [.. Handles.Where(h => h.Selected)]
+                Result = [.. Handles.Where(h => h.IsSelected).Select(h => h.Handle)]
             });
+
+            ClosePage(false);
         }
 
         [RelayCommand]

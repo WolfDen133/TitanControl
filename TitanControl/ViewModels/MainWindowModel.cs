@@ -9,6 +9,7 @@ using TitanControl.Events;
 using TitanControl.Events.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
+using TitanControl.Services.Command;
 using TitanControl.Services.Dialog;
 using TitanControl.Services.Session;
 using TitanControl.Services.Workspace;
@@ -19,6 +20,7 @@ using TitanControl.ViewModels.Workspace;
 using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.Views.Controls.Toolbar.Buttons;
 using TitanControl.Views.Pages;
+using TitanControl.WebAPI.Data.Model;
 
 namespace TitanControl.ViewModel
 {
@@ -67,13 +69,14 @@ namespace TitanControl.ViewModel
 
         public MainWindowModel(
             IWorkspaceService workspaceService, 
-            ISessionService sessionService)
+            ISessionService sessionService,
+            ICommandService commandService)
         {
             _workspaceService = workspaceService;
             _sessionService = sessionService;
 
             ToolbarModel = new ToolbarModel(sessionService, workspaceService);
-            WorkspaceModel = new WorkspaceViewModel(workspaceService, sessionService, ToolbarModel);
+            WorkspaceModel = new WorkspaceViewModel(workspaceService, sessionService, commandService, ToolbarModel);
         }
 
 
@@ -84,6 +87,7 @@ namespace TitanControl.ViewModel
             await RegisterPageModels();
 
             WorkspaceModel.RequestPage += OnRequestPage;
+            
         }
 
         private async void OnRequestPage(object? sender, PageRequestedEventArgs e)
@@ -116,9 +120,20 @@ namespace TitanControl.ViewModel
                 PageId.Session,
                 new SessionPageModel(_sessionService, _workspaceService));
 
-            await RegisterPageModel(
-                PageId.HandleBrowser, 
-                new HandleBrowserModel(_sessionService, WorkspaceModel));
+            var handleBrowser = new HandleBrowserModel(_sessionService, WorkspaceModel);
+            handleBrowser.DialogClosed += HandleBrowser_DialogClosed;
+
+            await RegisterPageModel(PageId.HandleBrowser, handleBrowser);
+        }
+
+        private void HandleBrowser_DialogClosed(object? sender, DialogClosedEventArgs e)
+        {
+            if (e.Result is not List<Handle> handles)
+                return;
+
+            Log.Debug($"{handles.Any()}");
+
+            WorkspaceModel.ConfirmAssign(handles);
         }
 
         private async Task RegisterPageModel(PageId id, IPageModel model)

@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
+using TitanControl.Helpers;
 using TitanControl.Logging;
 using TitanControl.ViewModels.Workspace.Controls.Handle;
 using TitanControl.Views.Controls.Layout.Grid;
@@ -23,6 +24,9 @@ namespace TitanControl.Views.Controls.Handle
 
         public static readonly StyledProperty<string?> LegendProperty =
             AvaloniaProperty.Register<HandleBaseControl, string?>(nameof(Legend), "HandleLegend");
+        
+        public static readonly StyledProperty<string?> IconProperty =
+            AvaloniaProperty.Register<HandleBaseControl, string?>(nameof(Icon), null);
 
         public static readonly StyledProperty<Bitmap?> ImageProperty =
             AvaloniaProperty.Register<HandleBaseControl, Bitmap?>(nameof(Image));
@@ -44,10 +48,6 @@ namespace TitanControl.Views.Controls.Handle
 
         public static readonly StyledProperty<bool> IsInteractableProperty =
             AvaloniaProperty.Register<HandleBaseControl, bool>(nameof(IsInteractable), true);
-
-
- 
- 
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
@@ -72,9 +72,13 @@ namespace TitanControl.Views.Controls.Handle
                 return;
             }
 
-            if (change.Property == ImageProperty)
+            if (change.Property == IconProperty)
             {
                 HasImage = change.NewValue != null;
+                if (HasImage)
+                    _ = LoadImage();
+                else
+                    Image = null;
             }
         }
 
@@ -89,6 +93,12 @@ namespace TitanControl.Views.Controls.Handle
         {
             get => GetValue(LegendProperty);
             set => SetValue(LegendProperty, value);
+        }
+
+        public string? Icon
+        {
+            get => GetValue(IconProperty);
+            set => SetValue(IconProperty, value);
         }
 
         public Bitmap? Image
@@ -131,6 +141,11 @@ namespace TitanControl.Views.Controls.Handle
         {
             get => GetValue(IsInteractableProperty);
             set => SetValue(IsInteractableProperty, value);
+        }
+
+        private async Task LoadImage()
+        {
+            Image = await ImageHelper.LoadImageAsync(Icon!);
         }
     }
 }

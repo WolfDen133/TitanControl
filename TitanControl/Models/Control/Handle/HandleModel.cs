@@ -18,19 +18,19 @@ namespace TitanControl.Models.Control.Handle
         public Rectangle Location { get; set; }
 
         [JsonPropertyName("titanId")]
-        public int TitanId { get; set; }
+        public int TitanId { get; set; } = -1;
 
         [JsonPropertyName("handleType")]
-        public HandleType HandleType { get; set; }
+        public HandleType HandleType { get; set; } = HandleType.None;
 
         [JsonPropertyName("keyProfile")]
-        public HandleKeyProfile KeyProfile { get; set; }
+        public HandleKeyProfile KeyProfile { get; set; } = HandleKeyProfile.Flash;
 
-        public abstract ISaveable ToInstance(ISessionService service);
+        public abstract ISaveable ToInstance();
 
-        public T ToInstance<T>(ISessionService service)
+        public T ToInstance<T>()
         {
-            return (T)ToInstance(service);
+            return (T)ToInstance();
         }
     }
 }

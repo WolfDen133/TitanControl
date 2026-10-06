@@ -18,20 +18,20 @@ namespace TitanControl.Models.Control.Workspace
         public Rectangle Location { get; set; }
         public List<IHandleModel> Controls { get; set; } = new List<IHandleModel>();
 
-        public IWorkspaceControl ToInstance(ISessionService service)
+        public IWorkspaceControl ToInstance()
         {
             return new GroupControl()
             {
                 Location = this.Location,
                 Controls = new System.Collections.ObjectModel.ObservableCollection<IHandleControl>(
-                    this.Controls.Select(c => c.ToInstance<IHandleControl>(service))
+                    this.Controls.Select(c => c.ToInstance<IHandleControl>())
                 )
             };
         }
 
-        public T ToInstance<T>(ISessionService service)
+        public T ToInstance<T>()
         {
-            return (T)ToInstance(service);
+            return (T)ToInstance();
         }
     }
 }

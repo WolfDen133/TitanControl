@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Humanizer;
 using ShimSkiaSharp.Editing;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -16,6 +17,7 @@ using TitanControl.Logging;
 using TitanControl.Models.Control;
 using TitanControl.Models.Control.Handle;
 using TitanControl.Models.Workspace;
+using TitanControl.Services.Command;
 using TitanControl.Services.Session;
 using TitanControl.Services.Workspace;
 using TitanControl.ViewModel;
@@ -27,6 +29,7 @@ using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.Views.State;
 using TitanControl.WebAPI;
 using TitanControl.WebAPI.Data;
+using TitanControl.WebAPI.Data.Model;
 
 namespace TitanControl.ViewModels.Workspace
 {
@@ -36,10 +39,13 @@ namespace TitanControl.ViewModels.Workspace
 
         private readonly IWorkspaceService _workspaceService;
         private readonly ISessionService _sessionService;
+        private readonly ICommandService _commandService;
+
         private readonly ToolbarModel _toolbar;
 
         public bool ActionAvailable = false;
         public bool Latch = false;
+        private bool _waitingForHandles = false;
 
         private WorkspaceAction _action = WorkspaceAction.None;
         private ControlId _addingControlType;
@@ -64,12 +70,15 @@ namespace TitanControl.ViewModels.Workspace
 
         public event EventHandler<PageRequestedEventArgs>? RequestPage;
 
-        public WorkspaceViewModel(IWorkspaceService workspaceService, 
+        public WorkspaceViewModel(
+            IWorkspaceService workspaceService, 
             ISessionService sessionService, 
+            ICommandService commandService,
             ToolbarModel toolbarModel)
         {
             _workspaceService = workspaceService;
             _sessionService = sessionService;
+            _commandService = commandService;
             _toolbar = toolbarModel;
         }
 
@@ -118,11 +127,16 @@ namespace TitanControl.ViewModels.Workspace
         public void LoadControls()
         {
             foreach (var model in CurrentWorkspace.Controls)
-                AddControl(model.ToInstance<IWorkspaceControl>(_sessionService));
+                AddControl(model.ToInstance<IWorkspaceControl>());
         }
 
         private void AddControl(IWorkspaceControl control)
         {
+            if (control is IHandleControl handleModel)
+            {
+                handleModel.CommandMap = _commandService.Get(handleModel.ControlId);
+            }
+
             Controls.Add(control);
         }
 
@@ -286,7 +300,7 @@ namespace TitanControl.ViewModels.Workspace
 
             CurrentWorkspace.Controls.Add(controlModel);
 
-            AddControl(controlModel.ToInstance<IHandleControl>(_sessionService));
+            AddControl(controlModel.ToInstance<IHandleControl>());
 
             Log.Information($"Added new control of type {_addingControlType} to workspace {CurrentWorkspace.Name}", LoggingCategory);
         }
@@ -317,10 +331,27 @@ namespace TitanControl.ViewModels.Workspace
             RequestPage?.Invoke(this, new()
                 { Page = PageId.HandleBrowser });
 
-            // Open the assign page for the selected controls
-            // Assign the selected controls to the returned titan handle information
-            // Clear selected control list and reset action
-            // Log
+            _waitingForHandles = true;
+        }
+
+        public void ConfirmAssign(List<Handle> handles)
+        {
+            if (!_waitingForHandles)
+                return;
+
+            _waitingForHandles = false;
+
+            var handle = handles.FirstOrDefault() ?? throw new InvalidOperationException("No handle was selected");
+
+            foreach (var selectedControl in SelectedControls)
+            {
+                if (selectedControl is not IHandleControl model)
+                    continue;
+
+                model.HandleInformation = handle;
+            }
+
+            Log.Information($"Set {SelectedControls.Count} controls handle to {handle.Legend}", LoggingCategory);
         }
 
         private void Copy(Rect to)

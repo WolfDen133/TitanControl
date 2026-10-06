@@ -1,11 +1,17 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Drawing;
+using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
+using TitanControl.Logging;
 using TitanControl.Models;
 using TitanControl.Models.Control;
 using TitanControl.Models.Control.Handle;
+using TitanControl.Services.Command;
+using TitanControl.Services.Command.Map;
 using TitanControl.Services.Session;
-using TitanControl.ViewModels.Workspace.Controls.Handle.Command;
+using TitanControl.Views.Controls.Toolbar.Button;
 using TitanControl.WebAPI.Data;
 using HandleInformation = TitanControl.WebAPI.Data.Model.Handle;
 
@@ -17,16 +23,14 @@ namespace TitanControl.ViewModels.Workspace.Controls.Handle
         private bool _isSelected;
         private bool _isMoving;
         private HandleInformation? _handleInformation;
+        private Bitmap? _image;
 
         protected HandleControlModel(
-            HandleModel model,
-            ISessionService sessionService)
+            HandleModel model)
         {
             Model = model;
-            SessionService = sessionService;
         }
 
-        protected ISessionService SessionService { get; }
 
         public HandleModel Model { get; }
 
@@ -85,7 +89,13 @@ namespace TitanControl.ViewModels.Workspace.Controls.Handle
             }
         }
 
-        protected HandleInformation? HandleInformation
+        public Bitmap? Image
+        {
+            get => _image;
+            set => SetProperty(ref _image, value);
+        }
+
+        public HandleInformation? HandleInformation
         {
             get => _handleInformation;
             set
@@ -95,6 +105,8 @@ namespace TitanControl.ViewModels.Workspace.Controls.Handle
 
                 _handleInformation = value;
 
+                Task.Run(TryLoadImage);
+
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(TitanId));
                 OnPropertyChanged(nameof(Halo));
@@ -102,15 +114,39 @@ namespace TitanControl.ViewModels.Workspace.Controls.Handle
             }
         }
 
-        public string? Halo => HandleInformation?.Halo;
-        public string? Legend => HandleInformation?.Legend;
+        public string? Halo => HandleInformation?.Halo ?? "#555555";
+        public string? Legend => HandleInformation?.Legend ?? "New Handle";
         public int? TitanId => HandleInformation?.TitanId;
+        public string? UserNumber => HandleInformation?.UserNumber;
+
+        public ICommandMap? CommandMap { get; set; }
 
         public ISaveModel ToModel() => Model;
 
-        public abstract Task ExecuteAsync();
+        public abstract Task ExecuteAsync(CommandAction action);
 
         public abstract IWorkspaceControl Copy();
+
+        private async Task TryLoadImage()
+        {
+            if (HandleInformation is null)
+            {
+                Image = null;
+                return;
+            }
+
+            var imageUrl = HandleInformation.Icon;
+            if (imageUrl is null)
+            {
+                Image = null;
+                return;
+            }
+
+            var http = new HttpClient();
+            byte[] imageBytes = await http.GetByteArrayAsync(imageUrl);
+            using MemoryStream ms = new MemoryStream(imageBytes);
+            Image = new Bitmap(ms);
+        }
     }
 
     public abstract class HandleControlModel<TModel>
@@ -118,21 +154,24 @@ namespace TitanControl.ViewModels.Workspace.Controls.Handle
         where TModel : HandleModel
     {
         protected HandleControlModel(
-            TModel model,
-            ISessionService sessionService)
-            : base(model, sessionService)
+            TModel model)
+            : base(model)
         { }
 
         public new TModel Model => (TModel)base.Model;
 
         TModel IHandleControl<TModel>.Model => Model;
 
-        protected ICommandMap<TModel> CommandMap { get; set; } = null!;
+        public override async Task ExecuteAsync(CommandAction action)
+        {
+            if (HandleInformation is null || 
+                CommandMap is null)
+                return;
 
-        public override Task ExecuteAsync() =>
-            CommandMap.ExecuteAsync(
+            await CommandMap.ExecuteAsync(
                 KeyProfile,
-                HandleType,
-                Model);
+                HandleInformation,  
+                action);
+        }
     }
 }

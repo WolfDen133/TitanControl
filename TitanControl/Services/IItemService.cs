@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TitanControl.Services
 {
-    public interface IItemService<T, TKey> : INotifyPropertyChanged, IDisposable
+    public interface IItemService<T, TKey> : IService
     {
         Task<T> Create(string id);
         Task Delete(TKey id);
@@ -12,11 +12,6 @@ namespace TitanControl.Services
 
         Task SaveAsync();
         Task LoadAsync();
-
-        Task InitializeAsync()
-        {
-            return null!;
-        }
 
         Task Select(TKey id)
         {

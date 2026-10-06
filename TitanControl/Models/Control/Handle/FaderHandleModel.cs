@@ -7,9 +7,9 @@ namespace TitanControl.Models.Control.Handle
     {
         public override ControlId ControlId => ControlId.Fader;
 
-        public override HandleFaderModel ToInstance(ISessionService service)
+        public override HandleFaderModel ToInstance()
         {
-            return new HandleFaderModel(this, service);
+            return new HandleFaderModel(this);
         }
     }
 }

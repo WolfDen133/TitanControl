@@ -18,6 +18,7 @@ using TitanControl.Events.Workspace;
 using TitanControl.Helper;
 using TitanControl.Logging;
 using TitanControl.ViewModels.Workspace;
+using TitanControl.ViewModels.Workspace.Controls;
 using TitanControl.ViewModels.Workspace.Controls.Handle;
 using TitanControl.Views.State;
 
@@ -56,13 +57,10 @@ public partial class ControlGrid : UserControl
             nameof(DisplayLines),
             defaultValue: true);
 
-    public static readonly StyledProperty<IEnumerable<IHandleControl>>
-        ControlsProperty =
-            AvaloniaProperty.Register<
-                ControlGrid,
-                IEnumerable<IHandleControl>>(
-                    nameof(Controls),
-                    defaultValue: Array.Empty<IHandleControl>());
+    public static readonly StyledProperty<IEnumerable<IWorkspaceControl>> ControlsProperty =
+        AvaloniaProperty.Register<ControlGrid, IEnumerable<IWorkspaceControl>>(
+            nameof(Controls),
+            defaultValue: Array.Empty<IWorkspaceControl>());
 
     public static readonly StyledProperty<bool> SelectOverProperty =
         AvaloniaProperty.Register<ControlGrid, bool>(
@@ -75,15 +73,14 @@ public partial class ControlGrid : UserControl
             defaultValue: false);
 
     public static readonly StyledProperty<WorkspaceAction> CurrentActionProperty =
-     AvaloniaProperty.Register<ControlGrid, WorkspaceAction>(
-         nameof(CurrentAction),
-         defaultValue: WorkspaceAction.None);
+         AvaloniaProperty.Register<ControlGrid, WorkspaceAction>(
+             nameof(CurrentAction),
+             defaultValue: WorkspaceAction.None);
 
-    public static readonly StyledProperty<ObservableCollection<IHandleControl>> SelectedControlsProperty =
-            AvaloniaProperty.Register<
-                ControlGrid, 
-                ObservableCollection<IHandleControl>>(nameof(SelectedControls),
-                    defaultValue: new ObservableCollection<IHandleControl>());
+    public static readonly StyledProperty<ObservableCollection<IWorkspaceControl>> SelectedControlsProperty =
+        AvaloniaProperty.Register<ControlGrid, ObservableCollection<IWorkspaceControl>>(
+            nameof(SelectedControls),
+            defaultValue: new ObservableCollection<IWorkspaceControl>());
 
     public static readonly StyledProperty<double> CellHeightProperty =
         AvaloniaProperty.Register<ControlGrid, double>(nameof(CellHeight), 0d);
@@ -116,13 +113,13 @@ public partial class ControlGrid : UserControl
         set => SetValue(ColumnsProperty, value);
     }
 
-    public IEnumerable<IHandleControl> Controls
+    public IEnumerable<IWorkspaceControl> Controls
     {
         get => GetValue(ControlsProperty);
         set => SetValue(ControlsProperty, value);
     }
 
-    public ObservableCollection<IHandleControl> SelectedControls
+    public ObservableCollection<IWorkspaceControl> SelectedControls
     {
         get => GetValue(SelectedControlsProperty);
         set => SetValue(SelectedControlsProperty, value);
@@ -229,6 +226,8 @@ public partial class ControlGrid : UserControl
             {
                 if (!control.IsSelected)
                     control.IsMoving = true;
+
+                Log.Debug($"Control {control.ControlId} IsMoving: {control.IsMoving}");
             }
 
             return;
@@ -392,14 +391,14 @@ public partial class ControlGrid : UserControl
             .FirstOrDefault();
     }
 
-    private static IHandleControl? ResolveHandleControl(Control container)
+    private static IWorkspaceControl? ResolveHandleControl(Control container)
     {
-        if (container is IHandleControl direct)
+        if (container is IWorkspaceControl direct)
             return direct;
 
         if (container is ContentPresenter
             {
-                Content: IHandleControl content
+                Content: IWorkspaceControl content
             })
         {
             return content;
@@ -407,7 +406,7 @@ public partial class ControlGrid : UserControl
 
         return container
             .GetVisualDescendants()
-            .OfType<IHandleControl>()
+            .OfType<IWorkspaceControl>()
             .FirstOrDefault();
     }
 

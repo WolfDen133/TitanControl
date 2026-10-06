@@ -65,8 +65,6 @@
 
 
     <Style Selector="handle|HandleFaderControl, handle|HandleButtonControl">
-        <Setter Property="Background"
-                Value="{DynamicResource BackgroundBrush}"/>
 
         <Setter Property="BorderThickness"
                 Value="2"/>

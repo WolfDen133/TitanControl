@@ -13,7 +13,10 @@
 
     <Design.PreviewWith>
         <Border Padding="15" Background="{DynamicResource BackgroundBrush}" Width="200" Height="150">
-                <controls:HandleButtonControl VerticalAlignment="Stretch" IsMoving="True"/>
+                <controls:HandleButtonControl 
+                    IsEnabled="True" 
+                    VerticalAlignment="Stretch" 
+                    IsMoving="False"/>
         </Border>
     </Design.PreviewWith>
 
@@ -53,8 +56,6 @@
                                         Foreground="{TemplateBinding Foreground}"
                                         HorizontalAlignment="Center"/>
                                 </Border>
-                                
-                                
 
                                 <TextBlock
                                     x:Name="KeyProfile"
@@ -78,15 +79,10 @@
                             Grid.Row="1"
                                 Margin="5">
 
-                            <Border
-                                CornerRadius="5"
-                                ClipToBounds="True">
-
-                                <Image
-                                    IsVisible="{TemplateBinding HasImage}"
-                                    Source="{TemplateBinding Image}"
-                                    Stretch="UniformToFill"/>
-                            </Border>
+                            <Image
+                                IsVisible="{TemplateBinding HasImage}"
+                                Source="{TemplateBinding Image}"
+                                Stretch="Uniform"/>
 
                             <TextBlock
                                 IsVisible="{TemplateBinding HasImage, Converter={x:Static BoolConverters.Not}}"
